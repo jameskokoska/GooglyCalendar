@@ -9,14 +9,16 @@
   src: url(./fonts/PierSans-Bold.otf) format("opentype");
 }
 :root {
-  --font: rgb(17, 17, 17);
-  --background: rgb(255, 255, 255);
+  --font-color: #111111;
+  --background: #fafafa;
   --highlight: #42424248;
+  --accent: #64b5f6;
 }
 
 
 .screen{
   padding:5vw;
+  height: 100vh;
   background-color: var(--background);
 }
 
@@ -66,6 +68,7 @@
 }
 
 .taskTable{
+  color: var(--font-color);
   overflow-x:auto;
   padding-top: 1%;
   padding-bottom: 1%;
@@ -74,6 +77,7 @@ table.taskList {
   width: 100%;
   min-width: 500px;
   max-width: 800px;
+  border-collapse: separate;
   border-spacing: 10px;
   margin-left: -10px;
 }
@@ -103,23 +107,29 @@ table.taskList {
 }
 
 th.check{
-  width: 25px;
+  width: 50px;
 }
 td.check{
   height: 25px;
   padding-right:5px;
   padding-left:5px;
-  background-color: rgba(0, 0, 255, 0.253);
+  background-color: var(--accent);
   border-radius: 5px;
   text-align:center;
   font-size: 130%;
   cursor: pointer;
   user-select: none;
-  transition: box-shadow 0.5s;
+  transition: all 0.5s;
 }
 td.check:hover{
   box-shadow: 2px 2px 5px 1px var(--highlight);
-  transition: box-shadow 0.2s;
+  filter: brightness(2);
+  transition: all 0.2s;
+}
+td.check:active{
+  box-shadow: 2px 2px 5px 1px var(--background);
+  filter: brightness(1);
+  transition: all 0.1s;
 }
 
 th.date{
@@ -131,10 +141,35 @@ th.course{
 th.type{
   width:15%;
 }
+.settingsIcon{
+  width: 40px;
+  top:1%;
+  right:1%;
+  position: absolute;
+  filter:invert(1);
+  transition: all 0.5s;
+  cursor: pointer;
+}
+.settingsIcon:hover{
+  transform: rotate(65deg);
+}
+
+.fadeIn{
+  opacity:0;
+  animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn{
+  0%{opacity:0}
+  100%{opacity:1}
+}
 
 /* Mobile View */
 @media only screen and (max-width: 767px) {
   .screen{
     padding:3vw;
+  }
+  .settingsIcon{
+    width: 20px;
   }
 }
