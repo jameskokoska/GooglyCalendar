@@ -1,38 +1,140 @@
-.App {
+@font-face {
+  font-family: 'PierSans';
+  font-weight: normal;
+  src: url(./fonts/PierSans-Regular.otf) format("opentype");
+}
+@font-face {
+  font-family: 'PierSansBold';
+  font-weight: normal;
+  src: url(./fonts/PierSans-Bold.otf) format("opentype");
+}
+:root {
+  --font: rgb(17, 17, 17);
+  --background: rgb(255, 255, 255);
+  --highlight: #42424248;
+}
+
+
+.screen{
+  padding:5vw;
+  background-color: var(--background);
+}
+
+.header1{
+  font-size: 50px;
+  font-family: "PierSansBold";
+  color: var(--font-color);
+}
+.header2{
+  font-size: 32px;
+  font-family: "PierSans";
+  color: var(--font-color);
+}
+.header3{
+  font-size: 25px;
+  font-family: "PierSans";
+  color: var(--font-color);
+}
+
+.button{
+  font-size: 20px;
+  border-radius: 50px;
+  padding-top: 13px;
+  padding-bottom: 13px;
+  padding-left: 25px;
+  padding-right: 25px;
+  font-family: 'PierSans';
+  background-color: #3651ef;
+  background-image: linear-gradient(to right, #36D1DC,#5B86E5, #6015a5, #6015a5);
+  background-size:225%;
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
   color: white;
+  display: inline-block;
+  transition: background-position 0.5s, box-shadow 0.1s;
+  box-shadow: 0 2px 8px 0 #00000066;
+  cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.button:hover{
+  background-position:100%;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+.button:active{
+  transition: background-position 0.1s, box-shadow 0.07s;
+  background-position:0%;
+  box-shadow: 0 0.2vw 0.5vw 0 #00000000;
+}
+
+.taskTable{
+  overflow-x:auto;
+  padding-top: 1%;
+  padding-bottom: 1%;
+}
+table.taskList {
+  width: 100%;
+  min-width: 500px;
+  max-width: 800px;
+  border-spacing: 10px;
+  margin-left: -10px;
+}
+.taskList > tbody > tr > th{
+  text-align: left;
+  padding-left:10px;
+  padding-right:10px;
+  font-weight: normal;
+  border-radius: 10px;
+}
+.taskList > tbody > tr > td {
+  padding:10px;
+  border-radius: 10px;
+}
+.taskList > tbody > tr{
+  transition: background-color 0.5s;
+}
+.taskList > tbody > tr:hover{
+  background-color: var(--highlight);
+  transition: background-color 0.2s;
+}
+.taskList > tbody > tr th{
+  background-color: var(--background);
+}
+.taskList > tbody > tr:hover th{
+  background-color: var(--background);
+}
+
+th.check{
+  width: 25px;
+}
+td.check{
+  height: 25px;
+  padding-right:5px;
+  padding-left:5px;
+  background-color: rgba(0, 0, 255, 0.253);
+  border-radius: 5px;
+  text-align:center;
+  font-size: 130%;
+  cursor: pointer;
+  user-select: none;
+  transition: box-shadow 0.5s;
+}
+td.check:hover{
+  box-shadow: 2px 2px 5px 1px var(--highlight);
+  transition: box-shadow 0.2s;
+}
+
+th.date{
+  width:15%;
+}
+th.course{
+  width:15%;
+}
+th.type{
+  width:15%;
+}
+
+/* Mobile View */
+@media only screen and (max-width: 767px) {
+  .screen{
+    padding:3vw;
   }
 }
