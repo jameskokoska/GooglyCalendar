@@ -13,13 +13,16 @@
   --background: #fafafa;
   --highlight: #42424248;
   --accent: #64b5f6;
+  --brightnessIcon: 0;
 }
 
+body{
+  background-color: var(--background);
+}
 
 .screen{
   padding:5vw;
   height: 100vh;
-  background-color: var(--background);
 }
 
 .header1{
@@ -123,7 +126,7 @@ td.check{
 }
 td.check:hover{
   box-shadow: 2px 2px 5px 1px var(--highlight);
-  filter: brightness(2);
+  filter: brightness(1.3);
   transition: all 0.2s;
 }
 td.check:active{
@@ -131,27 +134,52 @@ td.check:active{
   filter: brightness(1);
   transition: all 0.1s;
 }
-
+td.task{
+  font-size: 130%;
+}
 th.date{
-  width:15%;
+  width:20%;
+}
+td.date{
+  font-size: 110%;
+}
+th.time{
+  width:10%;
+}
+td.time{
+  font-size: 110%;
 }
 th.course{
   width:15%;
 }
-th.type{
-  width:15%;
+td.course{
+  font-size: 110%;
 }
 .settingsIcon{
   width: 40px;
+  padding:5px;
   top:1%;
   right:1%;
   position: absolute;
-  filter:invert(1);
+  filter:invert(var(--brightnessIcon));
   transition: all 0.5s;
   cursor: pointer;
 }
 .settingsIcon:hover{
   transform: rotate(65deg);
+}
+.refreshIcon{
+  width: 40px;
+  padding:6px;
+  top:1%;
+  right: 60px;
+  position: absolute;
+  filter:invert(var(--brightnessIcon));
+  transition: all 0.5s;
+  cursor: pointer;
+}
+.refreshIcon:hover{
+  transform: rotate(180deg);
 }
 
 .fadeIn{
@@ -171,5 +199,11 @@ th.type{
   }
   .settingsIcon{
     width: 20px;
+    padding:0px;
+  }
+  .refreshIcon{
+    width: 20px;
+    right: 30px;
+    padding:1px;
   }
 }
