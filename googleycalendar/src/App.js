@@ -23,6 +23,7 @@ export default class App extends React.Component {
     this.handleItemClick = this.handleItemClick.bind(this);
     this.refreshWholeList = this.refreshWholeList.bind(this);
     this.signUpdate = this.signUpdate.bind(this);
+    this.loadSyncData = this.loadSyncData.bind(this);
     this.state ={calendarObjects: "", signStatus:"",};
     ApiCalendar.onLoad(() => {
         this.refreshWholeList();
@@ -48,7 +49,7 @@ export default class App extends React.Component {
     this.setState({ signStatus: ApiCalendar.sign})
   }
 
-  componentDidMount() {
+  loadSyncData() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
       if (value !== null && value !== ""){
         //read saved text
@@ -63,8 +64,18 @@ export default class App extends React.Component {
         this.setState({ numEvents: 20 });
       }
     })
+    AsyncStorage.getItem('hoursBefore').then((value) => {
+      if (value !== null && value !== ""){
+        this.setState({ hoursBefore: value });
+      } else {
+        this.setState({ hoursBefore: 5 });
+      }
+    })
   }
-  
+
+  componentDidMount() {
+    this.loadSyncData();
+  }
       
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     if (name === 'signIn') {
@@ -73,13 +84,13 @@ export default class App extends React.Component {
       ApiCalendar.handleSignoutClick();
     } else if (name==='log'){
       if (ApiCalendar.sign)
-      ApiCalendar.listUpcomingEvents(10)
+      listEvents(10,this.state.hoursBefore)
         .then(({result}: any) => {
           console.log(result.items);
       });
     } else if (name==="changeName") {
       if (ApiCalendar.sign) 
-        ApiCalendar.listUpcomingEvents(1)
+        listEvents(1,this.state.hoursBefore)
         .then(({result}: any) => {
           const event = {
             summary: "✔️" + result.items[0].summary
@@ -89,7 +100,7 @@ export default class App extends React.Component {
       });
     } else if (name==='populate'){
       if (ApiCalendar.sign)
-        ApiCalendar.listUpcomingEvents(this.state.numEvents)
+        listEvents(this.state.numEvents,this.state.hoursBefore)
           .then(({result}: any) => {
             var calendarObjects= result.items
             this.setState({
@@ -119,14 +130,16 @@ export default class App extends React.Component {
   }
   
   refreshWholeList() {
-    if (ApiCalendar.sign)
-      ApiCalendar.listUpcomingEvents(this.state.numEvents)
+    if (ApiCalendar.sign){
+      this.loadSyncData();
+      listEvents(this.state.numEvents,this.state.hoursBefore)
         .then(({result}: any) => {
           var calendarObjects= result.items
           this.setState({
             calendarObjects: calendarObjects,
         })
       });
+    }
   }
   
   render(): ReactNode {
@@ -151,7 +164,7 @@ export default class App extends React.Component {
           Log
         </Button>
         <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors}/>
+        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms"}}>
@@ -193,7 +206,7 @@ class Refresh extends React.Component{
     }
     return(
       <div>
-        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"absolute","bottom":"1%","right":"1%"}}>
+        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"1%","right":"1%"}}>
           <Toast.Header>
             <strong className="mr-auto">{message}</strong>
           </Toast.Header>
@@ -250,6 +263,13 @@ class Settings extends React.Component{
         this.setState({ numEvents: 20 });
       }
     })
+    AsyncStorage.getItem('hoursBefore').then((value) => {
+      if (value !== null){
+        this.setState({ hoursBefore: value });
+      } else {
+        this.setState({ hoursBefore: 5 });
+      }
+    })
   }
 
   handleChange(event) {
@@ -260,6 +280,8 @@ class Settings extends React.Component{
       }
     } else if(event.target.name==="numEvents"){
       AsyncStorage.setItem('numEventsKey', event.target.value);
+    } else if(event.target.name==="hoursBefore"){
+      AsyncStorage.setItem('hoursBefore', event.target.value);
     }
   }
 
@@ -283,14 +305,21 @@ class Settings extends React.Component{
                 <Form.Label>Calendar ID</Form.Label>
                 <Form.Control name="calendarID" onChange={this.handleChange} placeholder="example@group.calendar.google.com" defaultValue={this.state.calendarID}/>
                 <Form.Text className="text-muted">
-                  By keeping this blank it will be the default calendar. To reset this field, remove everything and refresh the webpage.
+                  By keeping this blank it will be the default calendar. Refresh webpage to see changes. To reset this field, remove everything and refresh the webpage.
                 </Form.Text>
               </Form.Group>
               <Form.Group>
                 <Form.Label>Number of events to load</Form.Label>
                 <Form.Control name="numEvents" onChange={this.handleChange} placeholder="20" defaultValue={this.state.numEvents}/>
                 <Form.Text className="text-muted">
-                  The number of upcoming events to load from the calendar. Refresh the webpage to see changes.
+                  The number of upcoming events to load from the calendar. Refresh to see changes.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Number of hours before to load</Form.Label>
+                <Form.Control name="hoursBefore" onChange={this.handleChange} placeholder="5" defaultValue={this.state.hoursBefore}/>
+                <Form.Text className="text-muted">
+                  How many hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
             </Form>
@@ -315,7 +344,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore}/>
       </div>
     )
   }
@@ -328,7 +357,7 @@ function TaskTable(props){
   var courseColor = "";
   for (var i = 0; i < props.calendarObjects.length; i++) {
     var done;
-    if(props.calendarObjects[i].summary.substring(0,2)==="✔️"){
+    if(props.calendarObjects[i].summary !== undefined && props.calendarObjects[i].summary.length>=2 && props.calendarObjects[i].summary.substring(0,2)==="✔️"){
       done=true
       name=props.calendarObjects[i].summary.substring(2)
     } else {
@@ -336,10 +365,17 @@ function TaskTable(props){
       name=props.calendarObjects[i].summary
     }
     var date = displayDate(new Date(props.calendarObjects[i].start.dateTime))
+    if (date==="All day"){
+      date = displayDate(new Date(props.calendarObjects[i].start.date))
+    }
     var time = displayTime(new Date(props.calendarObjects[i].start.dateTime))
-    if(/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
+    if(props.calendarObjects[i].summary !== undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
       course=name.substring(0,6);
-      name=name.substring(7);
+      if(name.substring(7,7)!==" "){
+        name=name.substring(6);
+      } else {
+        name=name.substring(7);
+      }
       var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
       courseColor=props.courseColors[courseRandomCode%props.courseColors.length];
     } else {
@@ -356,6 +392,7 @@ function TaskTable(props){
       courseColor={courseColor}
       done={done}
       id={props.calendarObjects[i].id}
+      hoursBefore={props.hoursBefore}
       />
     );
   }
@@ -386,7 +423,7 @@ class TaskEntry extends React.Component{
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     if (name==="checkOff") {
       if (ApiCalendar.sign){
-        ApiCalendar.listUpcomingEvents(1)
+        listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
           const event = {
             summary: "✔️" + this.props.course + " " + this.props.name
@@ -401,7 +438,7 @@ class TaskEntry extends React.Component{
       }
     } else if (name==="uncheckOff") {
       if (ApiCalendar.sign){
-        ApiCalendar.listUpcomingEvents(1)
+        listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
           const event = {
             summary: this.props.course + " " + this.props.name //remove the check-mark, because no check-mark is ever passed in
@@ -446,63 +483,70 @@ class TaskEntry extends React.Component{
 
 
 function displayDate(date){
-  var output="";
-  var weekDay="";
-  var month="";
-  if(date.getDay()===0){
-    weekDay="Sunday";
-  } else if (date.getDay()===1){
-    weekDay="Monday";
-  } else if (date.getDay()===2){
-    weekDay="Tuesday";
-  } else if (date.getDay()===3){
-    weekDay="Wednesday";
-  } else if (date.getDay()===4){
-    weekDay="Thursday";
-  } else if (date.getDay()===5){
-    weekDay="Friday";
-  } else if (date.getDay()===6){
-    weekDay="Saturday";
+  if(isNaN(date.getMonth())&&isNaN(date.getDay())&&isNaN(date.getDate())){
+    return "All day"
+  } else {
+    var output="";
+    var weekDay="";
+    var month="";
+    if(date.getDay()===0){
+      weekDay="Sunday";
+    } else if (date.getDay()===1){
+      weekDay="Monday";
+    } else if (date.getDay()===2){
+      weekDay="Tuesday";
+    } else if (date.getDay()===3){
+      weekDay="Wednesday";
+    } else if (date.getDay()===4){
+      weekDay="Thursday";
+    } else if (date.getDay()===5){
+      weekDay="Friday";
+    } else if (date.getDay()===6){
+      weekDay="Saturday";
+    }
+    if(date.getMonth()===0){
+      month="Jan."
+    } else if (date.getMonth()===1){
+      month="Feb."
+    } else if (date.getMonth()===2){
+      month="Mar."
+    } else if (date.getMonth()===3){
+      month="Apr."
+    } else if (date.getMonth()===4){
+      month="May"
+    } else if (date.getMonth()===5){
+      month="June"
+    } else if (date.getMonth()===6){
+      month="July"
+    } else if (date.getMonth()===7){
+      month="Aug."
+    } else if (date.getMonth()===8){
+      month="Sept."
+    } else if (date.getMonth()===9){
+      month="Oct."
+    } else if (date.getMonth()===10){
+      month="Nov."
+    } else if (date.getMonth()===11){
+      month="Dec."
+    }
+    output=weekDay+" "+month+" " + date.getDate()
+    return output;
   }
-  if(date.getMonth()===0){
-    month="Jan."
-  } else if (date.getMonth()===1){
-    month="Feb."
-  } else if (date.getMonth()===2){
-    month="Mar."
-  } else if (date.getMonth()===3){
-    month="Apr."
-  } else if (date.getMonth()===4){
-    month="May"
-  } else if (date.getMonth()===5){
-    month="June"
-  } else if (date.getMonth()===6){
-    month="July"
-  } else if (date.getMonth()===7){
-    month="Aug."
-  } else if (date.getMonth()===8){
-    month="Sept."
-  } else if (date.getMonth()===9){
-    month="Oct."
-  } else if (date.getMonth()===10){
-    month="Nov."
-  } else if (date.getMonth()===11){
-    month="Dec."
-  }
-  output=weekDay+" "+month+" " + date.getDate()
-  return output;
 }
 
 function displayTime(date){
-  var output = "";
-  var minutes = date.getMinutes();
-  if(minutes<=9){
-    minutes="0"+minutes;
-  }
-  var hours = date.getHours();
-  output = hours+":"+minutes;
-  return output;
-
+  if(isNaN(date.getHours())&&isNaN(date.getMinutes())){
+    return "All day"
+  } else {
+    var output = "";
+    var minutes = date.getMinutes();
+    if(minutes<=9){
+      minutes="0"+minutes;
+    }
+    var hours = date.getHours();
+    output = hours+":"+minutes;
+    return output;
+  } 
 }
 
 // class AddTask extends React.Component {
@@ -532,3 +576,22 @@ function Header1(props){
 //     </div>
 //   )
 // }
+
+function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) { 
+    var datePast = new Date()
+    datePast.setHours(datePast.getHours()-hoursPast)
+        if (ApiCalendar.gapi) {
+          return ApiCalendar.gapi.client.calendar.events.list({
+                  'calendarId': calendarId,
+                  'timeMin': (datePast).toISOString(),
+                  'showDeleted': false,
+                  'singleEvents': true,
+                  'maxResults': maxResults,
+                  'orderBy': 'startTime'
+          });
+        }
+        else {
+          console.log("Error: this.gapi not loaded");
+          return false;
+        }
+    }
