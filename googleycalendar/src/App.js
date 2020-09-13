@@ -19,7 +19,13 @@ export default class App extends React.Component {
     super(props);
     this.handleItemClick = this.handleItemClick.bind(this);
     this.refreshWholeList = this.refreshWholeList.bind(this);
-    this.state ={calendarObjects: ""};
+    this.signUpdate = this.signUpdate.bind(this);
+    this.state ={calendarObjects: "", signStatus:ApiCalendar.sign};
+    ApiCalendar.onLoad(() => {
+        this.refreshWholeList();
+        ApiCalendar.listenSign(this.signUpdate);
+        this.setState({ signStatus: ApiCalendar.sign})
+    });
     var currentHours = new Date().getHours();
     //Dark mode colors
     if(currentHours > 19 || currentHours < 7){
@@ -29,6 +35,10 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--accent', "#1565c0c9");
     }
   }
+
+   signUpdate() {
+        this.setState({ signStatus: ApiCalendar.sign})
+    }
 
   componentDidMount() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
@@ -45,9 +55,6 @@ export default class App extends React.Component {
         this.setState({ numEvents: 20 });
       }
     })
-    this.timeoutHandle = setTimeout(()=>{
-        this.refreshWholeList()
-    }, 500);
   }
   
       
@@ -63,7 +70,7 @@ export default class App extends React.Component {
           console.log(result.items);
       });
     } else if (name==="changeName") {
-      if (ApiCalendar.sign)
+      if (ApiCalendar.sign) 
         ApiCalendar.listUpcomingEvents(1)
         .then(({result}: any) => {
           const event = {
@@ -96,10 +103,20 @@ export default class App extends React.Component {
   }
   
   render(): ReactNode {
+    var signStatusDisplay="none"
+    if(this.state.signStatus){
+      signStatusDisplay="none"
+    } else {
+      signStatusDisplay=""
+    }
     return (
       <div className="screen">
+        <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects}/>
-        <Settings refreshWholeList={this.refreshWholeList}/>
+        <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
+        <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms"}}>
+          You are not signed-in. Sign in in the settings.
+        </div>
       </div>
     );
   }
@@ -116,9 +133,10 @@ function ButtonStyle(props){
 class Settings extends React.Component{
   constructor(props) {
     super(props);
-    this.state ={settingsOpen: false};
+    this.state ={settingsOpen: false, signStatus: this.props.signStatus};
     this.loadInputs = this.loadInputs.bind(this);
   }
+
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     if (name === 'openSettings') {
       this.loadInputs();
@@ -132,10 +150,12 @@ class Settings extends React.Component{
       this.setState({
         settingsOpen: false,
       })
-    } else if (name === 'signIn') {
-      ApiCalendar.handleAuthClick();
-    } else if (name === 'signOut') {
-      ApiCalendar.handleSignoutClick();
+    } else if (name === 'signInOut') {
+      if(this.props.signStatus){
+        ApiCalendar.handleSignoutClick();
+      } else {
+        ApiCalendar.handleAuthClick();
+      }
     }
   }
 
@@ -170,6 +190,12 @@ class Settings extends React.Component{
   }
 
   render(){
+    var signInOutLabel;
+    if(this.props.signStatus){
+      signInOutLabel = "Logout"
+    } else {
+      signInOutLabel = "Login"
+    }
     return(
       <div>
         <img alt="open settings" onClick={(e) => this.handleItemClick(e, "openSettings")} src={settingsIcon} className="settingsIcon"/>
@@ -194,15 +220,12 @@ class Settings extends React.Component{
                 </Form.Text>
               </Form.Group>
             </Form>
-            <div onClick={(e) => this.handleItemClick(e, "signIn")} style={{"float":"left"}}>
-              <ButtonStyle label="Login"/>
+            <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"float":"left"}}>
+              <ButtonStyle label={signInOutLabel}/>
             </div>
-            <div onClick={(e) => this.handleItemClick(e, "signOut")} style={{"float":"right"}}>
-              <ButtonStyle label="Logout"/>
-            </div>
-            <div style={{"textAlign":"center", "margin-top":"50px"}}>Exiting settings will load the calendar.</div>
           </Modal.Body>
           <Modal.Footer>
+            <div style={{"textAlign":"left","paddingRight":"10px"}}>Exiting settings will load the calendar.</div>
             <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "closeSettings")}>
               Close
             </Button>
@@ -219,7 +242,6 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <Header1 content="Tasks"/>
         <TaskTable calendarObjects={this.props.calendarObjects}/>
       </div>
     )
