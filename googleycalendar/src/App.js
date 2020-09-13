@@ -153,7 +153,7 @@ export default class App extends React.Component {
         <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
-        <Refresh refreshWholeList={this.refreshWholeList}/>
+        <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms"}}>
           You are not signed-in. Sign-in in the settings.
         </div>
@@ -185,16 +185,22 @@ class Refresh extends React.Component{
     } 
   }
   render(){
-      return(
-        <div>
-          <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"absolute","bottom":"1%","right":"1%"}}>
-            <Toast.Header>
-              <strong className="mr-auto">Refreshed!</strong>
-            </Toast.Header>
-          </Toast>
-          <img alt="refresh" onClick={(e) => this.handleItemClick(e, "refresh")} src={refreshIcon} className="refreshIcon"/>
-        </div>
-      )
+    var message="";
+    if(!this.props.signStatus){
+      message="You are not signed in!"
+    } else {
+      message="Refreshed!"
+    }
+    return(
+      <div>
+        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"absolute","bottom":"1%","right":"1%"}}>
+          <Toast.Header>
+            <strong className="mr-auto">{message}</strong>
+          </Toast.Header>
+        </Toast>
+        <img alt="refresh" onClick={(e) => this.handleItemClick(e, "refresh")} src={refreshIcon} className="refreshIcon"/>
+      </div>
+    )
   }
 }
 
@@ -289,12 +295,12 @@ class Settings extends React.Component{
               </Form.Group>
             </Form>
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999". <br/>3 letters followed by 3 numbers.</p>
-            <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"float":"left"}}>
-              <ButtonStyle label={signInOutLabel}/>
-            </div>
           </Modal.Body>
           <Modal.Footer>
-            <div style={{"textAlign":"left","paddingRight":"10px"}}>Exiting settings will load the calendar.</div>
+            <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"left":"5px","position":"absolute"}}>
+              <ButtonStyle label={signInOutLabel}/>
+            </div>
+            <div style={{"textAlign":"left","paddingRight":"10px"}}>Closing settings will load the calendar.</div>
             <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "closeSettings")}>
               Close
             </Button>

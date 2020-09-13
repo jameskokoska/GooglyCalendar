@@ -20,6 +20,27 @@ body{
   background-color: var(--background);
 }
 
+::-webkit-scrollbar {
+  width: 13px;
+}
+
+::-webkit-scrollbar-track {
+  background:var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(95, 95, 95); 
+  border-radius: 25px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(119, 119, 119); 
+}
+
+::-webkit-scrollbar-thumb:active{
+  background:rgb(78, 78, 78); 
+}
+
 .screen{
   padding:5vw;
   height: 100vh;
