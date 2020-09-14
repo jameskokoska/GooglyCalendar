@@ -57,6 +57,9 @@ export default class App extends React.Component {
         //read saved text
         this.setState({ calendarID: value });
         ApiCalendar.setCalendar(value)
+      } else {
+        this.setState({ calendarID: "primary" });
+        ApiCalendar.setCalendar("primary")
       }
     })
     AsyncStorage.getItem('numEventsKey').then((value) => {
@@ -399,6 +402,7 @@ function TaskTable(props){
   var name = "";
   var course = "";
   var courseColor = "";
+  var courseRandomCode;
   for (var i = 0; i < props.calendarObjects.length; i++) {
     var done;
     if(props.calendarObjects[i].summary !== undefined && props.calendarObjects[i].summary.length>=2 && props.calendarObjects[i].summary.substring(0,2)==="✔️"){
@@ -418,9 +422,9 @@ function TaskTable(props){
     if(determineTaskName(props.calendarObjects[i].summary)!==props.calendarObjects[i].summary){
       course=determineTaskCourse(props.calendarObjects[i].summary);
       if(course.length>6){
-        var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
+        courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
       } else {
-        var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
+        courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
       }
       courseColor=props.courseColors[courseRandomCode%props.courseColors.length];
       name=determineTaskName(props.calendarObjects[i].summary);
