@@ -208,6 +208,17 @@ td.course{
   animation: fadeIn 0.5s forwards;
 }
 
+.hoverSort{
+  opacity:1;
+  transition: all 0.5s;
+}
+.hoverSort:hover{
+  opacity:0.5;
+  cursor: pointer;
+  transition: all 0.5s;
+  text-shadow: 2px 2px 5px 1px var(--highlight);
+}
+
 @keyframes fadeIn{
   0%{opacity:0}
   100%{opacity:1}

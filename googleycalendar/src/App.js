@@ -15,6 +15,7 @@ import "animate.css/animate.min.css";
 //TODO:
 //Add sorting by category
 //Add events 
+//load only week of events next 7 days
 //next 7 day calendar view
 
 export default class App extends React.Component {
@@ -24,6 +25,7 @@ export default class App extends React.Component {
     this.refreshWholeList = this.refreshWholeList.bind(this);
     this.signUpdate = this.signUpdate.bind(this);
     this.loadSyncData = this.loadSyncData.bind(this);
+    this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
     this.state ={calendarObjects: "", signStatus:"",};
     ApiCalendar.onLoad(() => {
         this.refreshWholeList();
@@ -71,10 +73,36 @@ export default class App extends React.Component {
         this.setState({ hoursBefore: 5 });
       }
     })
+    AsyncStorage.getItem('lastSort').then((value) => {
+      if (value !== null && value !== ""){
+        this.setState({ lastSort: value });
+      } else {
+        this.setState({ lastSort: "sortDate" });
+      }
+    })
   }
 
   componentDidMount() {
-    this.loadSyncData();
+    this.loadSyncData();  
+  }
+
+  sortCalendarObjects(type){
+    if(type==="sortName"){
+      AsyncStorage.setItem("lastSort", "sortName");
+      this.setState({
+        calendarObjects: sortName(this.state.calendarObjects),
+      })
+    } else if(type==="sortDate") {
+      AsyncStorage.setItem("lastSort", "sortDate");
+      this.setState({
+        calendarObjects: sortDate(this.state.calendarObjects),
+      })
+    } else if(type==="sortCourse") {
+      AsyncStorage.setItem("lastSort", "sortCourse");
+      this.setState({
+        calendarObjects: sortCourse(this.state.calendarObjects),
+      })
+    }
   }
       
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
@@ -107,6 +135,12 @@ export default class App extends React.Component {
               calendarObjects: calendarObjects,
           })
         });
+    } else if (name==='sortName'){
+      this.sortCalendarObjects('sortName')
+    } else if (name==='sortCourse'){
+      this.sortCalendarObjects('sortCourse')
+    } else if (name==='sortDate'){
+      this.sortCalendarObjects('sortDate')
     } else if (name==='addEvent'){
       const event = {
         summary: "addTest",
@@ -138,6 +172,7 @@ export default class App extends React.Component {
           this.setState({
             calendarObjects: calendarObjects,
         })
+        this.sortCalendarObjects(this.state.lastSort)
       });
     }
   }
@@ -163,8 +198,17 @@ export default class App extends React.Component {
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
           Log
         </Button>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortName")}>
+          sortName
+        </Button>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortCourse")}>
+          sortCourse
+        </Button>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
+          sortDate
+        </Button>
         <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore}/>
+        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms"}}>
@@ -323,7 +367,7 @@ class Settings extends React.Component{
                 </Form.Text>
               </Form.Group>
             </Form>
-            <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999". <br/>3 letters followed by 3 numbers.</p>
+            <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXX9999". <br/>3 letters followed by 3 or 4 numbers.</p>
           </Modal.Body>
           <Modal.Footer>
             <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"left":"5px","position":"absolute"}}>
@@ -344,7 +388,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} sortCalendarObjects={this.props.sortCalendarObjects}/>
       </div>
     )
   }
@@ -369,20 +413,23 @@ function TaskTable(props){
       date = displayDate(new Date(props.calendarObjects[i].start.date))
     }
     var time = displayTime(new Date(props.calendarObjects[i].start.dateTime))
-    if(props.calendarObjects[i].summary !== undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
-      course=name.substring(0,6);
-      if(name.substring(7,7)!==" "){
-        name=name.substring(6);
+
+    //if the task name is the same, there is no course
+    if(determineTaskName(props.calendarObjects[i].summary)!==props.calendarObjects[i].summary){
+      course=determineTaskCourse(props.calendarObjects[i].summary);
+      if(course.length>6){
+        var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
       } else {
-        name=name.substring(7);
+        var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
       }
-      var courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
       courseColor=props.courseColors[courseRandomCode%props.courseColors.length];
+      name=determineTaskName(props.calendarObjects[i].summary);
     } else {
       course = "";
       courseRandomCode = -1;
       courseColor="";
     }
+
     tasks.push(
       <TaskEntry
       name={name}
@@ -402,10 +449,10 @@ function TaskTable(props){
         <tbody>
           <tr>
             <th className="check"></th>
-            <th className="task header3">Task</th>
-            <th className="date header3">Date</th>
+            <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
+            <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
             <th className="time header3">Time</th>
-            <th className="course header3">Course</th>
+            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
           {tasks}
         </tbody>
@@ -578,20 +625,105 @@ function Header1(props){
 // }
 
 function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) { 
-    var datePast = new Date()
-    datePast.setHours(datePast.getHours()-hoursPast)
-        if (ApiCalendar.gapi) {
-          return ApiCalendar.gapi.client.calendar.events.list({
-                  'calendarId': calendarId,
-                  'timeMin': (datePast).toISOString(),
-                  'showDeleted': false,
-                  'singleEvents': true,
-                  'maxResults': maxResults,
-                  'orderBy': 'startTime'
-          });
-        }
-        else {
-          console.log("Error: this.gapi not loaded");
-          return false;
-        }
+  var datePast = new Date()
+  datePast.setHours(datePast.getHours()-hoursPast)
+  if (ApiCalendar.gapi) {
+    return ApiCalendar.gapi.client.calendar.events.list({
+            'calendarId': calendarId,
+            'timeMin': (datePast).toISOString(),
+            'showDeleted': false,
+            'singleEvents': true,
+            'maxResults': maxResults,
+            'orderBy': 'startTime'
+    });
+  }
+  else {
+    console.log("Error: this.gapi not loaded");
+    return false;
+  }
+}
+
+function sortName(calendarObjects){
+  var sortedCalendarObjects = calendarObjects;
+  calendarObjects.sort(function(a, b) {
+    var textA = determineTaskName(a.summary).toUpperCase();
+    var textB = determineTaskName(b.summary).toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
+  return sortedCalendarObjects;
+}
+
+function sortCourse(calendarObjects){
+  var sortedCalendarObjects = calendarObjects;
+  calendarObjects.sort(function(a, b) {
+    var textA = determineTaskCourse(a.summary).toUpperCase();
+    var textB = determineTaskCourse(b.summary).toUpperCase();
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
+  return sortedCalendarObjects;
+}
+
+function sortDate(calendarObjects){
+  var sortedCalendarObjects = calendarObjects;
+  calendarObjects.sort(function(a, b) {
+    var textA = determineRawSecondsTime(a.start);
+    var textB = determineRawSecondsTime(b.start);
+    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
+  return sortedCalendarObjects;
+}
+
+function determineRawSecondsTime(start){
+  if(start.dateTime!==undefined){
+    return new Date(start.dateTime).valueOf();
+  } else if(start.date!==undefined){
+    return new Date(start.date).valueOf();
+  } else {
+    return 0;
+  }
+}
+
+//this will determine the task name without the check-mark and course
+function determineTaskName(summary){
+  var name;
+  if(summary !== undefined && summary.length>=2 && summary.substring(0,2)==="✔️"){
+    name=summary.substring(2);
+  } else {
+    name=summary;
+  }
+  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(3,7))&&!/\d/.test(name.substring(0,3))){
+    if(name.substring(7,8)!==" "){
+      name=name.substring(7);
+    } else {
+      name=name.substring(8);
     }
+  } else if(summary!==undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
+    if(name.substring(6,7)!==" "){
+      name=name.substring(6);
+    } else {
+      name=name.substring(7);
+    }
+  }  else {
+      name=summary;
+  }
+  return name;
+}
+
+function determineTaskCourse(summary){
+  var course;
+  var name;
+  if(summary !== undefined && summary.length>=2 && summary.substring(0,2)==="✔️"){
+    name=summary.substring(2);
+  } else {
+    name=summary;
+  }
+
+  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(3,7))&&!/\d/.test(name.substring(0,3))){
+    course=name.substring(0,7);
+  } else if(summary!==undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
+    course=name.substring(0,6);
+  }  else {
+    course="None";
+  }
+  return course;
+}
