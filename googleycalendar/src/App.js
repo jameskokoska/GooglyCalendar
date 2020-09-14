@@ -53,13 +53,13 @@ export default class App extends React.Component {
 
   loadSyncData() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
-      if (value !== null){
+      if (value !== undefined && value !== ""){
         //read saved text
         this.setState({ calendarID: value });
         ApiCalendar.setCalendar(value)
       } else {
         this.setState({ calendarID: "primary" });
-        ApiCalendar.setCalendar("primary")
+        ApiCalendar.setCalendar("primary");
       }
     })
     AsyncStorage.getItem('numEventsKey').then((value) => {
@@ -220,7 +220,7 @@ export default class App extends React.Component {
           You are not signed-in. Sign-in in the settings.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms"}}>
-          There are no events for this calendar. Add some and refresh to view.
+          There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
       </div>
     );
@@ -373,12 +373,13 @@ class Settings extends React.Component{
               </Form.Group>
             </Form>
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXX9999". <br/>3 letters followed by 3 or 4 numbers.</p>
+            <p>You can sort each category by clicking each category header.</p>
+            <p>Closing settings will load the calendar. A refresh is required once logged in for the first time!</p>
           </Modal.Body>
           <Modal.Footer>
             <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"left":"5px","position":"absolute"}}>
               <ButtonStyle label={signInOutLabel}/>
             </div>
-            <div style={{"textAlign":"left","paddingRight":"10px"}}>Closing settings will load the calendar.</div>
             <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "closeSettings")}>
               Close
             </Button>
