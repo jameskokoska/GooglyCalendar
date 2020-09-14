@@ -4,6 +4,11 @@
   src: url(./fonts/PierSans-Regular.otf) format("opentype");
 }
 @font-face {
+  font-family: 'PierSansLight';
+  font-weight: normal;
+  src: url(./fonts/PierSans-Light.otf) format("opentype");
+}
+@font-face {
   font-family: 'PierSansBold';
   font-weight: normal;
   src: url(./fonts/PierSans-Bold.otf) format("opentype");
@@ -96,6 +101,7 @@ body{
   overflow-x:auto;
   padding-top: 1%;
   padding-bottom: 1%;
+  font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
 }
 table.taskList {
   width: 100%;
@@ -171,10 +177,11 @@ td.time{
   font-size: 110%;
 }
 th.course{
-  width:15%;
+  width:9%;
 }
 td.course{
-  font-size: 110%;
+  font-size: 120%;
+  text-align: right;
 }
 .settingsIcon{
   width: 40px;

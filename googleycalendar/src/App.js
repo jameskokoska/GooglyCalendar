@@ -13,7 +13,6 @@ import "animate.css/animate.min.css";
 
 
 //TODO:
-//Add sorting by category
 //Add events 
 //load only week of events next 7 days
 //next 7 day calendar view
@@ -233,7 +232,7 @@ export default class App extends React.Component {
     }
     return (
       <div className="screen">
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
           Add
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
@@ -250,7 +249,7 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
           sortDate
-        </Button>
+        </Button> */}
         <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
@@ -493,11 +492,11 @@ function TaskTable(props){
       <table className="taskList">
         <tbody>
           <tr>
-            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort">Check</div></th>
+            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
+            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort">✔️</div></th>
             <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
             <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
             <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
-            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
           {tasks}
         </tbody>
@@ -582,11 +581,11 @@ class TaskEntry extends React.Component{
     }
     return(
       <tr className="taskEntry fadeIn">
+        <td className="course">{this.props.course}</td>
         <td style={{"backgroundColor":checkMarkBG}}className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><div dangerouslySetInnerHTML={{ __html: checkMark}}></div></td>
         <td className="task" style={{"textDecoration":textStyle, "color":checkColor}}>{this.props.name}</td>
         <td className="date">{this.props.date}</td>
         <td className="time">{this.props.time}</td>
-        <td className="course">{this.props.course}</td>
       </tr>
     )
   }
