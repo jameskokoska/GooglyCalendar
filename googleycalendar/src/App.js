@@ -479,7 +479,7 @@ class TaskEntry extends React.Component{
       if (ApiCalendar.sign){
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
-          navigator.vibrate([30]);
+          //navigator.vibrate([30]);
           const event = {
             summary: "✔️" + this.props.course + " " + this.props.name
           };
@@ -495,7 +495,7 @@ class TaskEntry extends React.Component{
       if (ApiCalendar.sign){
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
-          navigator.vibrate([10]);
+          //navigator.vibrate([10]);
           const event = {
             summary: this.props.course + " " + this.props.name //remove the check-mark, because no check-mark is ever passed in
           };
