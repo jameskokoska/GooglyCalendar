@@ -53,7 +53,7 @@ export default class App extends React.Component {
 
   loadSyncData() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
-      if (value !== null && value !== ""){
+      if (value !== null){
         //read saved text
         this.setState({ calendarID: value });
         ApiCalendar.setCalendar(value)
@@ -90,21 +90,23 @@ export default class App extends React.Component {
   }
 
   sortCalendarObjects(type){
-    if(type==="sortName"){
-      AsyncStorage.setItem("lastSort", "sortName");
-      this.setState({
-        calendarObjects: sortName(this.state.calendarObjects),
+    if(this.state.signStatus){
+      if(type==="sortName"){
+        AsyncStorage.setItem("lastSort", "sortName");
+        this.setState({
+          calendarObjects: sortName(this.state.calendarObjects),
       })
-    } else if(type==="sortDate") {
-      AsyncStorage.setItem("lastSort", "sortDate");
-      this.setState({
-        calendarObjects: sortDate(this.state.calendarObjects),
-      })
-    } else if(type==="sortCourse") {
-      AsyncStorage.setItem("lastSort", "sortCourse");
-      this.setState({
-        calendarObjects: sortCourse(this.state.calendarObjects),
-      })
+      } else if(type==="sortDate") {
+        AsyncStorage.setItem("lastSort", "sortDate");
+        this.setState({
+          calendarObjects: sortDate(this.state.calendarObjects),
+        })
+      } else if(type==="sortCourse") {
+        AsyncStorage.setItem("lastSort", "sortCourse");
+        this.setState({
+          calendarObjects: sortCourse(this.state.calendarObjects),
+        })
+      }
     }
   }
       
@@ -195,7 +197,7 @@ export default class App extends React.Component {
     }
     return (
       <div className="screen">
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
           Add
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
@@ -209,7 +211,7 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
           sortDate
-        </Button>
+        </Button> */}
         <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
@@ -476,6 +478,7 @@ class TaskEntry extends React.Component{
       if (ApiCalendar.sign){
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
+          navigator.vibrate([30]);
           const event = {
             summary: "✔️" + this.props.course + " " + this.props.name
           };
@@ -491,6 +494,7 @@ class TaskEntry extends React.Component{
       if (ApiCalendar.sign){
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
+          navigator.vibrate([10]);
           const event = {
             summary: this.props.course + " " + this.props.name //remove the check-mark, because no check-mark is ever passed in
           };
