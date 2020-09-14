@@ -216,7 +216,11 @@ td.course{
   opacity:0.5;
   cursor: pointer;
   transition: all 0.5s;
-  text-shadow: 2px 2px 5px 1px var(--highlight);
+}
+.hoverSort:active{
+  opacity:0.9;
+  cursor: pointer;
+  transition: all 0.1s;
 }
 
 @keyframes fadeIn{

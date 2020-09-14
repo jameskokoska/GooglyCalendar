@@ -26,6 +26,7 @@ export default class App extends React.Component {
     this.signUpdate = this.signUpdate.bind(this);
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
+    this.updateDone = this.updateDone.bind(this);
     this.state ={calendarObjects: "", signStatus:"",};
     ApiCalendar.onLoad(() => {
         this.refreshWholeList();
@@ -95,7 +96,7 @@ export default class App extends React.Component {
         AsyncStorage.setItem("lastSort", "sortName");
         this.setState({
           calendarObjects: sortName(this.state.calendarObjects),
-      })
+        })
       } else if(type==="sortDate") {
         AsyncStorage.setItem("lastSort", "sortDate");
         this.setState({
@@ -105,6 +106,11 @@ export default class App extends React.Component {
         AsyncStorage.setItem("lastSort", "sortCourse");
         this.setState({
           calendarObjects: sortCourse(this.state.calendarObjects),
+        })
+      } else if(type==="sortCheck") {
+        AsyncStorage.setItem("lastSort", "sortCheck");
+        this.setState({
+          calendarObjects: sortCheck(this.state.calendarObjects),
         })
       }
     }
@@ -121,6 +127,8 @@ export default class App extends React.Component {
         .then(({result}: any) => {
           console.log(result.items);
       });
+    } else if (name==='logStored'){
+      console.log(this.state.calendarObjects)
     } else if (name==="changeName") {
       if (ApiCalendar.sign) 
         listEvents(1,this.state.hoursBefore)
@@ -168,12 +176,40 @@ export default class App extends React.Component {
     }
   }
   
+  updateDone(id){
+    for (var i = 0; i < this.state.calendarObjects.length; i++) {
+      if(this.state.calendarObjects[i].id === id){
+        if(this.state.calendarObjects[i].done===true){
+          this.state.calendarObjects[i].done=false;
+          this.setState({
+            calendarObjects: this.state.calendarObjects
+          })
+        } else {
+          this.state.calendarObjects[i].done=true;
+          this.setState({
+            calendarObjects: this.state.calendarObjects
+          })
+        }
+        return;
+      } else {
+        continue;
+      }
+    }
+  }
+
   refreshWholeList() {
     if (ApiCalendar.sign){
       this.loadSyncData();
       listEvents(this.state.numEvents,this.state.hoursBefore)
         .then(({result}: any) => {
           var calendarObjects= result.items
+          for (var i = 0; i < calendarObjects.length; i++) {
+            if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
+              calendarObjects[i].done=true;
+            } else {
+              calendarObjects[i].done=false;
+            }
+          }
           this.setState({
             calendarObjects: calendarObjects,
         })
@@ -197,11 +233,14 @@ export default class App extends React.Component {
     }
     return (
       <div className="screen">
-        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
           Add
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
           Log
+        </Button>
+         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "logStored")}>
+          logStored
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortName")}>
           sortName
@@ -211,15 +250,15 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
           sortDate
-        </Button> */}
+        </Button>
         <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects}/>
+        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
-        <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms"}}>
+        <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           You are not signed-in. Sign-in in the settings.
         </div>
-        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms"}}>
+        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
       </div>
@@ -394,7 +433,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} sortCalendarObjects={this.props.sortCalendarObjects}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone}/>
       </div>
     )
   }
@@ -406,13 +445,11 @@ function TaskTable(props){
   var course = "";
   var courseColor = "";
   var courseRandomCode;
+  //yeet
   for (var i = 0; i < props.calendarObjects.length; i++) {
-    var done;
     if(props.calendarObjects[i].summary !== undefined && props.calendarObjects[i].summary.length>=2 && props.calendarObjects[i].summary.substring(0,2)==="✔️"){
-      done=true
       name=props.calendarObjects[i].summary.substring(2)
     } else {
-      done=false;
       name=props.calendarObjects[i].summary
     }
     var date = displayDate(new Date(props.calendarObjects[i].start.dateTime))
@@ -444,9 +481,10 @@ function TaskTable(props){
       time={time}
       course={course}
       courseColor={courseColor}
-      done={done}
+      done={props.calendarObjects[i].done}
       id={props.calendarObjects[i].id}
       hoursBefore={props.hoursBefore}
+      updateDone={props.updateDone}
       />
     );
   }
@@ -455,10 +493,10 @@ function TaskTable(props){
       <table className="taskList">
         <tbody>
           <tr>
-            <th className="check"></th>
+            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort">Check</div></th>
             <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
             <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
-            <th className="time header3">Time</th>
+            <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
             <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
           {tasks}
@@ -480,15 +518,23 @@ class TaskEntry extends React.Component{
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
           //navigator.vibrate([30]);
-          const event = {
-            summary: "✔️" + this.props.course + " " + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
+          if(this.props.course!==""){
+            const event = {
+              summary: "✔️" + this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
             .then(
-              this.setState({
-                checked: true,
-            })
-          );
+              this.props.updateDone(this.props.id),
+            );
+          } else {
+            const event = {
+              summary: "✔️" + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updateDone(this.props.id),
+            );
+          }
         });
       }
     } else if (name==="uncheckOff") {
@@ -496,14 +542,23 @@ class TaskEntry extends React.Component{
         listEvents(1,this.props.hoursBefore)
         .then(({result}: any) => {
           //navigator.vibrate([10]);
-          const event = {
-            summary: this.props.course + " " + this.props.name //remove the check-mark, because no check-mark is ever passed in
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-            .then(console.log);
-          this.setState({
-            checked: false,
-          })
+          if(this.props.course!==""){
+            const event = {
+              summary: this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updateDone(this.props.id),
+            );
+          } else {
+            const event = {
+              summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updateDone(this.props.id),
+            );
+          }
         });
       }
     }
@@ -514,7 +569,7 @@ class TaskEntry extends React.Component{
     var checkColor="";
     var clickActionCheck="checkOff";
     var checkMarkBG="#64b5f6";
-    if(this.state.checked===true){
+    if(this.props.done===true){
       textStyle = "line-through";
       checkMark="&#10004;";
       checkColor="#777777";
@@ -654,9 +709,19 @@ function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) {
 
 function sortName(calendarObjects){
   var sortedCalendarObjects = calendarObjects;
-  calendarObjects.sort(function(a, b) {
-    var textA = determineTaskName(a.summary).toUpperCase();
-    var textB = determineTaskName(b.summary).toUpperCase();
+  sortedCalendarObjects.sort(function(a, b) {
+    var textA;
+    var textB;
+    if(determineTaskName(a.summary)===undefined){
+      textA = "undefined"
+    } else {
+      textA = determineTaskName(a.summary).toUpperCase();
+    }
+    if(determineTaskName(b.summary)===undefined){
+      textB = "undefined"
+    } else {
+      textB = determineTaskName(b.summary).toUpperCase();
+    }
     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
   });
   return sortedCalendarObjects;
@@ -664,7 +729,7 @@ function sortName(calendarObjects){
 
 function sortCourse(calendarObjects){
   var sortedCalendarObjects = calendarObjects;
-  calendarObjects.sort(function(a, b) {
+  sortedCalendarObjects.sort(function(a, b) {
     var textA = determineTaskCourse(a.summary).toUpperCase();
     var textB = determineTaskCourse(b.summary).toUpperCase();
     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
@@ -674,10 +739,30 @@ function sortCourse(calendarObjects){
 
 function sortDate(calendarObjects){
   var sortedCalendarObjects = calendarObjects;
-  calendarObjects.sort(function(a, b) {
+  sortedCalendarObjects.sort(function(a, b) {
     var textA = determineRawSecondsTime(a.start);
     var textB = determineRawSecondsTime(b.start);
     return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+  });
+  return sortedCalendarObjects;
+}
+
+function sortCheck(calendarObjects){
+  var sortedCalendarObjects = calendarObjects;
+  var nameA;
+  var nameB;
+  sortedCalendarObjects.sort(function(a, b) {
+    if(a.done === true){
+      nameA="zdone";
+    } else {
+      nameA="notDone";
+    }
+    if(b.done === true){
+      nameB="zdone";
+    } else {
+      nameB="notDone";
+    }
+    return (nameA < nameB) ? -1 : (nameA > nameB) ? 1 : 0;
   });
   return sortedCalendarObjects;
 }
@@ -712,9 +797,7 @@ function determineTaskName(summary){
     } else {
       name=name.substring(7);
     }
-  }  else {
-      name=summary;
-  }
+  } 
   return name;
 }
 
@@ -732,7 +815,7 @@ function determineTaskCourse(summary){
   } else if(summary!==undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
     course=name.substring(0,6);
   }  else {
-    course="None";
+    course="";
   }
   return course;
 }
