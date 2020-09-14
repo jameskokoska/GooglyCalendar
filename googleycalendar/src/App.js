@@ -70,7 +70,7 @@ export default class App extends React.Component {
       if (value !== null && value !== ""){
         this.setState({ hoursBefore: value });
       } else {
-        this.setState({ hoursBefore: 5 });
+        this.setState({ hoursBefore: 0 });
       }
     })
     AsyncStorage.getItem('lastSort').then((value) => {
@@ -361,7 +361,7 @@ class Settings extends React.Component{
               </Form.Group>
               <Form.Group>
                 <Form.Label>Number of hours before to load</Form.Label>
-                <Form.Control name="hoursBefore" onChange={this.handleChange} placeholder="5" defaultValue={this.state.hoursBefore}/>
+                <Form.Control name="hoursBefore" onChange={this.handleChange} placeholder="0" defaultValue={this.state.hoursBefore}/>
                 <Form.Text className="text-muted">
                   How many hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
