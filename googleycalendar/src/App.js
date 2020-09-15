@@ -1,21 +1,31 @@
 import React, {ReactNode, SyntheticEvent} from 'react';
 import { AsyncStorage } from 'AsyncStorage';
 import ApiCalendar from 'react-google-calendar-api';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Toast from 'react-bootstrap/Toast'
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
 import './App.css';
 import settingsIcon from "./assets/cog-solid.svg"
 import refreshIcon from "./assets/sync-alt-solid.svg"
+import infoIcon from "./assets/info-circle-solid.svg"
 import "animate.css/animate.min.css";
-
+//Eventually:
+//7 day view list (and can be checked off)
+//Fix vibration feedback
+//Multiple Calendar support
+//custom course colours
 
 //TODO:
-//Add events 
+//Add events
+//support 1/2 calendars 
+//show notes
 //load only week of events next 7 days
-//next 7 day calendar view
+//FIX: all day tasks offset by a day
+//Fonts missing for main text
 
 export default class App extends React.Component {
   constructor(props) {
@@ -26,8 +36,11 @@ export default class App extends React.Component {
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
     this.updateDone = this.updateDone.bind(this);
+    this.setCalendarID = this.setCalendarID.bind(this);
+    this.setCalendarID2 = this.setCalendarID2.bind(this);
     this.state ={calendarObjects: "", signStatus:"",};
     ApiCalendar.onLoad(() => {
+        this.loadSyncData();
         this.refreshWholeList();
         ApiCalendar.listenSign(this.signUpdate);
         this.setState({ signStatus: ApiCalendar.sign})
@@ -56,10 +69,15 @@ export default class App extends React.Component {
       if (value !== undefined && value !== ""){
         //read saved text
         this.setState({ calendarID: value });
-        ApiCalendar.setCalendar(value)
       } else {
         this.setState({ calendarID: "primary" });
-        ApiCalendar.setCalendar("primary");
+      }
+    })
+    AsyncStorage.getItem('calendarIDKey2').then((value) => {
+      if (value !== undefined && value !== ""){
+        this.setState({ calendarID2: value });
+      } else {
+        this.setState({ calendarID2: "primary" });
       }
     })
     AsyncStorage.getItem('numEventsKey').then((value) => {
@@ -83,6 +101,13 @@ export default class App extends React.Component {
         this.setState({ lastSort: "sortDate" });
       }
     })
+  }
+
+  setCalendarID(calendarIDPassed){
+    this.setState({ calendarID: calendarIDPassed});
+  }
+  setCalendarID2(calendarIDPassed){
+    this.setState({calendarID2: calendarIDPassed});
   }
 
   componentDidMount() {
@@ -197,22 +222,52 @@ export default class App extends React.Component {
   }
 
   refreshWholeList() {
+    if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
+      ApiCalendar.setCalendar("primary")
+    } else {
+      ApiCalendar.setCalendar(this.state.calendarID)
+    }
+    
     if (ApiCalendar.sign){
-      this.loadSyncData();
       listEvents(this.state.numEvents,this.state.hoursBefore)
         .then(({result}: any) => {
           var calendarObjects= result.items
           for (var i = 0; i < calendarObjects.length; i++) {
             if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
               calendarObjects[i].done=true;
+              calendarObjects[i].calendarID=this.state.calendarID;
             } else {
               calendarObjects[i].done=false;
+              calendarObjects[i].calendarID=this.state.calendarID;
             }
           }
           this.setState({
             calendarObjects: calendarObjects,
-        })
-        this.sortCalendarObjects(this.state.lastSort)
+          })
+          this.sortCalendarObjects(this.state.lastSort)
+          if(this.state.calendarID2!==this.state.calendarID&&this.state.calendarID2!==""&&this.state.calendarID2!==null&&this.state.calendarID2!==undefined){
+            ApiCalendar.setCalendar(this.state.calendarID2)
+            if (ApiCalendar.sign){
+              listEvents(this.state.numEvents,this.state.hoursBefore)
+                .then(({result}: any) => {
+                  var calendarObjects2= result.items
+                  for (var i = 0; i < calendarObjects2.length; i++) {
+                    if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="✔️"){
+                      calendarObjects2[i].done=true;
+                      calendarObjects2[i].calendarID=this.state.calendarID2;
+                    } else {
+                      calendarObjects2[i].done=false;
+                      calendarObjects2[i].calendarID=this.state.calendarID2;
+                    }
+                  }
+                  Array.prototype.push.apply(calendarObjects2,this.state.calendarObjects); 
+                  this.setState({
+                    calendarObjects: calendarObjects2,
+                })
+                this.sortCalendarObjects(this.state.lastSort)
+              });
+            }
+          }
       });
     }
   }
@@ -252,8 +307,9 @@ export default class App extends React.Component {
         </Button> */}
         <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone}/>
-        <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
+        <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
+        {/* <AddEvent/> */}
         <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           You are not signed-in. Sign-in in the settings.
         </div>
@@ -271,6 +327,18 @@ function ButtonStyle(props){
       {props.label}
     </div>
   )
+}
+class AddEvent extends React.Component{
+  render(){
+    return(
+      <div>
+      <form noValidate autoComplete="off">
+        <div className="addButton"><div className="addButtonOffset">+</div></div>
+        <TextField fullWidth size="medium" label="Event Name" inputProps={{style: {fontSize: 40}}} InputLabelProps={{style: {fontSize: 20}}} style={{width:"50%"}}/>
+      </form>
+      </div>
+    )
+  }
 }
 
 class Refresh extends React.Component{
@@ -293,7 +361,7 @@ class Refresh extends React.Component{
     }
     return(
       <div>
-        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"1%","right":"1%"}}>
+        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"0%","left":"1%"}}>
           <Toast.Header>
             <strong className="mr-auto">{message}</strong>
           </Toast.Header>
@@ -334,15 +402,14 @@ class Settings extends React.Component{
   }
 
   loadInputs() {
-    AsyncStorage.getItem('calendarIDKey').then((value) => {
-      if (value !== null){
-        //read saved text
-        this.setState({ calendarID: value });
-        if(value!== ""){
-          ApiCalendar.setCalendar(value)
-        }
-      }
+    AsyncStorage.getItem('calendarIDKey').then((value1) => {
+      AsyncStorage.getItem('calendarIDKey2').then((value2) => {
+          this.setState({ calendarID: value1, calendarID2: value2 });
+          this.props.setCalendarID(value1)
+          this.props.setCalendarID2(value2)
+      })
     })
+    
     AsyncStorage.getItem('numEventsKey').then((value) => {
       if (value !== null){
         this.setState({ numEvents: value });
@@ -359,12 +426,14 @@ class Settings extends React.Component{
     })
   }
 
-  handleChange(event) {
+  handleChange(event,props) {
     if(event.target.name==="calendarID"){
       AsyncStorage.setItem('calendarIDKey', event.target.value);
-      if(event.target.value!==""){
-        ApiCalendar.setCalendar(event.target.value)
-      }
+      this.props.setCalendarID(event.target.value)
+    } else if(event.target.name==="calendarID2"){
+      AsyncStorage.setItem('calendarIDKey2', event.target.value);
+      console.log(event.target.value)
+      this.props.setCalendarID2(event.target.value)
     } else if(event.target.name==="numEvents"){
       AsyncStorage.setItem('numEventsKey', event.target.value);
     } else if(event.target.name==="hoursBefore"){
@@ -390,21 +459,28 @@ class Settings extends React.Component{
             <Form>
               <Form.Group>
                 <Form.Label>Calendar ID</Form.Label>
-                <Form.Control name="calendarID" onChange={this.handleChange} placeholder="example@group.calendar.google.com" defaultValue={this.state.calendarID}/>
+                <Form.Control name="calendarID" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="example@group.calendar.google.com" defaultValue={this.state.calendarID}/>
                 <Form.Text className="text-muted">
                   By keeping this blank it will be the default calendar. Refresh webpage to see changes. To reset this field, remove everything and refresh the webpage.
                 </Form.Text>
               </Form.Group>
               <Form.Group>
+                <Form.Label>Calendar ID 2</Form.Label>
+                <Form.Control name="calendarID2" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="example2@group.calendar.google.com" defaultValue={this.state.calendarID2}/>
+                <Form.Text className="text-muted">
+                  By keeping this blank, it will not attempt to load a second calendar. Refresh webpage to see changes.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
                 <Form.Label>Number of events to load</Form.Label>
-                <Form.Control name="numEvents" onChange={this.handleChange} placeholder="20" defaultValue={this.state.numEvents}/>
+                <Form.Control name="numEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="20" defaultValue={this.state.numEvents}/>
                 <Form.Text className="text-muted">
                   The number of upcoming events to load from the calendar. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
               <Form.Group>
                 <Form.Label>Number of hours before to load</Form.Label>
-                <Form.Control name="hoursBefore" onChange={this.handleChange} placeholder="0" defaultValue={this.state.hoursBefore}/>
+                <Form.Control name="hoursBefore" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="0" defaultValue={this.state.hoursBefore}/>
                 <Form.Text className="text-muted">
                   How many hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
@@ -453,7 +529,7 @@ function TaskTable(props){
     }
     var date = displayDate(new Date(props.calendarObjects[i].start.dateTime))
     if (date==="All day"){
-      date = displayDate(new Date(props.calendarObjects[i].start.date))
+      date = displayDate(new Date(props.calendarObjects[i].end.date))
     }
     var time = displayTime(new Date(props.calendarObjects[i].start.dateTime))
 
@@ -484,6 +560,8 @@ function TaskTable(props){
       id={props.calendarObjects[i].id}
       hoursBefore={props.hoursBefore}
       updateDone={props.updateDone}
+      calendarIDCurrent={props.calendarObjects[i].calendarID}
+      description={props.calendarObjects[i].description}
       />
     );
   }
@@ -512,6 +590,7 @@ class TaskEntry extends React.Component{
     this.state ={checked: this.props.done};
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
+    ApiCalendar.setCalendar(this.props.calendarIDCurrent)
     if (name==="checkOff") {
       if (ApiCalendar.sign){
         listEvents(1,this.props.hoursBefore)
@@ -579,11 +658,15 @@ class TaskEntry extends React.Component{
     } else {
       checkMarkBG="#64b5f6";
     }
+    var descriptionDisplay="none";
+    if(this.props.description!==undefined&&this.props.description!==null){
+      descriptionDisplay="";
+    }
     return(
       <tr className="taskEntry fadeIn">
         <td className="course">{this.props.course}</td>
         <td style={{"backgroundColor":checkMarkBG}}className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><div dangerouslySetInnerHTML={{ __html: checkMark}}></div></td>
-        <td className="task" style={{"textDecoration":textStyle, "color":checkColor}}>{this.props.name}</td>
+        <td className="task" style={{"textDecoration":textStyle, "color":checkColor}}>{this.props.name}<img className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/></td>
         <td className="date">{this.props.date}</td>
         <td className="time">{this.props.time}</td>
       </tr>

@@ -13,6 +13,12 @@
   font-weight: normal;
   src: url(./fonts/PierSans-Bold.otf) format("opentype");
 }
+@font-face {
+  font-family: 'Calibri';
+  font-weight: normal;
+  src: url(./fonts/Calibri-Regular.ttf) format("truetype");
+}
+
 :root {
   --font-color: #111111;
   --background: #fafafa;
@@ -101,7 +107,7 @@ body{
   overflow-x:auto;
   padding-top: 1%;
   padding-bottom: 1%;
-  font-family: Calibri,Candara,Segoe,Segoe UI,Optima,Arial,sans-serif; 
+  font-family: "Calibri";
 }
 table.taskList {
   width: 100%;
@@ -229,6 +235,43 @@ td.course{
   cursor: pointer;
   transition: all 0.1s;
 }
+.infoIcon{
+  float:right;
+  padding-top:6px;
+  width:17px;
+  filter:invert(var(--brightnessIcon));
+  opacity: 0.7;
+}
+.addButton{
+  padding:9px;
+  font-size: 35px;
+  border-radius: 100px;
+  bottom: 7%;
+  right: 5%;
+  width: 70px;
+  background-color: var(--accent);
+  font-weight: bold;
+  color:white;
+  text-align: center;
+  font-family: "Calibri";
+  transition: all 0.6s;
+  cursor: pointer;
+  position: fixed;
+  user-select: none;
+}
+.addButtonOffset{
+  transform: translateY(-2px);
+}
+.addButton:hover{
+  transform: rotate(180deg);
+  transition: all 0.3s;
+  box-shadow: -2px -2px 5px 1px var(--accent);
+}
+.addButton:active{
+  transform: rotate(0deg);
+  transition: all 0.1s;
+  box-shadow: -2px -2px 5px 1px var(--background);
+}
 
 @keyframes fadeIn{
   0%{opacity:0}
@@ -248,5 +291,14 @@ td.course{
     width: 20px;
     right: 30px;
     padding:1px;
+  }
+  .addButton{
+    padding:6px;
+    font-size: 30px;
+    border-radius: 100px;
+    bottom: 2%;
+    right: 3%;
+    width: 55px;
+    box-shadow: 2px 2px 5px 1px var(--accent);
   }
 }
