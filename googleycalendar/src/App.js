@@ -74,6 +74,8 @@ export default class App extends React.Component {
     AsyncStorage.getItem('calendarIDKey2').then((value) => {
       if (value !== undefined && value !== ""){
         this.setState({ calendarID2: value });
+      } else if (value === ""){
+        this.setState({ calendarID2: this.state.calendarID });
       } else {
         this.setState({ calendarID2: "primary" });
       }
@@ -596,6 +598,7 @@ class TaskEntry extends React.Component{
     ApiCalendar.setCalendar(this.props.calendarIDCurrent)
     if (name==="checkOff") {
       if (ApiCalendar.sign){
+        console.log("signedin")
         //navigator.vibrate([30]);
         if(this.props.course!==""){
           const event = {
@@ -612,7 +615,10 @@ class TaskEntry extends React.Component{
           ApiCalendar.updateEvent(event, this.props.id)
           .then(
             this.props.updateDone(this.props.id),
-          );
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+          });
         }
       }
     } else if (name==="uncheckOff") {
@@ -633,7 +639,10 @@ class TaskEntry extends React.Component{
           ApiCalendar.updateEvent(event, this.props.id)
           .then(
             this.props.updateDone(this.props.id),
-          );
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+          });
         }
       }
     }
