@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "c171ea421e8fa19806075b1dcc232c1f",
+    "revision": "f66fa38b385aefb6c145be180cd5319c",
     "url": "/GoogleyCalendar/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/GoogleyCalendar/static/css/2.da69928d.chunk.css"
   },
   {
-    "revision": "8b1d857949fd588f934c",
+    "revision": "cdefec797e9fcf1474cf",
     "url": "/GoogleyCalendar/static/css/main.b9378768.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/GoogleyCalendar/static/js/2.49255962.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "8b1d857949fd588f934c",
-    "url": "/GoogleyCalendar/static/js/main.d003e190.chunk.js"
+    "revision": "cdefec797e9fcf1474cf",
+    "url": "/GoogleyCalendar/static/js/main.23eb9c50.chunk.js"
   },
   {
     "revision": "29827b617be52e2f565f",
