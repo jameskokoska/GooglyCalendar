@@ -25,6 +25,7 @@
   --highlight: #42424248;
   --accent: #64b5f6;
   --brightnessIcon: 0;
+  --hoverCourse: #64b5f6;
 }
 
 body{
@@ -135,6 +136,14 @@ table.taskList {
   background-color: var(--highlight);
   transition: background-color 0.2s;
 }
+.taskList > tbody > tr .courseNone{
+  transition: background-color 5s;
+}
+.taskList > tbody > tr:hover .courseNone{
+  background-color: var(--background);
+  opacity: 1;
+  transition: background-color 0s;
+}
 .taskList > tbody > tr th{
   background-color: var(--background);
 }
@@ -236,11 +245,60 @@ td.course{
   transition: all 0.1s;
 }
 .infoIcon{
-  float:right;
-  padding-top:6px;
-  width:17px;
+  right:0;
+  top:0;
+  margin: 3px;
+  margin-right: 5px;
+  margin-top: 5px;
+  padding: 10px;
+  width:40px;
   filter:invert(var(--brightnessIcon));
   opacity: 0.7;
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+}
+.checkImg{
+  width:20px;
+  padding-bottom:2px;
+}
+.checkIn{
+  opacity:0;
+  transform: scale(0.3);
+  animation: scaleIn 0.2s forwards;
+}
+.checkOut{
+  opacity:0;
+  transform: scale(1);
+  animation: scaleOut 0.2s forwards;
+}
+.checkHeader{
+  filter:invert(var(--brightnessIcon));
+  transform: scale(0.8);
+}
+@keyframes scaleIn{
+  0%{
+    opacity:0;
+    transform: scale(0.3);
+  }
+  91%{
+    opacity:1;
+    transform: scale(1.2);
+  }
+  100%{
+    opacity:1;
+    transform: scale(1);
+  }
+}
+@keyframes scaleOut{
+  0%{
+    opacity:1;
+    transform: scale(1);
+  }
+  100%{
+    opacity:0;
+    transform: scale(0.3);
+  }
 }
 .addButton{
   padding:9px;
@@ -286,10 +344,11 @@ td.course{
   .settingsIcon{
     width: 20px;
     padding:0px;
+    right: 15px;
   }
   .refreshIcon{
     width: 20px;
-    right: 30px;
+    right: 45px;
     padding:1px;
   }
   .addButton{
@@ -300,5 +359,17 @@ td.course{
     right: 3%;
     width: 55px;
     box-shadow: 2px 2px 5px 1px var(--accent);
+  }
+  .infoIcon{
+    right:0;
+    top:unset;
+    bottom:0;
+    margin: 0px;
+    margin-right: 0;
+    margin-top: 0;
+    padding: 0px;
+    padding-top:20px;
+    padding-left:10px;
+    width:30px;
   }
 }

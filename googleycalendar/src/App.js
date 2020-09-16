@@ -8,10 +8,13 @@ import Form from 'react-bootstrap/Form'
 import Toast from 'react-bootstrap/Toast'
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import './App.css';
 import settingsIcon from "./assets/cog-solid.svg"
 import refreshIcon from "./assets/sync-alt-solid.svg"
 import infoIcon from "./assets/info-circle-solid.svg"
+import checkIcon from "./assets/check-solid.svg"
 import "animate.css/animate.min.css";
 //Eventually:
 //7 day view list (and can be checked off)
@@ -26,6 +29,8 @@ import "animate.css/animate.min.css";
 //load only week of events next 7 days
 //FIX: all day tasks offset by a day
 //Fonts missing for main text
+//switch check-mark displayed to actual image
+//tasks in the past show in different color
 
 export default class App extends React.Component {
   constructor(props) {
@@ -50,14 +55,14 @@ export default class App extends React.Component {
     this.courseColors = this.courseColorsLight;
     var currentHours = new Date().getHours();
     //Dark mode colors
-    if(currentHours > 19 || currentHours < 7){
-      document.documentElement.style.setProperty('--background', "#121212");
-      document.documentElement.style.setProperty('--font-color', "#fafafa");
-      document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
-      document.documentElement.style.setProperty('--accent', "#1565c0c9");
-      document.documentElement.style.setProperty('--brightnessIcon', "1");
-      this.courseColors = this.courseColorsDark;
-    }
+    // if(currentHours > 19 || currentHours < 7){
+    //   document.documentElement.style.setProperty('--background', "#121212");
+    //   document.documentElement.style.setProperty('--font-color', "#fafafa");
+    //   document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
+    //   document.documentElement.style.setProperty('--accent', "#1565c0c9");
+    //   document.documentElement.style.setProperty('--brightnessIcon', "1");
+    //   this.courseColors = this.courseColorsDark;
+    // }
   }
 
   signUpdate() {
@@ -534,7 +539,7 @@ function TaskTable(props){
     var time = displayTime(new Date(props.calendarObjects[i].start.dateTime))
 
     //if the task name is the same, there is no course
-    if(determineTaskName(props.calendarObjects[i].summary)!==props.calendarObjects[i].summary){
+    if(determineTaskCourse(props.calendarObjects[i].summary)!==""){
       course=determineTaskCourse(props.calendarObjects[i].summary);
       if(course.length>6){
         courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
@@ -571,7 +576,7 @@ function TaskTable(props){
         <tbody>
           <tr>
             <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
-            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort">✔️</div></th>
+            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check checkHeader" src={checkIcon}/></div></th>
             <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
             <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
             <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
@@ -641,32 +646,45 @@ class TaskEntry extends React.Component{
       }
     }
   }
+  
   render(){
     var textStyle="none";
-    var checkMark="";
+    var checkClass="checkImg";
     var checkColor="";
     var clickActionCheck="checkOff";
     var checkMarkBG="#64b5f6";
+    var courseClass="course";
     if(this.props.done===true){
       textStyle = "line-through";
-      checkMark="&#10004;";
+      checkClass+=" checkIn";
       checkColor="#777777";
       clickActionCheck="uncheckOff";
+    } else {
+      checkClass+=" checkOut";
     }
+
     if(this.props.courseColor!==""){
       checkMarkBG=this.props.courseColor;
+      courseClass="course";
     } else {
       checkMarkBG="#64b5f6";
+      courseClass+=" courseNone"
     }
+
     var descriptionDisplay="none";
     if(this.props.description!==undefined&&this.props.description!==null){
       descriptionDisplay="";
     }
     return(
       <tr className="taskEntry fadeIn">
-        <td className="course">{this.props.course}</td>
-        <td style={{"backgroundColor":checkMarkBG}}className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><div dangerouslySetInnerHTML={{ __html: checkMark}}></div></td>
-        <td className="task" style={{"textDecoration":textStyle, "color":checkColor}}>{this.props.name}<img className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/></td>
+        <td className={courseClass}>{this.props.course}</td>
+        <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><img alt="check" className={checkClass} src={checkIcon}/></td>
+        <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
+          <div style={{"textDecoration":textStyle}}>{this.props.name}</div>
+          <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
+            <img alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
+          </OverlayTrigger>
+        </td>
         <td className="date">{this.props.date}</td>
         <td className="time">{this.props.time}</td>
       </tr>
