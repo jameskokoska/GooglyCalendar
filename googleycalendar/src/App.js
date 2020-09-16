@@ -19,18 +19,11 @@ import "animate.css/animate.min.css";
 //Eventually:
 //7 day view list (and can be checked off)
 //Fix vibration feedback
-//Multiple Calendar support
 //custom course colours
 
 //TODO:
 //Add events
-//support 1/2 calendars 
-//show notes
 //load only week of events next 7 days
-//FIX: all day tasks offset by a day
-//Fonts missing for main text
-//switch check-mark displayed to actual image
-//tasks in the past show in different color
 
 export default class App extends React.Component {
   constructor(props) {
@@ -55,14 +48,14 @@ export default class App extends React.Component {
     this.courseColors = this.courseColorsLight;
     var currentHours = new Date().getHours();
     //Dark mode colors
-    // if(currentHours > 19 || currentHours < 7){
-    //   document.documentElement.style.setProperty('--background', "#121212");
-    //   document.documentElement.style.setProperty('--font-color', "#fafafa");
-    //   document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
-    //   document.documentElement.style.setProperty('--accent', "#1565c0c9");
-    //   document.documentElement.style.setProperty('--brightnessIcon', "1");
-    //   this.courseColors = this.courseColorsDark;
-    // }
+    if(currentHours > 19 || currentHours < 7){
+      document.documentElement.style.setProperty('--background', "#121212");
+      document.documentElement.style.setProperty('--font-color', "#fafafa");
+      document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
+      document.documentElement.style.setProperty('--accent', "#1565c0c9");
+      document.documentElement.style.setProperty('--brightnessIcon', "1");
+      this.courseColors = this.courseColorsDark;
+    }
   }
 
   signUpdate() {
@@ -525,18 +518,21 @@ function TaskTable(props){
   var course = "";
   var courseColor = "";
   var courseRandomCode;
-  //yeet
   for (var i = 0; i < props.calendarObjects.length; i++) {
     if(props.calendarObjects[i].summary !== undefined && props.calendarObjects[i].summary.length>=2 && props.calendarObjects[i].summary.substring(0,2)==="✔️"){
-      name=props.calendarObjects[i].summary.substring(2)
+      name=props.calendarObjects[i].summary.substring(2);
     } else {
-      name=props.calendarObjects[i].summary
+      name=props.calendarObjects[i].summary;
     }
-    var date = displayDate(new Date(props.calendarObjects[i].start.dateTime))
+    var date = displayDate(new Date(props.calendarObjects[i].start.dateTime));
+    var dateObj;
     if (date==="All day"){
-      date = displayDate(new Date(props.calendarObjects[i].end.date))
+      date = displayDate(new Date(props.calendarObjects[i].end.date));
+      dateObj = new Date(props.calendarObjects[i].end.date);
+    } else {
+      dateObj = new Date(props.calendarObjects[i].start.dateTime);
     }
-    var time = displayTime(new Date(props.calendarObjects[i].start.dateTime))
+    var time = displayTime(new Date(props.calendarObjects[i].start.dateTime));
 
     //if the task name is the same, there is no course
     if(determineTaskCourse(props.calendarObjects[i].summary)!==""){
@@ -567,6 +563,7 @@ function TaskTable(props){
       updateDone={props.updateDone}
       calendarIDCurrent={props.calendarObjects[i].calendarID}
       description={props.calendarObjects[i].description}
+      dateObj={dateObj}
       />
     );
   }
@@ -598,51 +595,45 @@ class TaskEntry extends React.Component{
     ApiCalendar.setCalendar(this.props.calendarIDCurrent)
     if (name==="checkOff") {
       if (ApiCalendar.sign){
-        listEvents(1,this.props.hoursBefore)
-        .then(({result}: any) => {
-          //navigator.vibrate([30]);
-          if(this.props.course!==""){
-            const event = {
-              summary: "✔️" + this.props.course + " " + this.props.name
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updateDone(this.props.id),
-            );
-          } else {
-            const event = {
-              summary: "✔️" + this.props.name
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updateDone(this.props.id),
-            );
-          }
-        });
+        //navigator.vibrate([30]);
+        if(this.props.course!==""){
+          const event = {
+            summary: "✔️" + this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          );
+        } else {
+          const event = {
+            summary: "✔️" + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          );
+        }
       }
     } else if (name==="uncheckOff") {
       if (ApiCalendar.sign){
-        listEvents(1,this.props.hoursBefore)
-        .then(({result}: any) => {
-          //navigator.vibrate([10]);
-          if(this.props.course!==""){
-            const event = {
-              summary: this.props.course + " " + this.props.name
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updateDone(this.props.id),
-            );
-          } else {
-            const event = {
-              summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updateDone(this.props.id),
-            );
-          }
-        });
+        //navigator.vibrate([10]);
+        if(this.props.course!==""){
+          const event = {
+            summary: this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          );
+        } else {
+          const event = {
+            summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          );
+        }
       }
     }
   }
@@ -675,6 +666,18 @@ class TaskEntry extends React.Component{
     if(this.props.description!==undefined&&this.props.description!==null){
       descriptionDisplay="";
     }
+    
+    var dateColor;
+    var dateFontWeight;
+    console.log(this.props.dateObj)
+    const start = Date.now();
+    if(this.props.dateObj<Date.now()){
+      dateColor="#c53f3f";
+      dateFontWeight="bold";
+    } else {
+      dateColor="";
+      dateFontWeight="unset";
+    }
     return(
       <tr className="taskEntry fadeIn">
         <td className={courseClass}>{this.props.course}</td>
@@ -685,7 +688,7 @@ class TaskEntry extends React.Component{
             <img alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
           </OverlayTrigger>
         </td>
-        <td className="date">{this.props.date}</td>
+        <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.date}</td>
         <td className="time">{this.props.time}</td>
       </tr>
     )
