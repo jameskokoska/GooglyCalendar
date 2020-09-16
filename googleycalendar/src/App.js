@@ -430,7 +430,6 @@ class Settings extends React.Component{
       this.props.setCalendarID(event.target.value)
     } else if(event.target.name==="calendarID2"){
       AsyncStorage.setItem('calendarIDKey2', event.target.value);
-      console.log(event.target.value)
       this.props.setCalendarID2(event.target.value)
     } else if(event.target.name==="numEvents"){
       AsyncStorage.setItem('numEventsKey', event.target.value);
@@ -525,14 +524,15 @@ function TaskTable(props){
       name=props.calendarObjects[i].summary;
     }
     var date = displayDate(new Date(props.calendarObjects[i].start.dateTime));
-    var dateObj;
+    var dateObjEnd;
     if (date==="All day"){
       date = displayDate(new Date(props.calendarObjects[i].end.date));
-      dateObj = new Date(props.calendarObjects[i].end.date);
+      dateObjEnd = new Date(props.calendarObjects[i].end.date);
     } else {
-      dateObj = new Date(props.calendarObjects[i].start.dateTime);
+      dateObjEnd = new Date(props.calendarObjects[i].end.dateTime);
     }
-    var time = displayTime(new Date(props.calendarObjects[i].start.dateTime));
+    var timeStart = displayTime(new Date(props.calendarObjects[i].start.dateTime));
+    var timeEnd = displayTime(new Date(props.calendarObjects[i].end.dateTime));
 
     //if the task name is the same, there is no course
     if(determineTaskCourse(props.calendarObjects[i].summary)!==""){
@@ -554,7 +554,8 @@ function TaskTable(props){
       <TaskEntry
       name={name}
       date={date}
-      time={time}
+      timeStart={timeStart}
+      timeEnd={timeEnd}
       course={course}
       courseColor={courseColor}
       done={props.calendarObjects[i].done}
@@ -563,7 +564,7 @@ function TaskTable(props){
       updateDone={props.updateDone}
       calendarIDCurrent={props.calendarObjects[i].calendarID}
       description={props.calendarObjects[i].description}
-      dateObj={dateObj}
+      dateObjEnd={dateObjEnd}
       />
     );
   }
@@ -669,14 +670,20 @@ class TaskEntry extends React.Component{
     
     var dateColor;
     var dateFontWeight;
-    console.log(this.props.dateObj)
     const start = Date.now();
-    if(this.props.dateObj<Date.now()){
+    if(this.props.dateObjEnd<Date.now()){
       dateColor="#c53f3f";
       dateFontWeight="bold";
     } else {
       dateColor="";
       dateFontWeight="unset";
+    }
+
+    var displayTimeEnd;
+    if(this.props.timeEnd==="All day"){
+      displayTimeEnd="";
+    } else {
+      displayTimeEnd=" - "+this.props.timeEnd;
     }
     return(
       <tr className="taskEntry fadeIn">
@@ -689,7 +696,7 @@ class TaskEntry extends React.Component{
           </OverlayTrigger>
         </td>
         <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.date}</td>
-        <td className="time">{this.props.time}</td>
+        <td className="time">{this.props.timeStart}{displayTimeEnd}</td>
       </tr>
     )
   }
@@ -758,7 +765,21 @@ function displayTime(date){
       minutes="0"+minutes;
     }
     var hours = date.getHours();
-    output = hours+":"+minutes;
+    var meridian;
+    if(hours>12){
+      hours=hours-12;
+      meridian="pm";
+    } else {
+      meridian="am"
+    }
+
+    if(minutes=="00"){
+      output = hours+" "+meridian;
+    } else {
+      output = hours+":"+minutes+" "+meridian;
+    }
+    
+    
     return output;
   } 
 }
