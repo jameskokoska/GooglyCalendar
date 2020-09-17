@@ -154,6 +154,7 @@ table.taskList {
 th.check{
   width: 50px;
   min-width: 50px;
+  max-width: 50px;
 }
 td.check{
   height: 25px;

@@ -66,7 +66,7 @@ export default class App extends React.Component {
 
   loadSyncData() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
-      if (value !== undefined && value !== ""){
+      if (value !== undefined && value !== "" && value !== undefined){
         //read saved text
         this.setState({ calendarID: value });
       } else {
@@ -74,7 +74,7 @@ export default class App extends React.Component {
       }
     })
     AsyncStorage.getItem('calendarIDKey2').then((value) => {
-      if (value !== undefined && value !== ""){
+      if (value !== undefined && value !== "" && value !== undefined){
         this.setState({ calendarID2: value });
       } else if (value === ""){
         this.setState({ calendarID2: this.state.calendarID });
@@ -83,28 +83,28 @@ export default class App extends React.Component {
       }
     })
     AsyncStorage.getItem('numEventsKey').then((value) => {
-      if (value !== null && value !== ""){
+      if (value !== null && value !== "" && value !== undefined){
         this.setState({ numEvents: value });
       } else {
         this.setState({ numEvents: 20 });
       }
     })
     AsyncStorage.getItem('hoursBefore').then((value) => {
-      if (value !== null && value !== ""){
+      if (value !== null && value !== "" && value !== undefined){
         this.setState({ hoursBefore: value });
       } else {
         this.setState({ hoursBefore: 0 });
       }
     })
     AsyncStorage.getItem('lastSort').then((value) => {
-      if (value !== null && value !== ""){
+      if (value !== null && value !== "" && value !== undefined){
         this.setState({ lastSort: value });
       } else {
         this.setState({ lastSort: "sortDate" });
       }
     })
     AsyncStorage.getItem('nextWeekShow').then((value) => {
-      if (value !== null){
+      if (value !== null && value !== "" && value !== undefined){
         this.setState({ nextWeekShow: value });
       } else {
         this.setState({ nextWeekShow: 7 });
@@ -363,7 +363,6 @@ class TimeOutError extends React.Component{
   }
   render(){
     return(
-      // {/* onHide={window.location.reload()} */}
       <Modal show={this.props.errorTimeoutOpen} onHide={(e) => this.handleItemClick(e, "refreshPage")} size="lg">
         <Modal.Header>
           <Modal.Title>Connection has timed out</Modal.Title>
@@ -471,21 +470,21 @@ class Settings extends React.Component{
     })
     
     AsyncStorage.getItem('numEventsKey').then((value) => {
-      if (value !== null){
+      if (value !== null && value !== undefined && value !== ""){
         this.setState({ numEvents: value });
       } else {
         this.setState({ numEvents: 20 });
       }
     })
     AsyncStorage.getItem('hoursBefore').then((value) => {
-      if (value !== null){
+      if (value !== null && value !== undefined && value !== ""){
         this.setState({ hoursBefore: value });
       } else {
         this.setState({ hoursBefore: 5 });
       }
     })
     AsyncStorage.getItem('nextWeekShow').then((value) => {
-      if (value !== null){
+      if (value !== null && value !== undefined && value !== ""){
         this.setState({ nextWeekShow: value });
       } else {
         this.setState({ nextWeekShow: 7 });
@@ -549,7 +548,7 @@ class Settings extends React.Component{
               </Form.Group>
               <Form.Group>
                 <Form.Label>Number of days to view</Form.Label>
-                <Form.Control name="nextWeekShow" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="0" defaultValue={this.state.nextWeekShow}/>
+                <Form.Control name="nextWeekShow" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="7" defaultValue={this.state.nextWeekShow}/>
                 <Form.Text className="text-muted">
                   Number of days to see events in the future. Set '<i>Number of events to load</i>' to a high value to ensure all events are loaded for this time range. Refresh to see changes.
                 </Form.Text>
