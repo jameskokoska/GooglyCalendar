@@ -17,13 +17,12 @@ import infoIcon from "./assets/info-circle-solid.svg"
 import checkIcon from "./assets/check-solid.svg"
 import "animate.css/animate.min.css";
 //Eventually:
-//7 day view list (and can be checked off)
 //Fix vibration feedback
-//custom course colours
+//Add events
 
 //TODO:
-//Add events
-//load only week of events next 7 days
+//7 day view list (and can be checked off)
+//custom course colours
 
 //FIX
 //all day events show up as red 'overdue' on the day of
@@ -241,6 +240,7 @@ export default class App extends React.Component {
   }
 
   refreshWholeList() {
+    this.loadSyncData();
     if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
       ApiCalendar.setCalendar("primary")
     } else {
