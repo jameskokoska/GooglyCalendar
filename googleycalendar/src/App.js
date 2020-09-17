@@ -25,6 +25,9 @@ import "animate.css/animate.min.css";
 //Add events
 //load only week of events next 7 days
 
+//FIX
+//all day events show up as red 'overdue' on the day of
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -34,9 +37,10 @@ export default class App extends React.Component {
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
     this.updateDone = this.updateDone.bind(this);
+    this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
     this.setCalendarID = this.setCalendarID.bind(this);
     this.setCalendarID2 = this.setCalendarID2.bind(this);
-    this.state ={calendarObjects: "", signStatus:"",};
+    this.state ={calendarObjects: "", signStatus:"", errorTimeoutOpen: false};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -58,9 +62,7 @@ export default class App extends React.Component {
     }
   }
 
-  signUpdate() {
-    this.setState({ signStatus: ApiCalendar.sign})
-  }
+  
 
   loadSyncData() {
     AsyncStorage.getItem('calendarIDKey').then((value) => {
@@ -101,8 +103,17 @@ export default class App extends React.Component {
         this.setState({ lastSort: "sortDate" });
       }
     })
+    AsyncStorage.getItem('nextWeekShow').then((value) => {
+      if (value !== null){
+        this.setState({ nextWeekShow: value });
+      } else {
+        this.setState({ nextWeekShow: 7 });
+      }
+    })
   }
-
+  signUpdate() {
+    this.setState({ signStatus: ApiCalendar.sign})
+  }
   setCalendarID(calendarIDPassed){
     this.setState({ calendarID: calendarIDPassed});
   }
@@ -178,6 +189,8 @@ export default class App extends React.Component {
       this.sortCalendarObjects('sortCourse')
     } else if (name==='sortDate'){
       this.sortCalendarObjects('sortDate')
+    } else if (name==='errorTimeoutOpen'){
+      this.errorTimeoutOpen("Error Code")
     } else if (name==='addEvent'){
       const event = {
         summary: "addTest",
@@ -220,6 +233,12 @@ export default class App extends React.Component {
       }
     }
   }
+  errorTimeoutOpen(error){
+    this.setState({
+      errorCode: error,
+      errorTimeoutOpen: true,
+    })
+  }
 
   refreshWholeList() {
     if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
@@ -231,18 +250,29 @@ export default class App extends React.Component {
     if (ApiCalendar.sign){
       listEvents(this.state.numEvents,this.state.hoursBefore)
         .then(({result}: any) => {
-          var calendarObjects= result.items
+          var calendarObjects = result.items;
+          var calendarObjectsReduced = [];
           for (var i = 0; i < calendarObjects.length; i++) {
-            if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
-              calendarObjects[i].done=true;
-              calendarObjects[i].calendarID=this.state.calendarID;
+            //Determine if within the week days range specified in settings
+            var dateObj;
+            if (displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
+              dateObj = new Date(calendarObjects[i].start.date);
             } else {
-              calendarObjects[i].done=false;
-              calendarObjects[i].calendarID=this.state.calendarID;
+              dateObj = new Date(calendarObjects[i].start.dateTime);
+            }
+            if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow))){
+              if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
+                calendarObjects[i].done=true;
+                calendarObjects[i].calendarID=this.state.calendarID;
+              } else {
+                calendarObjects[i].done=false;
+                calendarObjects[i].calendarID=this.state.calendarID;
+              }
+              calendarObjectsReduced.push(calendarObjects[i]);
             }
           }
           this.setState({
-            calendarObjects: calendarObjects,
+            calendarObjects: calendarObjectsReduced,
           })
           this.sortCalendarObjects(this.state.lastSort)
           if(this.state.calendarID2!==this.state.calendarID&&this.state.calendarID2!==""&&this.state.calendarID2!==null&&this.state.calendarID2!==undefined){
@@ -287,7 +317,7 @@ export default class App extends React.Component {
     }
     return (
       <div className="screen">
-        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
           Add
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
@@ -304,20 +334,50 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
           sortDate
-        </Button> */}
+        </Button>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "errorTimeoutOpen")}>
+          errorTimeoutOpen
+        </Button>
         <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone}/>
+        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         {/* <AddEvent/> */}
-        <div className="alert alert-danger fadeIn" role="alert" style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
-          You are not signed-in. Sign-in in the settings.
+        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
+          You are not signed-in. Sign-in in the settings, or click this message.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
+        <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
       </div>
     );
+  }
+}
+
+class TimeOutError extends React.Component{
+  handleItemClick(event: SyntheticEvent<any>, name: string): void {
+    if (name==='refreshPage') {
+      window.location.reload();
+    } 
+  }
+  render(){
+    return(
+      // {/* onHide={window.location.reload()} */}
+      <Modal show={this.props.errorTimeoutOpen} onHide={(e) => this.handleItemClick(e, "refreshPage")} size="lg">
+        <Modal.Header>
+          <Modal.Title>Connection has timed out</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {this.props.errorCode}<p>Please <b>reload the page</b>, otherwise changes will not be saved!</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-primary" onClick={(e) => this.handleItemClick(e, "refreshPage")}>
+            Refresh
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    )
   }
 }
 
@@ -424,6 +484,13 @@ class Settings extends React.Component{
         this.setState({ hoursBefore: 5 });
       }
     })
+    AsyncStorage.getItem('nextWeekShow').then((value) => {
+      if (value !== null){
+        this.setState({ nextWeekShow: value });
+      } else {
+        this.setState({ nextWeekShow: 7 });
+      }
+    })
   }
 
   handleChange(event,props) {
@@ -437,7 +504,10 @@ class Settings extends React.Component{
       AsyncStorage.setItem('numEventsKey', event.target.value);
     } else if(event.target.name==="hoursBefore"){
       AsyncStorage.setItem('hoursBefore', event.target.value);
-    }
+    } else if(event.target.name==="nextWeekShow"){
+      AsyncStorage.setItem('nextWeekShow', event.target.value);
+      console.log(event.target.value)
+    } 
   }
 
   render(){
@@ -478,10 +548,17 @@ class Settings extends React.Component{
                 </Form.Text>
               </Form.Group>
               <Form.Group>
+                <Form.Label>Number of days to view</Form.Label>
+                <Form.Control name="nextWeekShow" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="0" defaultValue={this.state.nextWeekShow}/>
+                <Form.Text className="text-muted">
+                  Number of days to see events in the future. Set '<i>Number of events to load</i>' to a high value to ensure all events are loaded for this time range. Refresh to see changes.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
                 <Form.Label>Number of hours before to load</Form.Label>
                 <Form.Control name="hoursBefore" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="0" defaultValue={this.state.hoursBefore}/>
                 <Form.Text className="text-muted">
-                  How many hours before the current time to list events from. Refresh to see changes.
+                  Number of hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
             </Form>
@@ -507,7 +584,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen}/>
       </div>
     )
   }
@@ -563,10 +640,12 @@ function TaskTable(props){
       done={props.calendarObjects[i].done}
       id={props.calendarObjects[i].id}
       hoursBefore={props.hoursBefore}
+      nextWeekShow={props.nextWeekShow}
       updateDone={props.updateDone}
       calendarIDCurrent={props.calendarObjects[i].calendarID}
       description={props.calendarObjects[i].description}
       dateObjEnd={dateObjEnd}
+      errorTimeoutOpen={props.errorTimeoutOpen}
       />
     );
   }
@@ -598,7 +677,6 @@ class TaskEntry extends React.Component{
     ApiCalendar.setCalendar(this.props.calendarIDCurrent)
     if (name==="checkOff") {
       if (ApiCalendar.sign){
-        console.log("signedin")
         //navigator.vibrate([30]);
         if(this.props.course!==""){
           const event = {
@@ -607,7 +685,11 @@ class TaskEntry extends React.Component{
           ApiCalendar.updateEvent(event, this.props.id)
           .then(
             this.props.updateDone(this.props.id),
-          );
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
         } else {
           const event = {
             summary: "✔️" + this.props.name
@@ -618,6 +700,7 @@ class TaskEntry extends React.Component{
           )
           .catch((error: any) => {
             console.log("ERROR LOGGING!"+error);
+             this.props.errorTimeoutOpen("Error 401/404")
           });
         }
       }
@@ -631,7 +714,11 @@ class TaskEntry extends React.Component{
           ApiCalendar.updateEvent(event, this.props.id)
           .then(
             this.props.updateDone(this.props.id),
-          );
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
         } else {
           const event = {
             summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
@@ -642,6 +729,7 @@ class TaskEntry extends React.Component{
           )
           .catch((error: any) => {
             console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
           });
         }
       }
@@ -679,7 +767,6 @@ class TaskEntry extends React.Component{
     
     var dateColor;
     var dateFontWeight;
-    const start = Date.now();
     if(this.props.dateObjEnd<Date.now()){
       dateColor="#c53f3f";
       dateFontWeight="bold";
@@ -782,7 +869,7 @@ function displayTime(date){
       meridian="am"
     }
 
-    if(minutes=="00"){
+    if(minutes==="00"){
       output = hours+" "+meridian;
     } else {
       output = hours+":"+minutes+" "+meridian;
@@ -951,4 +1038,10 @@ function determineTaskCourse(summary){
     course="";
   }
   return course;
+}
+
+Date.prototype.addDays = function(days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
 }
