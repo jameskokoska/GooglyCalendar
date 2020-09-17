@@ -317,7 +317,7 @@ export default class App extends React.Component {
     }
     return (
       <div className="screen">
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
           Add
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
@@ -337,7 +337,7 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "errorTimeoutOpen")}>
           errorTimeoutOpen
-        </Button>
+        </Button> */}
         <Header1 content="Tasks"/>
         <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
