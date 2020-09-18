@@ -505,7 +505,6 @@ class Settings extends React.Component{
       AsyncStorage.setItem('hoursBefore', event.target.value);
     } else if(event.target.name==="nextWeekShow"){
       AsyncStorage.setItem('nextWeekShow', event.target.value);
-      console.log(event.target.value)
     } 
   }
 
@@ -766,7 +765,10 @@ class TaskEntry extends React.Component{
     
     var dateColor;
     var dateFontWeight;
-    if(this.props.dateObjEnd<Date.now()){
+    if(this.props.dateObjEnd<Date.now() && this.props.timeEnd!=="All day"){
+      dateColor="#c53f3f";
+      dateFontWeight="bold";
+    } else if (this.props.timeEnd==="All day" && eventToday(this.props.dateObjEnd)!==true){
       dateColor="#c53f3f";
       dateFontWeight="bold";
     } else {
@@ -797,6 +799,14 @@ class TaskEntry extends React.Component{
   }
 }
 
+function eventToday(date){
+  var today = new Date;
+  if(date.getDay()===today.getDay() && date.getDate()===today.getDate() && date.getMonth()===today.getMonth() && date.getYear()===today.getYear()){
+    return true;
+  } else {
+    return false;
+  }
+}
 
 function displayDate(date){
   if(isNaN(date.getMonth())&&isNaN(date.getDay())&&isNaN(date.getDate())){
