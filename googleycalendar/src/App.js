@@ -21,7 +21,7 @@ import "animate.css/animate.min.css";
 //Add events
 
 //TODO:
-//7 day view list (and can be checked off)
+//7 day view list check off (add class and pass in arguments to check function accordingly, make a check off function??)
 //custom course colours
 //add filter both ways (sort by least/most)
 //remember all filter options not just one
@@ -291,18 +291,39 @@ export default class App extends React.Component {
               listEvents(this.state.numEvents,this.state.hoursBefore)
                 .then(({result}: any) => {
                   var calendarObjects2= result.items
+                  var calendarObjects2Reduced = [];
                   for (var i = 0; i < calendarObjects2.length; i++) {
-                    if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="✔️"){
-                      calendarObjects2[i].done=true;
-                      calendarObjects2[i].calendarID=this.state.calendarID2;
+                    //Determine if within the week days range specified in settings
+                    var dateObj;
+                    if (displayDate(new Date(calendarObjects2[i].start.dateTime))==="All day"){
+                      dateObj = new Date(calendarObjects2[i].start.date);
                     } else {
-                      calendarObjects2[i].done=false;
-                      calendarObjects2[i].calendarID=this.state.calendarID2;
+                      dateObj = new Date(calendarObjects2[i].start.dateTime);
+                    }
+                    //Fix for all day and hours past
+                    var allDayPastTest=false;
+                    if(displayDate(new Date(calendarObjects2[i].start.dateTime))==="All day"){
+                      if(new Date(calendarObjects2[i].end.date)>new Date().addDays(-1*(this.state.hoursBefore+24)/24)){
+                        allDayPastTest=true;
+                      }
+                    } else {
+                      allDayPastTest=true;
+                    }
+                    if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
+                      if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="✔️"){
+                        calendarObjects2[i].done=true;
+                        calendarObjects2[i].calendarID=this.state.calendarID2;
+                      } else {
+                        calendarObjects2[i].done=false;
+                        calendarObjects2[i].calendarID=this.state.calendarID2;
+                      }
+                      calendarObjects2Reduced.push(calendarObjects2[i]);
+                      console.log(calendarObjects2[i].summary)
                     }
                   }
-                  Array.prototype.push.apply(calendarObjects2,this.state.calendarObjects); 
+                  Array.prototype.push.apply(calendarObjects2Reduced,this.state.calendarObjects); 
                   this.setState({
-                    calendarObjects: calendarObjects2,
+                    calendarObjects: calendarObjects2Reduced,
                 })
                 this.sortCalendarObjects(this.state.lastSort)
               });
@@ -505,7 +526,6 @@ class DayListEntry extends React.Component{
       if(this.props.calendarObjects[i].description!==undefined&&this.props.calendarObjects[i].description!==null){
         descriptionDisplay="";
       }
-      console.log(this.props.calendarObjects[i].done)
       var textStyle="none";
       var clickActionCheck="checkOff";
       var checkColor="";

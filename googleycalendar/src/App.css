@@ -210,7 +210,7 @@ td.course{
   padding:5px;
   top:1%;
   right:1%;
-  position: absolute;
+  position: fixed;
   filter:invert(var(--brightnessIcon));
   transition: all 0.5s;
   cursor: pointer;
@@ -223,7 +223,7 @@ td.course{
   padding:6px;
   top:1%;
   right: 60px;
-  position: absolute;
+  position: fixed;
   filter:invert(var(--brightnessIcon));
   transition: all 0.5s;
   cursor: pointer;
