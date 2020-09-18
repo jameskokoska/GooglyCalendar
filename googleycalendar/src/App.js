@@ -25,6 +25,8 @@ import "animate.css/animate.min.css";
 //custom course colours
 //add filter both ways (sort by least/most)
 //remember all filter options not just one
+//Add priority/pin button which keeps the task at the top no matter what and change the background colour. store it using ! mark?
+//put current date somewhere, put day numbers on 7 day view
 
 //FIX
 
@@ -273,11 +275,10 @@ export default class App extends React.Component {
             if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
               if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
                 calendarObjects[i].done=true;
-                calendarObjects[i].calendarID=this.state.calendarID;
               } else {
                 calendarObjects[i].done=false;
-                calendarObjects[i].calendarID=this.state.calendarID;
               }
+              calendarObjects[i].calendarID=this.state.calendarID;
               calendarObjectsReduced.push(calendarObjects[i]);
             }
           }
@@ -412,85 +413,101 @@ function DayList(props){
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td>
-        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} updateDone={props.updateDone} errorTimeoutOpen={props.errorTimeoutOpen}/>
+        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} updateDone={props.updateDone} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone}/>
       </td> 
     )
   }
   return dayListEntries;
 }
 
-class DayListEntry extends React.Component{
-  handleItemClick(event: SyntheticEvent<any>, name: string): void {
-  }
+class DayEntry extends React.Component{
   //Note this code is from the checkoff update accordingly ---------------------------------------------------------
-  // constructor(props) {
-  //   super(props);
-  //   this.handleItemClick = this.handleItemClick.bind(this);
-  //   this.state ={checked: this.props.done};
-  // }
-  // handleItemClick(event: SyntheticEvent<any>, name: string): void {
-  //   ApiCalendar.setCalendar(this.props.calendarIDCurrent)
-  //   if (name==="checkOff") {
-  //     if (ApiCalendar.sign){
-  //       //navigator.vibrate([30]);
-  //       if(this.props.course!==""){
-  //         const event = {
-  //           summary: "✔️" + this.props.course + " " + this.props.name
-  //         };
-  //         ApiCalendar.updateEvent(event, this.props.id)
-  //         .then(
-  //           this.props.updateDone(this.props.id),
-  //         )
-  //         .catch((error: any) => {
-  //           console.log("ERROR LOGGING!"+error);
-  //           this.props.errorTimeoutOpen("Error 401/404")
-  //         });
-  //       } else {
-  //         const event = {
-  //           summary: "✔️" + this.props.name
-  //         };
-  //         ApiCalendar.updateEvent(event, this.props.id)
-  //         .then(
-  //           this.props.updateDone(this.props.id),
-  //         )
-  //         .catch((error: any) => {
-  //           console.log("ERROR LOGGING!"+error);
-  //            this.props.errorTimeoutOpen("Error 401/404")
-  //         });
-  //       }
-  //     }
-  //   } else if (name==="uncheckOff") {
-  //     if (ApiCalendar.sign){
-  //       //navigator.vibrate([10]);
-  //       if(this.props.course!==""){
-  //         const event = {
-  //           summary: this.props.course + " " + this.props.name
-  //         };
-  //         ApiCalendar.updateEvent(event, this.props.id)
-  //         .then(
-  //           this.props.updateDone(this.props.id),
-  //         )
-  //         .catch((error: any) => {
-  //           console.log("ERROR LOGGING!"+error);
-  //           this.props.errorTimeoutOpen("Error 401/404")
-  //         });
-  //       } else {
-  //         const event = {
-  //           summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
-  //         };
-  //         ApiCalendar.updateEvent(event, this.props.id)
-  //         .then(
-  //           this.props.updateDone(this.props.id),
-  //         )
-  //         .catch((error: any) => {
-  //           console.log("ERROR LOGGING!"+error);
-  //           this.props.errorTimeoutOpen("Error 401/404")
-  //         });
-  //       }
-  //     }
-  //   }
-  // }
+  constructor(props) {
+    super(props);
+    this.handleItemClick = this.handleItemClick.bind(this);
+    this.state ={checked: this.props.done};
+  }
+  handleItemClick(event: SyntheticEvent<any>, name: string): void {
+    ApiCalendar.setCalendar(this.props.calendarIDCurrent)
+    console.log(name)
+    if (name==="checkOff") {
+      if (ApiCalendar.sign){
+        //navigator.vibrate([30]);
+        if(this.props.course!==""){
+          const event = {
+            summary: "✔️" + this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        } else {
+          const event = {
+            summary: "✔️" + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+             this.props.errorTimeoutOpen("Error 401/404")
+          });
+        }
+      }
+    } else if (name==="uncheckOff") {
+      if (ApiCalendar.sign){
+        //navigator.vibrate([10]);
+        if(this.props.course!==""){
+          const event = {
+            summary: this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        } else {
+          const event = {
+            summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updateDone(this.props.id),
+          )
+          .catch((error: any) => {
+            console.log("ERROR LOGGING!"+error);
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        }
+      }
+    }
+  }
   //--------------------------------------------------------------------------------------
+  render(){
+    return(
+      <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}} onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)}>
+        <div className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
+        <div className="weekTimeLabel">{this.props.timeStart+this.props.displayTimeEnd}</div>
+        <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
+        <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
+          <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay}}/>
+        </OverlayTrigger>
+      </div> 
+    )
+      
+  }
+}
+
+class DayListEntry extends React.Component{
+  
   render(){
     var todayListEntries = [];  
     for (var i = 0; i < this.props.calendarObjects.length; i++) {
@@ -536,14 +553,23 @@ class DayListEntry extends React.Component{
       }
       if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date).addDays(this.props.dayOffset))){
         todayListEntries.push(
-          <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}} onClick={(e) => this.handleItemClick(e, clickActionCheck)}>
-            <div className="weekEventLabel" style={{"color":checkColor, "textDecoration":textStyle, "transition":"all 0.5s"}}>{name}</div>
-            <div className="weekTimeLabel">{timeStart+displayTimeEnd}</div>
-            <div className="courseBubble" style={{"display":courseDisplay}}><span style={{"backgroundColor":courseColor}}>{course}</span></div>
-            <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.calendarObjects[i].description }}></div></Tooltip>}>
-              <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":descriptionDisplay}}/>
-            </OverlayTrigger>
-          </div>
+          <DayEntry
+            checkColor={checkColor}
+            textStyle={textStyle}
+            name={name}
+            timeStart={timeStart}
+            displayTimeEnd={displayTimeEnd}
+            courseDisplay={courseDisplay}
+            courseColor={courseColor}
+            course={course}
+            descriptionDisplay={descriptionDisplay}
+            description={this.props.calendarObjects[i].description}
+            id={this.props.calendarObjects[i].id}
+            updateDone={this.props.updateDone}
+            calendarIDCurrent={this.props.calendarObjects[i].calendarID}
+            done={this.props.calendarObjects[i].done}
+            clickActionCheck={clickActionCheck}
+          />
         )
       }
     }
