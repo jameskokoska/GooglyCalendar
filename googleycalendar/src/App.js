@@ -23,9 +23,10 @@ import "animate.css/animate.min.css";
 //TODO:
 //7 day view list (and can be checked off)
 //custom course colours
+//add filter both ways (sort by least/most)
+//remember all filter options not just one
 
 //FIX
-//all day events show up as red 'overdue' on the day of
 
 export default class App extends React.Component {
   constructor(props) {
@@ -260,7 +261,16 @@ export default class App extends React.Component {
             } else {
               dateObj = new Date(calendarObjects[i].start.dateTime);
             }
-            if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow))){
+            //Fix for all day and hours past
+            var allDayPastTest=false;
+            if(displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
+              if(new Date(calendarObjects[i].end.date)>new Date().addDays(-1*(this.state.hoursBefore+24)/24)){
+                allDayPastTest=true;
+              }
+            } else {
+              allDayPastTest=true;
+            }
+            if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
               if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
                 calendarObjects[i].done=true;
                 calendarObjects[i].calendarID=this.state.calendarID;
@@ -350,8 +360,203 @@ export default class App extends React.Component {
           There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
+        <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen}/>
       </div>
     );
+  }
+}
+
+function WeekListHeader(props){
+  var weekHeaders = [];
+  var numDays;
+  if(props.days>=7){
+    numDays = 7;
+  } else {
+    numDays=props.days;
+  }
+  for (var i = 0; i < numDays; i++) {
+    weekHeaders.push( <th className="weekday header3 fadeIn" style={{animationDelay:"1s"}}>{getDisplayDay((new Date()).addDays(i))}</th> )
+  }
+  return weekHeaders;
+}
+
+function DayList(props){
+  var dayListEntries = [];
+  var numDays;
+  if(props.days>=7){
+    numDays = 7;
+  } else {
+    numDays=props.days;
+  }
+  for (var i = 0; i < numDays; i++) {
+    dayListEntries.push( 
+      <td>
+        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} updateDone={props.updateDone} errorTimeoutOpen={props.errorTimeoutOpen}/>
+      </td> 
+    )
+  }
+  return dayListEntries;
+}
+
+class DayListEntry extends React.Component{
+  handleItemClick(event: SyntheticEvent<any>, name: string): void {
+  }
+  //Note this code is from the checkoff update accordingly ---------------------------------------------------------
+  // constructor(props) {
+  //   super(props);
+  //   this.handleItemClick = this.handleItemClick.bind(this);
+  //   this.state ={checked: this.props.done};
+  // }
+  // handleItemClick(event: SyntheticEvent<any>, name: string): void {
+  //   ApiCalendar.setCalendar(this.props.calendarIDCurrent)
+  //   if (name==="checkOff") {
+  //     if (ApiCalendar.sign){
+  //       //navigator.vibrate([30]);
+  //       if(this.props.course!==""){
+  //         const event = {
+  //           summary: "✔️" + this.props.course + " " + this.props.name
+  //         };
+  //         ApiCalendar.updateEvent(event, this.props.id)
+  //         .then(
+  //           this.props.updateDone(this.props.id),
+  //         )
+  //         .catch((error: any) => {
+  //           console.log("ERROR LOGGING!"+error);
+  //           this.props.errorTimeoutOpen("Error 401/404")
+  //         });
+  //       } else {
+  //         const event = {
+  //           summary: "✔️" + this.props.name
+  //         };
+  //         ApiCalendar.updateEvent(event, this.props.id)
+  //         .then(
+  //           this.props.updateDone(this.props.id),
+  //         )
+  //         .catch((error: any) => {
+  //           console.log("ERROR LOGGING!"+error);
+  //            this.props.errorTimeoutOpen("Error 401/404")
+  //         });
+  //       }
+  //     }
+  //   } else if (name==="uncheckOff") {
+  //     if (ApiCalendar.sign){
+  //       //navigator.vibrate([10]);
+  //       if(this.props.course!==""){
+  //         const event = {
+  //           summary: this.props.course + " " + this.props.name
+  //         };
+  //         ApiCalendar.updateEvent(event, this.props.id)
+  //         .then(
+  //           this.props.updateDone(this.props.id),
+  //         )
+  //         .catch((error: any) => {
+  //           console.log("ERROR LOGGING!"+error);
+  //           this.props.errorTimeoutOpen("Error 401/404")
+  //         });
+  //       } else {
+  //         const event = {
+  //           summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
+  //         };
+  //         ApiCalendar.updateEvent(event, this.props.id)
+  //         .then(
+  //           this.props.updateDone(this.props.id),
+  //         )
+  //         .catch((error: any) => {
+  //           console.log("ERROR LOGGING!"+error);
+  //           this.props.errorTimeoutOpen("Error 401/404")
+  //         });
+  //       }
+  //     }
+  //   }
+  // }
+  //--------------------------------------------------------------------------------------
+  render(){
+    var todayListEntries = [];  
+    for (var i = 0; i < this.props.calendarObjects.length; i++) {
+      var timeStart = displayTime(new Date(this.props.calendarObjects[i].start.dateTime));
+      var timeEnd = displayTime(new Date(this.props.calendarObjects[i].end.dateTime));
+      var displayTimeEnd;
+      if(timeEnd==="All day"){
+        displayTimeEnd="";
+      } else {
+        displayTimeEnd=" - "+timeEnd;
+      }
+      var name;
+      var course;
+      var courseRandomCode;
+      var courseColor;
+      var courseDisplay="none";
+      if(determineTaskCourse(this.props.calendarObjects[i].summary)!==""){
+        course=determineTaskCourse(this.props.calendarObjects[i].summary);
+        if(course.length>6){
+          courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
+        } else {
+          courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
+        }
+        courseColor=this.props.courseColors[courseRandomCode%this.props.courseColors.length];
+        courseDisplay="";
+      } else {
+        course = "";
+        courseRandomCode = -1;
+        courseColor="";
+      }
+      name=determineTaskName(this.props.calendarObjects[i].summary);
+      var descriptionDisplay="none";
+      if(this.props.calendarObjects[i].description!==undefined&&this.props.calendarObjects[i].description!==null){
+        descriptionDisplay="";
+      }
+      console.log(this.props.calendarObjects[i].done)
+      var textStyle="none";
+      var clickActionCheck="checkOff";
+      var checkColor="";
+      if(this.props.calendarObjects[i].done===true){
+        textStyle = "line-through";
+        clickActionCheck="uncheckOff";
+        checkColor="#777777";
+      }
+      if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date).addDays(this.props.dayOffset))){
+        todayListEntries.push(
+          <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}} onClick={(e) => this.handleItemClick(e, clickActionCheck)}>
+            <div className="weekEventLabel" style={{"color":checkColor, "textDecoration":textStyle, "transition":"all 0.5s"}}>{name}</div>
+            <div className="weekTimeLabel">{timeStart+displayTimeEnd}</div>
+            <div className="courseBubble" style={{"display":courseDisplay}}><span style={{"backgroundColor":courseColor}}>{course}</span></div>
+            <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.calendarObjects[i].description }}></div></Tooltip>}>
+              <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":descriptionDisplay}}/>
+            </OverlayTrigger>
+          </div>
+        )
+      }
+    }
+    return todayListEntries
+  }
+}
+class WeekList extends React.Component {
+  render() {
+    return(
+      <div className="week">
+        <div className="weekTable">
+          <table className="weekList">
+            <tbody>
+              <tr>
+                <WeekListHeader days={this.props.nextWeekShow}/>
+              </tr>
+              <tr>
+                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen}/>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )
+  }
+}
+
+class WeekEntry extends React.Component {
+  render() {
+    return(
+      <div>
+      </div>
+    )
   }
 }
 
@@ -611,7 +816,6 @@ function TaskTable(props){
     var timeStart = displayTime(new Date(props.calendarObjects[i].start.dateTime));
     var timeEnd = displayTime(new Date(props.calendarObjects[i].end.dateTime));
 
-    //if the task name is the same, there is no course
     if(determineTaskCourse(props.calendarObjects[i].summary)!==""){
       course=determineTaskCourse(props.calendarObjects[i].summary);
       if(course.length>6){
@@ -765,10 +969,10 @@ class TaskEntry extends React.Component{
     
     var dateColor;
     var dateFontWeight;
-    if(this.props.dateObjEnd<Date.now() && this.props.timeEnd!=="All day"){
-      dateColor="#c53f3f";
-      dateFontWeight="bold";
-    } else if (this.props.timeEnd==="All day" && eventToday(this.props.dateObjEnd)!==true){
+    if (this.props.timeEnd==="All day" && eventToday(this.props.dateObjEnd)===true){
+      dateColor="";
+      dateFontWeight="unset";
+    } else if(this.props.dateObjEnd < Date.now()){
       dateColor="#c53f3f";
       dateFontWeight="bold";
     } else {
@@ -799,8 +1003,7 @@ class TaskEntry extends React.Component{
   }
 }
 
-function eventToday(date){
-  var today = new Date;
+function eventToday(date,today=new Date()){
   if(date.getDay()===today.getDay() && date.getDate()===today.getDate() && date.getMonth()===today.getMonth() && date.getYear()===today.getYear()){
     return true;
   } else {
@@ -808,53 +1011,63 @@ function eventToday(date){
   }
 }
 
+function getDisplayDay(date){
+  var weekDay="";
+  if(date.getDay()===0){
+    weekDay="Sunday";
+  } else if (date.getDay()===1){
+    weekDay="Monday";
+  } else if (date.getDay()===2){
+    weekDay="Tuesday";
+  } else if (date.getDay()===3){
+    weekDay="Wednesday";
+  } else if (date.getDay()===4){
+    weekDay="Thursday";
+  } else if (date.getDay()===5){
+    weekDay="Friday";
+  } else if (date.getDay()===6){
+    weekDay="Saturday";
+  }
+  return weekDay;
+}
+
+function getDisplayMonth(date){
+  var month="";
+  if(date.getMonth()===0){
+    month="Jan."
+  } else if (date.getMonth()===1){
+    month="Feb."
+  } else if (date.getMonth()===2){
+    month="Mar."
+  } else if (date.getMonth()===3){
+    month="Apr."
+  } else if (date.getMonth()===4){
+    month="May"
+  } else if (date.getMonth()===5){
+    month="June"
+  } else if (date.getMonth()===6){
+    month="July"
+  } else if (date.getMonth()===7){
+    month="Aug."
+  } else if (date.getMonth()===8){
+    month="Sept."
+  } else if (date.getMonth()===9){
+    month="Oct."
+  } else if (date.getMonth()===10){
+    month="Nov."
+  } else if (date.getMonth()===11){
+    month="Dec."
+  }
+  return month;
+}
+
 function displayDate(date){
   if(isNaN(date.getMonth())&&isNaN(date.getDay())&&isNaN(date.getDate())){
     return "All day"
   } else {
     var output="";
-    var weekDay="";
-    var month="";
-    if(date.getDay()===0){
-      weekDay="Sunday";
-    } else if (date.getDay()===1){
-      weekDay="Monday";
-    } else if (date.getDay()===2){
-      weekDay="Tuesday";
-    } else if (date.getDay()===3){
-      weekDay="Wednesday";
-    } else if (date.getDay()===4){
-      weekDay="Thursday";
-    } else if (date.getDay()===5){
-      weekDay="Friday";
-    } else if (date.getDay()===6){
-      weekDay="Saturday";
-    }
-    if(date.getMonth()===0){
-      month="Jan."
-    } else if (date.getMonth()===1){
-      month="Feb."
-    } else if (date.getMonth()===2){
-      month="Mar."
-    } else if (date.getMonth()===3){
-      month="Apr."
-    } else if (date.getMonth()===4){
-      month="May"
-    } else if (date.getMonth()===5){
-      month="June"
-    } else if (date.getMonth()===6){
-      month="July"
-    } else if (date.getMonth()===7){
-      month="Aug."
-    } else if (date.getMonth()===8){
-      month="Sept."
-    } else if (date.getMonth()===9){
-      month="Oct."
-    } else if (date.getMonth()===10){
-      month="Nov."
-    } else if (date.getMonth()===11){
-      month="Dec."
-    }
+    var month=getDisplayMonth(date);
+    var weekDay = getDisplayDay(date)
     output=weekDay+" "+month+" " + date.getDate()
     return output;
   }
@@ -864,7 +1077,7 @@ function displayTime(date){
   if(isNaN(date.getHours())&&isNaN(date.getMinutes())){
     return "All day"
   } else {
-    var output = "";
+    var output = "Undefined";
     var minutes = date.getMinutes();
     if(minutes<=9){
       minutes="0"+minutes;
@@ -883,8 +1096,6 @@ function displayTime(date){
     } else {
       output = hours+":"+minutes+" "+meridian;
     }
-    
-    
     return output;
   } 
 }

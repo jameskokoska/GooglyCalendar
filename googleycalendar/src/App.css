@@ -234,7 +234,7 @@ td.course{
 
 .fadeIn{
   opacity:0;
-  animation: fadeIn 0.5s forwards;
+  animation: fadeIn 0.8s forwards;
 }
 
 .hoverSort{
@@ -265,6 +265,19 @@ td.course{
   cursor: pointer;
   user-select: none;
 }
+.infoIconWeek{
+  right:0;
+  bottom:0;
+  margin-top: 5px;
+  margin-bottom: 3px;
+  padding: 10px;
+  width:40px;
+  filter:invert(var(--brightnessIcon));
+  opacity: 0.7;
+  position: absolute;
+  cursor: pointer;
+  user-select: none;
+}
 .checkImg{
   width:20px;
   padding-bottom:2px;
@@ -282,6 +295,79 @@ td.course{
 .checkHeader{
   filter:invert(var(--brightnessIcon));
   transform: scale(0.8);
+}
+
+.weekTable{
+  color: var(--font-color);
+  overflow-x:auto;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  font-family: "Calibri";
+}
+table.weekList {
+  width: 100%;
+  min-width: 500px;
+  max-width: 1450px;
+  border-collapse: separate;
+  border-spacing: 10px;
+  margin-left: -10px;
+}
+.weekList > tbody > tr > th{
+  border: 1px solid #5555558f;
+  font-weight: normal;
+  border-radius: 10px;
+}
+.weekList > tbody > tr > td > .weekEntry{
+  padding:10px;
+  border-radius: 10px;
+  background-color: #5e5e5e21;
+  margin-bottom: 8px;
+  position: relative;
+}
+.weekList > tbody > tr > td {
+  vertical-align: top;
+}
+.weekList > tbody > tr > td > .weekEntry{
+  transition: background-color 0.5s;
+}
+.weekList > tbody > tr > td > .weekEntry:hover{
+  background-color: var(--highlight);
+  transition: background-color 0.2s;
+}
+.weekList > tbody > tr th{
+  background-color: var(--background);
+}
+.weekList > tbody > tr:hover th{
+  background-color: var(--background);
+}
+th.weekday{
+  font-size: 150%;
+  width:10%;
+  min-width: 130px;
+  padding-left: 10px;
+  padding-right: 10px;
+  text-align: center;
+}
+.weekEventLabel{
+  font-size: 22px;
+  line-height: 1.1;
+  padding-bottom: 4px;
+}
+.weekTimeLabel{
+  font-size: 16px;
+  opacity: 0.8;
+}
+.courseBubble{
+  margin-bottom: 2px;
+  margin-top: 5px;
+}
+.courseBubble span{
+  padding: 5px;
+  padding-left: 7px;
+  padding-right: 7px;
+  font-size: 15px;
+  border-radius: 25px;
+  color: black;
 }
 @keyframes scaleIn{
   0%{
@@ -378,5 +464,35 @@ td.course{
     padding-top:20px;
     padding-left:10px;
     width:30px;
+  }
+  .infoIconWeek{
+    right:6px;
+    top:unset;
+    bottom:9px;
+    margin: 0px;
+    margin-right: 0;
+    margin-top: 0;
+    padding: 0px;
+    padding-top:20px;
+    padding-left:10px;
+    width:30px;
+  }
+  th.weekday{
+    font-size: 130%;
+  }
+  .weekTimeLabel{
+    font-size: 14px;
+  }
+  .weekEventLabel{
+    font-size: 19px;
+  }
+  .courseBubble span{
+    padding: 3px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 15px;
+  }
+  .courseBubble{
+    margin-bottom: -2px;
   }
 }
