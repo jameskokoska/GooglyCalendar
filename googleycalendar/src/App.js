@@ -19,14 +19,21 @@ import "animate.css/animate.min.css";
 //Eventually:
 //Fix vibration feedback
 //Add events
+//sort by calendar ID
 
 //TODO:
-//7 day view list check off (add class and pass in arguments to check function accordingly, make a check off function??)
 //custom course colours
 //add filter both ways (sort by least/most)
 //remember all filter options not just one
-//Add priority/pin button which keeps the task at the top no matter what and change the background colour. store it using ! mark?
+//Add priority/pin button which keeps the task at the top no matter what and change the background colour. store it using ! mark? it will unpin automatically when checked off
+//pin section at top of table
 //put current date somewhere, put day numbers on 7 day view
+//add class properties: course code, course color, display time, start time, end time, all day, display name - will help with implementation of priority
+//^^ convert code to read from class properties instead of determining it each time
+//http://sonsoleslp.github.io/react-click-n-hold/ to pin
+//https://casesandberg.github.io/react-color/ for color picker
+//Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
+//make 7 day view turn into pointer on hover
 
 //FIX
 

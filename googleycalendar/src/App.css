@@ -328,17 +328,23 @@ table.weekList {
   vertical-align: top;
 }
 .weekList > tbody > tr > td > .weekEntry{
-  transition: background-color 0.5s;
+  transition: all 0.5s;
 }
 .weekList > tbody > tr > td > .weekEntry:hover{
   background-color: var(--highlight);
   transition: background-color 0.2s;
+  cursor: pointer;
+}
+.weekList > tbody > tr > td > .weekEntry:active{
+  filter: brightness(0.7);
+  transition: all 0.1s;
 }
 .weekList > tbody > tr th{
   background-color: var(--background);
 }
 .weekList > tbody > tr:hover th{
   background-color: var(--background);
+
 }
 th.weekday{
   font-size: 150%;
