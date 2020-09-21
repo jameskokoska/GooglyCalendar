@@ -15,6 +15,7 @@ import settingsIcon from "./assets/cog-solid.svg"
 import refreshIcon from "./assets/sync-alt-solid.svg"
 import infoIcon from "./assets/info-circle-solid.svg"
 import checkIcon from "./assets/check-solid.svg"
+import pinIcon from "./assets/thumbtack-solid.svg";
 import "animate.css/animate.min.css";
 //Eventually:
 //Fix vibration feedback
@@ -25,15 +26,12 @@ import "animate.css/animate.min.css";
 //custom course colours
 //add filter both ways (sort by least/most)
 //remember all filter options not just one
-//Add priority/pin button which keeps the task at the top no matter what and change the background colour. store it using ! mark? it will unpin automatically when checked off
 //pin section at top of table
 //put current date somewhere, put day numbers on 7 day view
-//add class properties: course code, course color, display time, start time, end time, all day, display name - will help with implementation of priority
-//^^ convert code to read from class properties instead of determining it each time
-//http://sonsoleslp.github.io/react-click-n-hold/ to pin
+//important tasks names in settings (separate with comma) e.g. will highlight task in orange background? like Quiz, Assignment, Test, Midterm, Exam
 //https://casesandberg.github.io/react-color/ for color picker
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
-//make 7 day view turn into pointer on hover
+//make checked off tasks grayed out background in 7 day week
 
 //FIX
 
@@ -46,6 +44,7 @@ export default class App extends React.Component {
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
     this.updateDone = this.updateDone.bind(this);
+    this.updatePin = this.updatePin.bind(this);
     this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
     this.setCalendarID = this.setCalendarID.bind(this);
     this.setCalendarID2 = this.setCalendarID2.bind(this);
@@ -139,22 +138,22 @@ export default class App extends React.Component {
       if(type==="sortName"){
         AsyncStorage.setItem("lastSort", "sortName");
         this.setState({
-          calendarObjects: sortName(this.state.calendarObjects),
+          calendarObjects: sortPin(sortName(this.state.calendarObjects)),
         })
       } else if(type==="sortDate") {
         AsyncStorage.setItem("lastSort", "sortDate");
         this.setState({
-          calendarObjects: sortDate(this.state.calendarObjects),
+          calendarObjects: sortPin(sortDate(this.state.calendarObjects)),
         })
       } else if(type==="sortCourse") {
         AsyncStorage.setItem("lastSort", "sortCourse");
         this.setState({
-          calendarObjects: sortCourse(this.state.calendarObjects),
+          calendarObjects: sortPin(sortCourse(this.state.calendarObjects)),
         })
       } else if(type==="sortCheck") {
         AsyncStorage.setItem("lastSort", "sortCheck");
         this.setState({
-          calendarObjects: sortCheck(this.state.calendarObjects),
+          calendarObjects: sortPin(sortCheck(this.state.calendarObjects)),
         })
       }
     }
@@ -198,6 +197,10 @@ export default class App extends React.Component {
       this.sortCalendarObjects('sortCourse')
     } else if (name==='sortDate'){
       this.sortCalendarObjects('sortDate')
+    } else if (name==='sortPin'){
+      this.setState({
+        calendarObjects: sortPin(this.state.calendarObjects),
+      })
     } else if (name==='errorTimeoutOpen'){
       this.errorTimeoutOpen("Error Code")
     } else if (name==='addEvent'){
@@ -242,6 +245,28 @@ export default class App extends React.Component {
       }
     }
   }
+
+  updatePin(id){
+    for (var i = 0; i < this.state.calendarObjects.length; i++) {
+      if(this.state.calendarObjects[i].id === id){
+        if(this.state.calendarObjects[i].pin===true){
+          this.state.calendarObjects[i].pin=false;
+          this.setState({
+            calendarObjects: sortPin(this.state.calendarObjects)
+          })
+        } else {
+          this.state.calendarObjects[i].pin=true;
+          this.setState({
+            calendarObjects: sortPin(this.state.calendarObjects)
+          })
+        }
+        return;
+      } else {
+        continue;
+      }
+    }
+  }
+
   errorTimeoutOpen(error){
     this.setState({
       errorCode: error,
@@ -280,11 +305,56 @@ export default class App extends React.Component {
               allDayPastTest=true;
             }
             if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
+              //Set up attributes of each object
               if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
                 calendarObjects[i].done=true;
               } else {
                 calendarObjects[i].done=false;
               }
+              if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="📌"){
+                calendarObjects[i].pin=true;
+              } else {
+                calendarObjects[i].pin=false;
+              }
+              if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && (calendarObjects[i].summary.substring(0,2)==="✔️" || calendarObjects[i].summary.substring(0,2)==="📌")){
+                calendarObjects[i].name=calendarObjects[i].summary.substring(2);
+              } else {
+                calendarObjects[i].name=calendarObjects[i].summary;
+              }
+              calendarObjects[i].date = displayDate(new Date(calendarObjects[i].start.dateTime));
+              if (calendarObjects[i].date==="All day"){
+                calendarObjects[i].date = displayDate(new Date(calendarObjects[i].end.date));
+                calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.date);
+              } else {
+                calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.dateTime);
+              }
+              calendarObjects[i].timeStart = displayTime(new Date(calendarObjects[i].start.dateTime));
+              calendarObjects[i].timeEnd = displayTime(new Date(calendarObjects[i].end.dateTime));
+
+              var courseRandomCode;
+              if(determineTaskCourse(calendarObjects[i].summary)!==""){
+                calendarObjects[i].course=determineTaskCourse(calendarObjects[i].summary);
+                if(calendarObjects[i].course.length>6){
+                  courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5)+calendarObjects[i].course.charCodeAt(6);
+                } else {
+                  courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5);
+                }
+                calendarObjects[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
+                calendarObjects[i].name=determineTaskName(calendarObjects[i].summary);
+              } else {
+                calendarObjects[i].course = "";
+                calendarObjects[i].courseRandomCode = -1;
+                calendarObjects[i].courseColor="";
+              }
+              // calendarObjects[i].done = "";
+              // calendarObjects[i].pin = "";
+              // calendarObjects[i].name = "";
+              // calendarObjects[i].course = "";
+              // calendarObjects[i].date = "";
+              // calendarObjects[i].timeStart = "";
+              // calendarObjects[i].timeEnd = "";
+              // calendarObjects[i].courseColor = "";
+              // calendarObjects[i].dateObjEnd = "";
               calendarObjects[i].calendarID=this.state.calendarID;
               calendarObjectsReduced.push(calendarObjects[i]);
             }
@@ -326,7 +396,6 @@ export default class App extends React.Component {
                         calendarObjects2[i].calendarID=this.state.calendarID2;
                       }
                       calendarObjects2Reduced.push(calendarObjects2[i]);
-                      console.log(calendarObjects2[i].summary)
                     }
                   }
                   Array.prototype.push.apply(calendarObjects2Reduced,this.state.calendarObjects); 
@@ -376,9 +445,12 @@ export default class App extends React.Component {
         </Button>
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "errorTimeoutOpen")}>
           errorTimeoutOpen
+        </Button>
+        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortPin")}>
+          sortPin
         </Button> */}
         <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen}/>
+        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         {/* <AddEvent/> */}
@@ -389,7 +461,7 @@ export default class App extends React.Component {
           There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
-        <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen}/>
+        <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
       </div>
     );
   }
@@ -420,7 +492,7 @@ function DayList(props){
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td>
-        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} updateDone={props.updateDone} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone}/>
+        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin}/>
       </td> 
     )
   }
@@ -436,8 +508,7 @@ class DayEntry extends React.Component{
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     ApiCalendar.setCalendar(this.props.calendarIDCurrent)
-    console.log(name)
-    if (name==="checkOff") {
+    if (name==="checkOff"&&this.props.pin===false) {
       if (ApiCalendar.sign){
         //navigator.vibrate([30]);
         if(this.props.course!==""){
@@ -449,7 +520,6 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         } else {
@@ -461,7 +531,6 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
              this.props.errorTimeoutOpen("Error 401/404")
           });
         }
@@ -478,7 +547,6 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         } else {
@@ -490,13 +558,98 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         }
       }
+    }    
+    if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
+      console.log("")
+      if (ApiCalendar.sign){
+        //navigator.vibrate([10]);
+        if(name==="checkOff"){
+          if(this.props.course!==""){
+            const event = {
+              summary: "✔️" + this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+              this.props.updateDone(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          } else {
+            const event = {
+              summary: "✔️" + this.props.name //remove the pin, because no pin is ever passed in
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+              this.props.updateDone(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          }
+        } else {
+          if(this.props.course!==""){
+            const event = {
+              summary: this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          } else {
+            const event = {
+              summary: this.props.name //remove the pin, because no pin is ever passed in
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          }
+        }
+        
+      }
+    } else if (name==="pin"&&(this.props.pin===false&&this.props.done===false)) {
+      if (ApiCalendar.sign){
+        //navigator.vibrate([30]);
+        if(this.props.course!==""){
+          const event = {
+            summary: "📌" + this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        } else {
+          const event = {
+            summary: "📌" + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        }
+      } 
     }
   }
+  
   //--------------------------------------------------------------------------------------
   render(){
     return(
@@ -518,34 +671,17 @@ class DayListEntry extends React.Component{
   render(){
     var todayListEntries = [];  
     for (var i = 0; i < this.props.calendarObjects.length; i++) {
-      var timeStart = displayTime(new Date(this.props.calendarObjects[i].start.dateTime));
-      var timeEnd = displayTime(new Date(this.props.calendarObjects[i].end.dateTime));
       var displayTimeEnd;
-      if(timeEnd==="All day"){
+      if(this.props.calendarObjects[i].timeEnd==="All day"){
         displayTimeEnd="";
       } else {
-        displayTimeEnd=" - "+timeEnd;
+        displayTimeEnd=" - "+this.props.calendarObjects[i].timeEnd;
       }
-      var name;
-      var course;
-      var courseRandomCode;
-      var courseColor;
       var courseDisplay="none";
-      if(determineTaskCourse(this.props.calendarObjects[i].summary)!==""){
-        course=determineTaskCourse(this.props.calendarObjects[i].summary);
-        if(course.length>6){
-          courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
-        } else {
-          courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
-        }
-        courseColor=this.props.courseColors[courseRandomCode%this.props.courseColors.length];
+      if(this.props.calendarObjects[i].course!==""){
         courseDisplay="";
-      } else {
-        course = "";
-        courseRandomCode = -1;
-        courseColor="";
       }
-      name=determineTaskName(this.props.calendarObjects[i].summary);
+      
       var descriptionDisplay="none";
       if(this.props.calendarObjects[i].description!==undefined&&this.props.calendarObjects[i].description!==null){
         descriptionDisplay="";
@@ -558,17 +694,17 @@ class DayListEntry extends React.Component{
         clickActionCheck="uncheckOff";
         checkColor="#777777";
       }
-      if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date).addDays(this.props.dayOffset))){
+      if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date()).addDays(this.props.dayOffset))){
         todayListEntries.push(
           <DayEntry
             checkColor={checkColor}
             textStyle={textStyle}
-            name={name}
-            timeStart={timeStart}
+            name={this.props.calendarObjects[i].name}
+            timeStart={this.props.calendarObjects[i].timeStart}
             displayTimeEnd={displayTimeEnd}
             courseDisplay={courseDisplay}
-            courseColor={courseColor}
-            course={course}
+            courseColor={this.props.calendarObjects[i].courseColor}
+            course={this.props.calendarObjects[i].course}
             descriptionDisplay={descriptionDisplay}
             description={this.props.calendarObjects[i].description}
             id={this.props.calendarObjects[i].id}
@@ -576,6 +712,8 @@ class DayListEntry extends React.Component{
             calendarIDCurrent={this.props.calendarObjects[i].calendarID}
             done={this.props.calendarObjects[i].done}
             clickActionCheck={clickActionCheck}
+            pin={this.props.calendarObjects[i].pin}
+            updatePin={this.props.updatePin}
           />
         )
       }
@@ -594,7 +732,7 @@ class WeekList extends React.Component {
                 <WeekListHeader days={this.props.nextWeekShow}/>
               </tr>
               <tr>
-                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen}/>
+                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin}/>
               </tr>
             </tbody>
           </table>
@@ -840,7 +978,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin}/>
       </div>
     )
   }
@@ -848,50 +986,15 @@ class TaskList extends React.Component {
 
 function TaskTable(props){
   var tasks = [];
-  var name = "";
-  var course = "";
-  var courseColor = "";
-  var courseRandomCode;
   for (var i = 0; i < props.calendarObjects.length; i++) {
-    if(props.calendarObjects[i].summary !== undefined && props.calendarObjects[i].summary.length>=2 && props.calendarObjects[i].summary.substring(0,2)==="✔️"){
-      name=props.calendarObjects[i].summary.substring(2);
-    } else {
-      name=props.calendarObjects[i].summary;
-    }
-    var date = displayDate(new Date(props.calendarObjects[i].start.dateTime));
-    var dateObjEnd;
-    if (date==="All day"){
-      date = displayDate(new Date(props.calendarObjects[i].end.date));
-      dateObjEnd = new Date(props.calendarObjects[i].end.date);
-    } else {
-      dateObjEnd = new Date(props.calendarObjects[i].end.dateTime);
-    }
-    var timeStart = displayTime(new Date(props.calendarObjects[i].start.dateTime));
-    var timeEnd = displayTime(new Date(props.calendarObjects[i].end.dateTime));
-
-    if(determineTaskCourse(props.calendarObjects[i].summary)!==""){
-      course=determineTaskCourse(props.calendarObjects[i].summary);
-      if(course.length>6){
-        courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5)+course.charCodeAt(6);
-      } else {
-        courseRandomCode=course.charCodeAt(0)+course.charCodeAt(1)+course.charCodeAt(2)+course.charCodeAt(3)+course.charCodeAt(4)+course.charCodeAt(5);
-      }
-      courseColor=props.courseColors[courseRandomCode%props.courseColors.length];
-      name=determineTaskName(props.calendarObjects[i].summary);
-    } else {
-      course = "";
-      courseRandomCode = -1;
-      courseColor="";
-    }
-
     tasks.push(
       <TaskEntry
-      name={name}
-      date={date}
-      timeStart={timeStart}
-      timeEnd={timeEnd}
-      course={course}
-      courseColor={courseColor}
+      name={props.calendarObjects[i].name}
+      date={props.calendarObjects[i].date}
+      timeStart={props.calendarObjects[i].timeStart}
+      timeEnd={props.calendarObjects[i].timeEnd}
+      course={props.calendarObjects[i].course}
+      courseColor={props.calendarObjects[i].courseColor}
       done={props.calendarObjects[i].done}
       id={props.calendarObjects[i].id}
       hoursBefore={props.hoursBefore}
@@ -899,8 +1002,10 @@ function TaskTable(props){
       updateDone={props.updateDone}
       calendarIDCurrent={props.calendarObjects[i].calendarID}
       description={props.calendarObjects[i].description}
-      dateObjEnd={dateObjEnd}
+      dateObjEnd={props.calendarObjects[i].dateObjEnd}
       errorTimeoutOpen={props.errorTimeoutOpen}
+      updatePin={props.updatePin}
+      pin={props.calendarObjects[i].pin}
       />
     );
   }
@@ -909,11 +1014,12 @@ function TaskTable(props){
       <table className="taskList">
         <tbody>
           <tr>
-            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
-            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check checkHeader" src={checkIcon}/></div></th>
+            <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
+            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
             <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
             <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
             <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
+            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
           {tasks}
         </tbody>
@@ -928,9 +1034,10 @@ class TaskEntry extends React.Component{
     this.handleItemClick = this.handleItemClick.bind(this);
     this.state ={checked: this.props.done};
   }
+
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     ApiCalendar.setCalendar(this.props.calendarIDCurrent)
-    if (name==="checkOff") {
+    if (name==="checkOff"&&this.props.pin===false) {
       if (ApiCalendar.sign){
         //navigator.vibrate([30]);
         if(this.props.course!==""){
@@ -942,7 +1049,6 @@ class TaskEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         } else {
@@ -954,7 +1060,6 @@ class TaskEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
              this.props.errorTimeoutOpen("Error 401/404")
           });
         }
@@ -971,7 +1076,6 @@ class TaskEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         } else {
@@ -983,28 +1087,121 @@ class TaskEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            console.log("ERROR LOGGING!"+error);
             this.props.errorTimeoutOpen("Error 401/404")
           });
         }
       }
+    }    
+    if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
+      console.log("")
+      if (ApiCalendar.sign){
+        //navigator.vibrate([10]);
+        if(name==="checkOff"){
+          if(this.props.course!==""){
+            const event = {
+              summary: "✔️" + this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+              this.props.updateDone(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          } else {
+            const event = {
+              summary: "✔️" + this.props.name //remove the pin, because no pin is ever passed in
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+              this.props.updateDone(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          }
+        } else {
+          if(this.props.course!==""){
+            const event = {
+              summary: this.props.course + " " + this.props.name
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          } else {
+            const event = {
+              summary: this.props.name //remove the pin, because no pin is ever passed in
+            };
+            ApiCalendar.updateEvent(event, this.props.id)
+            .then(
+              this.props.updatePin(this.props.id),
+            )
+            .catch((error: any) => {
+              this.props.errorTimeoutOpen("Error 401/404")
+            });
+          }
+        }
+        
+      }
+    } else if (name==="pin"&&(this.props.pin===false&&this.props.done===false)) {
+      if (ApiCalendar.sign){
+        //navigator.vibrate([30]);
+        if(this.props.course!==""){
+          const event = {
+            summary: "📌" + this.props.course + " " + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        } else {
+          const event = {
+            summary: "📌" + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
+        }
+      } 
     }
   }
   
   render(){
     var textStyle="none";
     var checkClass="checkImg";
+    var pinClass="pinImg";
     var checkColor="";
     var clickActionCheck="checkOff";
     var checkMarkBG="#64b5f6";
     var courseClass="course";
+    var pinDisplay="pin";
     if(this.props.done===true){
       textStyle = "line-through";
       checkClass+=" checkIn";
       checkColor="#777777";
       clickActionCheck="uncheckOff";
+      pinDisplay+=" pinNone";
     } else {
       checkClass+=" checkOut";
+    }
+
+    if(this.props.pin===true){
+      pinClass+=" pinIn"
+    } else {
+      pinClass+=" pinOut"
     }
 
     if(this.props.courseColor!==""){
@@ -1041,16 +1238,17 @@ class TaskEntry extends React.Component{
     }
     return(
       <tr className="taskEntry fadeIn">
-        <td className={courseClass}>{this.props.course}</td>
+        <td className={pinDisplay} onClick={(e) => this.handleItemClick(e, "pin")}><img alt="check" className={pinClass} src={pinIcon}/></td>
         <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><img alt="check" className={checkClass} src={checkIcon}/></td>
         <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
-          <div style={{"textDecoration":textStyle}}>{this.props.name}</div>
+          <div style={{"textDecoration":textStyle}}>{this.props.course+" "+this.props.name}</div>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
             <img alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
           </OverlayTrigger>
         </td>
         <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.date}</td>
         <td className="time">{this.props.timeStart}{displayTimeEnd}</td>
+        <td className={courseClass}>{this.props.course}</td>
       </tr>
     )
   }
@@ -1200,6 +1398,26 @@ function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) {
   }
 }
 
+function sortPin(calendarObjects){
+  var sortedCalendarObjects = calendarObjects;
+  var nameA;
+  var nameB;
+  sortedCalendarObjects.sort(function(a, b) {
+    if(a.pin === true){
+      nameA="0000pin";
+    } else {
+      nameA="zzzzpin";
+    }
+    if(b.pin === true){
+      nameB="0000pin";
+    } else {
+      nameB="zzzzpin";
+    }
+    return (nameA < nameB) ? -1 : (nameA > nameB) ? 1 : 0;
+  });
+  return sortedCalendarObjects;
+}
+
 function sortName(calendarObjects){
   var sortedCalendarObjects = calendarObjects;
   sortedCalendarObjects.sort(function(a, b) {
@@ -1273,7 +1491,7 @@ function determineRawSecondsTime(start){
 //this will determine the task name without the check-mark and course
 function determineTaskName(summary){
   var name;
-  if(summary !== undefined && summary.length>=2 && summary.substring(0,2)==="✔️"){
+  if(summary !== undefined && summary.length>=2 && (summary.substring(0,2)==="✔️"||summary.substring(0,2)==="📌")){
     name=summary.substring(2);
   } else {
     name=summary;
@@ -1283,6 +1501,12 @@ function determineTaskName(summary){
       name=name.substring(7);
     } else {
       name=name.substring(8);
+    }
+  } else if(summary!==undefined&&name.length>=8&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))&&name.substring(6,8)==="H1"){
+    if(name.substring(8,9)!==" "){
+      name=name.substring(8);
+    } else {
+      name=name.substring(9);
     }
   } else if(summary!==undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
     if(name.substring(6,7)!==" "){
@@ -1297,7 +1521,7 @@ function determineTaskName(summary){
 function determineTaskCourse(summary){
   var course;
   var name;
-  if(summary !== undefined && summary.length>=2 && summary.substring(0,2)==="✔️"){
+  if(summary !== undefined && summary.length>=2 && (summary.substring(0,2)==="✔️"||summary.substring(0,2)==="📌")){
     name=summary.substring(2);
   } else {
     name=summary;
@@ -1305,6 +1529,8 @@ function determineTaskCourse(summary){
 
   if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(3,7))&&!/\d/.test(name.substring(0,3))){
     course=name.substring(0,7);
+  } else if(summary!==undefined&&name.length>=8&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))&&name.substring(6,8)==="H1"){
+    course=name.substring(0,8);
   } else if(summary!==undefined&&name.length>6&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))){
     course=name.substring(0,6);
   }  else {

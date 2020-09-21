@@ -113,7 +113,7 @@ body{
 table.taskList {
   width: 100%;
   min-width: 500px;
-  max-width: 850px;
+  max-width: 950px;
   border-collapse: separate;
   border-spacing: 10px;
   margin-left: -10px;
@@ -140,6 +140,18 @@ table.taskList {
   transition: background-color 5s;
 }
 .taskList > tbody > tr:hover .courseNone{
+  background-color: var(--background);
+  opacity: 1;
+  transition: background-color 0s;
+}
+.taskList > tbody > tr .pin:active{
+  transition: 0.15s;
+  background-color: var(--highlight)
+}
+.taskList > tbody > tr .pinNone{
+  transition: background-color 5s;
+}
+.taskList > tbody > tr:hover .pinNone{
   background-color: var(--background);
   opacity: 1;
   transition: background-color 0s;
@@ -182,17 +194,17 @@ td.task{
   font-size: 130%;
 }
 th.task{
-  min-width: 150px;
+  min-width: 160px;
 }
 th.date{
-  width:23%;
+  width:19.8%;
   min-width: 110px;
 }
 td.date{
   font-size: 110%;
 }
 th.time{
-  width:22%;
+  width:20%;
   min-width: 115px;
 }
 td.time{
@@ -203,7 +215,14 @@ th.course{
 }
 td.course{
   font-size: 120%;
-  text-align: right;
+}
+th.pin{
+  width: 50px;
+  min-width: 50px;
+  max-width: 50px;
+}
+td.pin{
+  cursor: pointer;
 }
 .settingsIcon{
   width: 40px;
@@ -282,6 +301,14 @@ td.course{
   width:20px;
   padding-bottom:2px;
 }
+.pinImg{
+  width:15px;
+  filter:invert(var(--brightnessIcon));
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  user-select: none;
+}
 .checkIn{
   opacity:0;
   transform: scale(0.3);
@@ -292,9 +319,23 @@ td.course{
   transform: scale(1);
   animation: scaleOut 0.2s forwards;
 }
+.pinIn{
+  opacity:0;
+  transform: scale(0.3);
+  animation: scaleSpinIn 0.2s forwards;
+}
+.pinOut{
+  opacity:0;
+  transform: scale(1);
+  animation: scaleSpinOut 0.2s forwards;
+}
 .checkHeader{
   filter:invert(var(--brightnessIcon));
   transform: scale(0.8);
+}
+.pinHeader{
+  filter:invert(var(--brightnessIcon));
+  transform: scale(0.6);
 }
 
 .weekTable{
@@ -389,6 +430,20 @@ th.weekday{
     transform: scale(1);
   }
 }
+@keyframes scaleSpinIn{
+  0%{
+    opacity:0;
+    transform: scale(0.3) rotate(50deg);
+  }
+  91%{
+    opacity:1;
+    transform: scale(1) rotate(-50deg);
+  }
+  100%{
+    opacity:1;
+    transform: scale(1) rotate(-50deg);
+  }
+}
 @keyframes scaleOut{
   0%{
     opacity:1;
@@ -397,6 +452,16 @@ th.weekday{
   100%{
     opacity:0;
     transform: scale(0.3);
+  }
+}
+@keyframes scaleSpinOut{
+  0%{
+    opacity:1;
+    transform: scale(1) rotate(-50deg);
+  }
+  100%{
+    opacity:0;
+    transform: scale(0.3) rotate(10deg);
   }
 }
 .addButton{
