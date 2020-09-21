@@ -389,13 +389,57 @@ export default class App extends React.Component {
                       allDayPastTest=true;
                     }
                     if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
+                      //Set up attributes of each object
                       if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="✔️"){
                         calendarObjects2[i].done=true;
-                        calendarObjects2[i].calendarID=this.state.calendarID2;
                       } else {
                         calendarObjects2[i].done=false;
-                        calendarObjects2[i].calendarID=this.state.calendarID2;
                       }
+                      if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="📌"){
+                        calendarObjects2[i].pin=true;
+                      } else {
+                        calendarObjects2[i].pin=false;
+                      }
+                      if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && (calendarObjects2[i].summary.substring(0,2)==="✔️" || calendarObjects2[i].summary.substring(0,2)==="📌")){
+                        calendarObjects2[i].name=calendarObjects2[i].summary.substring(2);
+                      } else {
+                        calendarObjects2[i].name=calendarObjects2[i].summary;
+                      }
+                      calendarObjects2[i].date = displayDate(new Date(calendarObjects2[i].start.dateTime));
+                      if (calendarObjects2[i].date==="All day"){
+                        calendarObjects2[i].date = displayDate(new Date(calendarObjects2[i].end.date));
+                        calendarObjects2[i].dateObjEnd = new Date(calendarObjects2[i].end.date);
+                      } else {
+                        calendarObjects2[i].dateObjEnd = new Date(calendarObjects2[i].end.dateTime);
+                      }
+                      calendarObjects2[i].timeStart = displayTime(new Date(calendarObjects2[i].start.dateTime));
+                      calendarObjects2[i].timeEnd = displayTime(new Date(calendarObjects2[i].end.dateTime));
+
+                      var courseRandomCode;
+                      if(determineTaskCourse(calendarObjects2[i].summary)!==""){
+                        calendarObjects2[i].course=determineTaskCourse(calendarObjects2[i].summary);
+                        if(calendarObjects2[i].course.length>6){
+                          courseRandomCode=calendarObjects2[i].course.charCodeAt(0)+calendarObjects2[i].course.charCodeAt(1)+calendarObjects2[i].course.charCodeAt(2)+calendarObjects2[i].course.charCodeAt(3)+calendarObjects2[i].course.charCodeAt(4)+calendarObjects2[i].course.charCodeAt(5)+calendarObjects2[i].course.charCodeAt(6);
+                        } else {
+                          courseRandomCode=calendarObjects2[i].course.charCodeAt(0)+calendarObjects2[i].course.charCodeAt(1)+calendarObjects2[i].course.charCodeAt(2)+calendarObjects2[i].course.charCodeAt(3)+calendarObjects2[i].course.charCodeAt(4)+calendarObjects2[i].course.charCodeAt(5);
+                        }
+                        calendarObjects2[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
+                        calendarObjects2[i].name=determineTaskName(calendarObjects2[i].summary);
+                      } else {
+                        calendarObjects2[i].course = "";
+                        calendarObjects2[i].courseRandomCode = -1;
+                        calendarObjects2[i].courseColor="";
+                      }
+                      // calendarObjects[i].done = "";
+                      // calendarObjects[i].pin = "";
+                      // calendarObjects[i].name = "";
+                      // calendarObjects[i].course = "";
+                      // calendarObjects[i].date = "";
+                      // calendarObjects[i].timeStart = "";
+                      // calendarObjects[i].timeEnd = "";
+                      // calendarObjects[i].courseColor = "";
+                      // calendarObjects[i].dateObjEnd = "";
+                      calendarObjects2[i].calendarID=this.state.calendarID2;
                       calendarObjects2Reduced.push(calendarObjects2[i]);
                     }
                   }
