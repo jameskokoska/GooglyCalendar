@@ -494,6 +494,10 @@ th.weekday{
   transition: all 0.1s;
   box-shadow: -2px -2px 5px 1px var(--background);
 }
+.marginNameFix{
+  margin-right: 30px;
+}
+
 
 @keyframes fadeIn{
   0%{opacity:0}
@@ -565,5 +569,8 @@ th.weekday{
   }
   .courseBubble{
     margin-bottom: -2px;
+  }
+  .marginNameFix{
+    margin-right: 0px;
   }
 }

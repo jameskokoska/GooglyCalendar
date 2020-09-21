@@ -25,13 +25,14 @@ import "animate.css/animate.min.css";
 //TODO:
 //custom course colours
 //add filter both ways (sort by least/most)
-//remember all filter options not just one
+//remember all filter options not just one -> with this apply the filters in order after unpinning
 //pin section at top of table
 //put current date somewhere, put day numbers on 7 day view
 //important tasks names in settings (separate with comma) e.g. will highlight task in orange background? like Quiz, Assignment, Test, Midterm, Exam
 //https://casesandberg.github.io/react-color/ for color picker
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 //make checked off tasks grayed out background in 7 day week
+
 
 //FIX
 
@@ -653,9 +654,9 @@ class DayEntry extends React.Component{
   //--------------------------------------------------------------------------------------
   render(){
     return(
-      <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}} onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)}>
-        <div className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
-        <div className="weekTimeLabel">{this.props.timeStart+this.props.displayTimeEnd}</div>
+      <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}}>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel">{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
         <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
           <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay}}/>
@@ -1213,8 +1214,10 @@ class TaskEntry extends React.Component{
     }
 
     var descriptionDisplay="none";
+    var marginNameFix="";
     if(this.props.description!==undefined&&this.props.description!==null){
       descriptionDisplay="";
+      marginNameFix="marginNameFix"
     }
     
     var dateColor;
@@ -1241,7 +1244,7 @@ class TaskEntry extends React.Component{
         <td className={pinDisplay} onClick={(e) => this.handleItemClick(e, "pin")}><img alt="check" className={pinClass} src={pinIcon}/></td>
         <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><img alt="check" className={checkClass} src={checkIcon}/></td>
         <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
-          <div style={{"textDecoration":textStyle}}>{this.props.course+" "+this.props.name}</div>
+          <div className={marginNameFix} style={{"textDecoration":textStyle}}>{this.props.course+" "+this.props.name}</div>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
             <img alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
           </OverlayTrigger>
