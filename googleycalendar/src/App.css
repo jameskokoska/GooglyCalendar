@@ -65,7 +65,7 @@ body{
   font-family: "PierSansBold";
   color: var(--font-color);
   line-height: 1.2;
-  margin-bottom: 36px;
+  margin-bottom: 30px;
 }
 .header2{
   font-size: 32px;
@@ -389,7 +389,6 @@ table.weekList {
 }
 .weekList > tbody > tr:hover th{
   background-color: var(--background);
-
 }
 th.weekday{
   font-size: 150%;
@@ -607,5 +606,14 @@ th.weekday{
   }
   .marginNameFix{
     margin-right: 0px;
+  }
+  .header1{
+    margin-top: 28px;
+    font-size: 50px;
+    font-family: "PierSansBold";
+    color: var(--font-color);
+    line-height: 1.15;
+    margin-bottom: 28px;
+    padding-right: 3px;
   }
 }

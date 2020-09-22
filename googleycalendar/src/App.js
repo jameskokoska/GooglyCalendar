@@ -516,7 +516,7 @@ export default class App extends React.Component {
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
             </Tab>
-            <Tab eventKey="2" title="Week">
+            <Tab eventKey="2" title="Week View">
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
             </Tab>
         </Tabs>
