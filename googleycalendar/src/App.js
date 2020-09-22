@@ -2,6 +2,8 @@ import React, {ReactNode, SyntheticEvent} from 'react';
 import { AsyncStorage } from 'AsyncStorage';
 import ApiCalendar from 'react-google-calendar-api';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Tabs from 'react-bootstrap/Tabs'
+import Tab from 'react-bootstrap/Tabs'
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
@@ -20,18 +22,22 @@ import "animate.css/animate.min.css";
 //Eventually:
 //Fix vibration feedback
 //Add events
-//sort by calendar ID
+
 
 //TODO:
+//instead of tasks put date name, short form on mobile (sept.)
+//sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //custom course colours
+//https://casesandberg.github.io/react-color/ for color picker
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
-//pin section at top of table
 //put current date somewhere, put day numbers on 7 day view
+//clicking arrow beside 'tasks' switches to 7 day view
 //important tasks names in settings (separate with comma) e.g. will highlight task in orange background? like Quiz, Assignment, Test, Midterm, Exam
-//https://casesandberg.github.io/react-color/ for color picker
-//Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 //make checked off tasks grayed out background in 7 day week
+
+
+//Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 
 
 //FIX
@@ -65,6 +71,8 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--background', "#121212");
       document.documentElement.style.setProperty('--font-color', "#fafafa");
       document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
+      document.documentElement.style.setProperty('--highlight2', "#8a8a8a46");
+      document.documentElement.style.setProperty('--highlight-tabs', "#c9c9c925");
       document.documentElement.style.setProperty('--accent', "#1565c0c9");
       document.documentElement.style.setProperty('--brightnessIcon', "1");
       this.courseColors = this.courseColorsDark;
@@ -388,6 +396,7 @@ export default class App extends React.Component {
                     } else {
                       allDayPastTest=true;
                     }
+                    //----------------------------------------------------------------------------------
                     if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
                       //Set up attributes of each object
                       if(calendarObjects2[i].summary !== undefined && calendarObjects2[i].summary.length>=2 && calendarObjects2[i].summary.substring(0,2)==="✔️"){
@@ -443,6 +452,7 @@ export default class App extends React.Component {
                       calendarObjects2Reduced.push(calendarObjects2[i]);
                     }
                   }
+                  //----------------------------------------------------------------------------------
                   Array.prototype.push.apply(calendarObjects2Reduced,this.state.calendarObjects); 
                   this.setState({
                     calendarObjects: calendarObjects2Reduced,
@@ -456,17 +466,24 @@ export default class App extends React.Component {
   }
   
   render(): ReactNode {
-    var signStatusDisplay="none"
-    var calendarObjectsLengthDisplay="none"
+    var signStatusDisplay="none";
+    var calendarObjectsLengthDisplay="none";
     if(this.state.signStatus){
-      signStatusDisplay="none"
+      signStatusDisplay="none";
     } else {
-      signStatusDisplay=""
+      signStatusDisplay="";
     }
     if(this.state.calendarObjects.length<=0 && this.state.signStatus){
-      calendarObjectsLengthDisplay=""
+      calendarObjectsLengthDisplay="";
     } else {
-      calendarObjectsLengthDisplay="none"
+      calendarObjectsLengthDisplay="none";
+    }
+    var today=new Date();
+    var currentDisplayDate;
+    if(window.innerWidth>767){
+      currentDisplayDate=getDisplayDayFull(today)+" "+getDisplayMonthFull(today)+" "+today.getDate()
+    } else {
+      currentDisplayDate=getDisplayDay(today)+" "+getDisplayMonth(today)+" "+today.getDate()
     }
     return (
       <div className="screen">
@@ -494,19 +511,25 @@ export default class App extends React.Component {
         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortPin")}>
           sortPin
         </Button> */}
-        <Header1 content="Tasks"/>
-        <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
+        <Header1 content={currentDisplayDate}/>
+        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
+            <Tab eventKey="1" title="Task List">
+              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
+            </Tab>
+            <Tab eventKey="2" title="Week">
+              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
+            </Tab>
+        </Tabs>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
         <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
         {/* <AddEvent/> */}
-        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
+        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer"}}>
           You are not signed-in. Sign-in in the settings, or click this message.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
-        <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
       </div>
     );
   }
@@ -521,7 +544,7 @@ function WeekListHeader(props){
     numDays=props.days;
   }
   for (var i = 0; i < numDays; i++) {
-    weekHeaders.push( <th className="weekday header3 fadeIn" style={{animationDelay:"1s"}}>{getDisplayDay((new Date()).addDays(i))}</th> )
+    weekHeaders.push( <th className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
   }
   return weekHeaders;
 }
@@ -698,7 +721,7 @@ class DayEntry extends React.Component{
   //--------------------------------------------------------------------------------------
   render(){
     return(
-      <div className="weekEntry fadeIn" style={{animationDelay:"0.7s"}}>
+      <div className="weekEntry fadeIn">
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel">{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
@@ -1058,7 +1081,7 @@ function TaskTable(props){
     <div className="taskTable">
       <table className="taskList">
         <tbody>
-          <tr>
+          <tr className="fadeIn">
             <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
             <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
             <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
@@ -1309,7 +1332,7 @@ function eventToday(date,today=new Date()){
   }
 }
 
-function getDisplayDay(date){
+function getDisplayDayFull(date){
   var weekDay="";
   if(date.getDay()===0){
     weekDay="Sunday";
@@ -1325,6 +1348,25 @@ function getDisplayDay(date){
     weekDay="Friday";
   } else if (date.getDay()===6){
     weekDay="Saturday";
+  }
+  return weekDay;
+}
+function getDisplayDay(date){
+  var weekDay="";
+  if(date.getDay()===0){
+    weekDay="Sun.";
+  } else if (date.getDay()===1){
+    weekDay="Mon.";
+  } else if (date.getDay()===2){
+    weekDay="Tues.";
+  } else if (date.getDay()===3){
+    weekDay="Wed.";
+  } else if (date.getDay()===4){
+    weekDay="Thurs.";
+  } else if (date.getDay()===5){
+    weekDay="Fri.";
+  } else if (date.getDay()===6){
+    weekDay="Sat.";
   }
   return weekDay;
 }
@@ -1359,13 +1401,43 @@ function getDisplayMonth(date){
   return month;
 }
 
+function getDisplayMonthFull(date){
+  var month="";
+  if(date.getMonth()===0){
+    month="January"
+  } else if (date.getMonth()===1){
+    month="February"
+  } else if (date.getMonth()===2){
+    month="March"
+  } else if (date.getMonth()===3){
+    month="April"
+  } else if (date.getMonth()===4){
+    month="May"
+  } else if (date.getMonth()===5){
+    month="June"
+  } else if (date.getMonth()===6){
+    month="July"
+  } else if (date.getMonth()===7){
+    month="August"
+  } else if (date.getMonth()===8){
+    month="September"
+  } else if (date.getMonth()===9){
+    month="October"
+  } else if (date.getMonth()===10){
+    month="November"
+  } else if (date.getMonth()===11){
+    month="December"
+  }
+  return month;
+}
+
 function displayDate(date){
   if(isNaN(date.getMonth())&&isNaN(date.getDay())&&isNaN(date.getDate())){
     return "All day"
   } else {
     var output="";
     var month=getDisplayMonth(date);
-    var weekDay = getDisplayDay(date)
+    var weekDay = getDisplayDayFull(date)
     output=weekDay+" "+month+" " + date.getDate()
     return output;
   }

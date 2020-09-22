@@ -23,9 +23,11 @@
   --font-color: #111111;
   --background: #fafafa;
   --highlight: #42424248;
+  --highlight2: #8b8b8b1a;
+  --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
-  --color:#c53f3f;
+  --color: #8a8a8a46;
 }
 
 body{
@@ -62,6 +64,8 @@ body{
   font-size: 50px;
   font-family: "PierSansBold";
   color: var(--font-color);
+  line-height: 1.2;
+  margin-bottom: 36px;
 }
 .header2{
   font-size: 32px;
@@ -106,7 +110,7 @@ body{
 .taskTable{
   color: var(--font-color);
   overflow-x:auto;
-  padding-top: 1%;
+  padding-top: 0%;
   padding-bottom: 1%;
   font-family: "Calibri";
 }
@@ -341,7 +345,7 @@ td.pin{
 .weekTable{
   color: var(--font-color);
   overflow-x:auto;
-  padding-top: 1%;
+  padding-top: 0%;
   padding-bottom: 1%;
   font-family: "Calibri";
 }
@@ -464,6 +468,37 @@ th.weekday{
     transform: scale(0.3) rotate(10deg);
   }
 }
+.tabsLabel{
+  font-size: 20px;
+  color: var(--font-color);
+  font-family: "PierSans";
+  margin-bottom: 25px;
+  border-bottom: solid;
+  border-color: var(--highlight);
+  outline: none !important;
+}
+
+.tabsLabel a{
+  color: var(--font-color);
+  opacity: 0.6;
+  margin-right:5px;
+  transition: all 0.3s;
+  outline: none !important;
+}
+.tabsLabel a:hover{
+  transition: all 0.3s;
+  background-color: var(--highlight2);
+}
+.nav-tabs .nav-item.nav-link.active{
+  background-color: var(--highlight-tabs);
+  border-bottom: solid;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  color: var(--font-color);
+  opacity: 1;
+  border-color: var(--highlight2);
+}
+
 .addButton{
   padding:9px;
   font-size: 35px;
