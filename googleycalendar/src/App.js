@@ -8,6 +8,8 @@ import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Toast from 'react-bootstrap/Toast'
+import Accordion from 'react-bootstrap/Accordion'
+import Card from 'react-bootstrap/Card'
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
@@ -19,6 +21,7 @@ import infoIcon from "./assets/info-circle-solid.svg"
 import checkIcon from "./assets/check-solid.svg"
 import pinIcon from "./assets/thumbtack-solid.svg";
 import "animate.css/animate.min.css";
+import { SliderPicker } from 'react-color';
 //Eventually:
 //Fix vibration feedback
 //Add events
@@ -80,58 +83,113 @@ export default class App extends React.Component {
   
 
   loadSyncData() {
-    AsyncStorage.getItem('calendarIDKey').then((value) => {
-      if (value !== undefined && value !== "" && value !== undefined){
-        //read saved text
-        this.setState({ calendarID: value });
-      } else {
-        this.setState({ calendarID: "primary" });
-      }
-    })
-    AsyncStorage.getItem('calendarIDKey2').then((value) => {
-      if (value !== undefined && value !== "" && value !== undefined){
-        this.setState({ calendarID2: value });
-      } else if (value === ""){
-        this.setState({ calendarID2: this.state.calendarID });
-      } else {
-        this.setState({ calendarID2: "primary" });
-      }
-    })
-    AsyncStorage.getItem('numEventsKey').then((value) => {
-      if (value !== null && value !== "" && value !== undefined){
-        this.setState({ numEvents: value });
-      } else {
-        this.setState({ numEvents: 20 });
-      }
-    })
-    AsyncStorage.getItem('hoursBefore').then((value) => {
-      if (value !== null && value !== "" && value !== undefined){
-        this.setState({ hoursBefore: value });
-      } else {
-        this.setState({ hoursBefore: 0 });
-      }
-    })
-    AsyncStorage.getItem('importantEvents').then((value) => {
-      if (value !== null && value !== "" && value !== undefined){
-        this.setState({ importantEvents: value });
-      } else {
-        this.setState({ importantEvents: "" });
-      }
-    })
-    AsyncStorage.getItem('lastSort').then((value) => {
-      if (value !== null && value !== "" && value !== undefined){
-        this.setState({ lastSort: value });
-      } else {
-        this.setState({ lastSort: "sortDate" });
-      }
-    })
-    AsyncStorage.getItem('nextWeekShow').then((value) => {
-      if (value !== null && value !== "" && value !== undefined){
-        this.setState({ nextWeekShow: value });
-      } else {
-        this.setState({ nextWeekShow: 7 });
-      }
-    })
+    AsyncStorage.getItem('calendarIDKey').then((calendarID) => {
+      AsyncStorage.getItem('calendarIDKey2').then((calendarID2) => {
+        AsyncStorage.getItem('numEventsKey').then((numEvents) => {
+          AsyncStorage.getItem('hoursBefore').then((hoursBefore) => {
+            AsyncStorage.getItem('importantEvents').then((importantEvents) => {
+              AsyncStorage.getItem('lastSort').then((lastSort) => {
+                AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
+                  AsyncStorage.getItem('courseColor1').then((courseColor1) => {
+                    AsyncStorage.getItem('courseColor2').then((courseColor2) => {
+                      AsyncStorage.getItem('courseColor3').then((courseColor3) => {
+                        AsyncStorage.getItem('courseColor4').then((courseColor4) => {
+                          AsyncStorage.getItem('courseColor5').then((courseColor5) => {
+                            AsyncStorage.getItem('courseColor6').then((courseColor6) => {
+                              AsyncStorage.getItem('courseColor7').then((courseColor7) => {
+                                AsyncStorage.getItem('course1').then((course1) => {
+                                  AsyncStorage.getItem('course').then((course2) => {
+                                    AsyncStorage.getItem('course3').then((course3) => {
+                                      AsyncStorage.getItem('course4').then((course4) => {
+                                        AsyncStorage.getItem('course5').then((course5) => {
+                                          AsyncStorage.getItem('course6').then((course6) => {
+                                            AsyncStorage.getItem('course7').then((course7) => {
+                                              if(calendarID==="" || calendarID===undefined){
+                                                calendarID="primary";
+                                              }
+                                              if(calendarID2==="" || calendarID===undefined){
+                                                calendarID2="";
+                                              }
+                                              if(numEvents==="" || numEvents===undefined){
+                                                numEvents=20;
+                                              }
+                                              if(hoursBefore==="" || hoursBefore===undefined){
+                                                hoursBefore=0;
+                                              }
+                                              if(importantEvents==="" || importantEvents===undefined){
+                                                importantEvents="";
+                                              }
+                                              if(lastSort==="" || lastSort===undefined){
+                                                lastSort="sortDate";
+                                              }
+                                              if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                nextWeekShow=7;
+                                              }
+                                              if(course1===undefined){
+                                                course1="";
+                                              }
+                                              if(course2===undefined){
+                                                course2="";
+                                              }
+                                              if(course3===undefined){
+                                                course3="";
+                                              }
+                                              if(course4===undefined){
+                                                course4="";
+                                              }
+                                              if(course5===undefined){
+                                                course5="";
+                                              }
+                                              if(course6===undefined){
+                                                course6="";
+                                              }
+                                              if(course7===undefined){
+                                                course7="";
+                                              }
+                                              this.setState({ 
+                                                calendarID: calendarID,
+                                                calendarID2: calendarID2,
+                                                numEvents:numEvents,
+                                                hoursBefore:hoursBefore,
+                                                importantEvents:importantEvents,
+                                                lastSort:lastSort,
+                                                nextWeekShow:nextWeekShow,
+                                                courseColor1:courseColor1,
+                                                courseColor2:courseColor2,
+                                                courseColor3:courseColor3,
+                                                courseColor4:courseColor4,
+                                                courseColor5:courseColor5,
+                                                courseColor6:courseColor6,
+                                                courseColor7:courseColor7,
+                                                course1:course1,
+                                                course2:course2,
+                                                course3:course3,
+                                                course4:course4,
+                                                course5:course5,
+                                                course6:course6,
+                                                course7:course7,
+                                              });
+                                            })
+                                          })
+                                        })
+                                      })
+                                    })
+                                  })
+                                })
+                              })
+                            })
+                          })
+                        })
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
+      })
+    })   
   }
   signUpdate() {
     this.setState({ signStatus: ApiCalendar.sign})
@@ -230,10 +288,10 @@ export default class App extends React.Component {
         } else {
           ApiCalendar.createEvent(event).then((result: object) => {
             console.log(result);
-              })
+          })
           .catch((error: any) => {
             console.log(error);
-              });
+          });
         }
       }
     }
@@ -371,6 +429,21 @@ export default class App extends React.Component {
                 }catch(e){
                     console.log('error', e);     
                 }
+              }
+              if(this.state.course1.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor1;
+              } else if(this.state.course2.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor2;
+              } else if(this.state.course3.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor3;
+              } else if(this.state.course4.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor4;
+              } else if(this.state.course5.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor5;
+              } else if(this.state.course6.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor6;
+              } else if(this.state.course7.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+                calendarObjects[i].courseColor=this.state.courseColor7;
               }
               // calendarObjects[i].done = "";
               // calendarObjects[i].pin = "";
@@ -984,42 +1057,113 @@ class Settings extends React.Component{
   }
 
   loadInputs() {
-    AsyncStorage.getItem('calendarIDKey').then((value1) => {
-      AsyncStorage.getItem('calendarIDKey2').then((value2) => {
-          this.setState({ calendarID: value1, calendarID2: value2 });
-          this.props.setCalendarID(value1)
-          this.props.setCalendarID2(value2)
+     AsyncStorage.getItem('calendarIDKey').then((calendarID) => {
+      AsyncStorage.getItem('calendarIDKey2').then((calendarID2) => {
+        AsyncStorage.getItem('numEventsKey').then((numEvents) => {
+          AsyncStorage.getItem('hoursBefore').then((hoursBefore) => {
+            AsyncStorage.getItem('importantEvents').then((importantEvents) => {
+              AsyncStorage.getItem('lastSort').then((lastSort) => {
+                AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
+                  AsyncStorage.getItem('courseColor1').then((courseColor1) => {
+                    AsyncStorage.getItem('courseColor2').then((courseColor2) => {
+                      AsyncStorage.getItem('courseColor3').then((courseColor3) => {
+                        AsyncStorage.getItem('courseColor4').then((courseColor4) => {
+                          AsyncStorage.getItem('courseColor5').then((courseColor5) => {
+                            AsyncStorage.getItem('courseColor6').then((courseColor6) => {
+                              AsyncStorage.getItem('courseColor7').then((courseColor7) => {
+                                AsyncStorage.getItem('course1').then((course1) => {
+                                  AsyncStorage.getItem('course').then((course2) => {
+                                    AsyncStorage.getItem('course3').then((course3) => {
+                                      AsyncStorage.getItem('course4').then((course4) => {
+                                        AsyncStorage.getItem('course5').then((course5) => {
+                                          AsyncStorage.getItem('course6').then((course6) => {
+                                            AsyncStorage.getItem('course7').then((course7) => {
+                                              if(calendarID==="" || calendarID===undefined){
+                                                calendarID="primary";
+                                              }
+                                              if(calendarID2==="" || calendarID===undefined){
+                                                calendarID2="";
+                                              }
+                                              if(numEvents==="" || numEvents===undefined){
+                                                numEvents=20;
+                                              }
+                                              if(hoursBefore==="" || hoursBefore===undefined){
+                                                hoursBefore=0;
+                                              }
+                                              if(importantEvents==="" || importantEvents===undefined){
+                                                importantEvents="";
+                                              }
+                                              if(lastSort==="" || lastSort===undefined){
+                                                lastSort="sortDate";
+                                              }
+                                              if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                nextWeekShow=7;
+                                              }
+                                              if(course1===undefined){
+                                                course1="";
+                                              }
+                                              if(course2===undefined){
+                                                course2="";
+                                              }
+                                              if(course3===undefined){
+                                                course3="";
+                                              }
+                                              if(course4===undefined){
+                                                course4="";
+                                              }
+                                              if(course5===undefined){
+                                                course5="";
+                                              }
+                                              if(course6===undefined){
+                                                course6="";
+                                              }
+                                              if(course7===undefined){
+                                                course7="";
+                                              }
+                                              this.setState({ 
+                                                calendarID: calendarID,
+                                                calendarID2: calendarID2,
+                                                numEvents:numEvents,
+                                                hoursBefore:hoursBefore,
+                                                importantEvents:importantEvents,
+                                                lastSort:lastSort,
+                                                nextWeekShow:nextWeekShow,
+                                                courseColor1:courseColor1,
+                                                courseColor2:courseColor2,
+                                                courseColor3:courseColor3,
+                                                courseColor4:courseColor4,
+                                                courseColor5:courseColor5,
+                                                courseColor6:courseColor6,
+                                                courseColor7:courseColor7,
+                                                course1:course1,
+                                                course2:course2,
+                                                course3:course3,
+                                                course4:course4,
+                                                course5:course5,
+                                                course6:course6,
+                                                course7:course7,
+                                              });
+                                            })
+                                          })
+                                        })
+                                      })
+                                    })
+                                  })
+                                })
+                              })
+                            })
+                          })
+                        })
+                      })
+                    })
+                  })
+                })
+              })
+            })
+          })
+        })
       })
-    })
-    
-    AsyncStorage.getItem('numEventsKey').then((value) => {
-      if (value !== null && value !== undefined && value !== ""){
-        this.setState({ numEvents: value });
-      } else {
-        this.setState({ numEvents: 20 });
-      }
-    })
-    AsyncStorage.getItem('hoursBefore').then((value) => {
-      if (value !== null && value !== undefined && value !== ""){
-        this.setState({ hoursBefore: value });
-      } else {
-        this.setState({ hoursBefore: 5 });
-      }
-    })
-    AsyncStorage.getItem('nextWeekShow').then((value) => {
-      if (value !== null && value !== undefined && value !== ""){
-        this.setState({ nextWeekShow: value });
-      } else {
-        this.setState({ nextWeekShow: 7 });
-      }
-    })
-    AsyncStorage.getItem('importantEvents').then((value) => {
-      if (value !== null && value !== undefined && value !== ""){
-        this.setState({ importantEvents: value });
-      } else {
-        this.setState({ importantEvents: "" });
-      }
-    })
+    })   
   }
 
   handleChange(event,props) {
@@ -1037,7 +1181,21 @@ class Settings extends React.Component{
       AsyncStorage.setItem('nextWeekShow', event.target.value);
     } else if(event.target.name==="importantEvents"){
       AsyncStorage.setItem('importantEvents', event.target.value);
-    } 
+    } else if(event.target.name==="course1"){
+      AsyncStorage.setItem('course1', event.target.value);
+    } else if(event.target.name==="course2"){
+      AsyncStorage.setItem('course2', event.target.value);
+    } else if(event.target.name==="course3"){
+      AsyncStorage.setItem('course3', event.target.value);
+    } else if(event.target.name==="course4"){
+      AsyncStorage.setItem('course4', event.target.value);
+    } else if(event.target.name==="course5"){
+      AsyncStorage.setItem('course5', event.target.value);
+    } else if(event.target.name==="course6"){
+      AsyncStorage.setItem('course6', event.target.value);
+    } else if(event.target.name==="course7"){
+      AsyncStorage.setItem('course7', event.target.value);
+    }
   }
 
   render(){
@@ -1098,6 +1256,49 @@ class Settings extends React.Component{
                   Events to highlight in the list, separate list with comma. For example: Test,Exam,Quiz
                 </Form.Text>
               </Form.Group>
+              <Form.Group>
+              <Accordion defaultActiveKey="10">
+                <Card>
+                  <Card.Header style={{"padding":"4px"}}>
+                    <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                      ▼ Set custom course colours... 
+                    </Accordion.Toggle>
+                  </Card.Header>
+                  <Accordion.Collapse eventKey="0">
+                    <div>
+                      <Form.Group style={{"paddingTop":"5px","paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course1" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course1}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor1"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course2" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course2}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor2"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course3" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course3}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor3"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course4" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course4}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor4"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course5" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course5}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor5"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course6" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course6}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor6"/>
+                      </Form.Group>
+                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course7" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.state.course7}/>
+                        <ColorPicker color={this.state.courseColor1} courseStorageID="courseColor7"/>
+                      </Form.Group>
+                    </div>
+                  </Accordion.Collapse>
+                </Card>
+              </Accordion>
+              </Form.Group>
             </Form>
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXX9999". <br/>3 letters followed by 3 or 4 numbers.</p>
             <p>You can sort each category by clicking each category header.</p>
@@ -1113,6 +1314,33 @@ class Settings extends React.Component{
           </Modal.Footer>
         </Modal>
       </div>
+    )
+  }
+}
+
+class ColorPicker extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {
+      displayColorPicker: false,
+      colorValue: this.props.color
+    };
+  }
+  setColor(color){
+    AsyncStorage.setItem(this.props.courseStorageID, color);
+  }
+  handleColorChange = color => {
+    this.setState({
+      colorValue: color.hex
+    });
+    this.setColor(color.hex)
+  };
+  render(){
+    return(
+      <SliderPicker
+        color={this.state.colorValue}
+        onChange={this.handleColorChange}
+      />
     )
   }
 }
