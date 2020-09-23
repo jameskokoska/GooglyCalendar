@@ -552,17 +552,14 @@ th.weekday{
 }
 .nav-item.nav-link:hover{
   border:none;
-  border-bottom: solid;
-  border-color: var(--background);
+  border-bottom: none;
 }
 .nav-item.nav-link{
   border:none;
-  border-bottom: solid;
-  border-color: var(--background);
 }
 .nav-tabs .nav-item.nav-link.active{
   background-color: var(--highlight-tabs);
-  border-bottom: solid;
+  border-bottom: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   color: var(--font-color);
@@ -661,7 +658,7 @@ th.weekday{
   }
   .pinIconWeek{
     margin: 0px;
-    margin-right: 1px;
+    margin-right: 4px;
     margin-top: 0;
     padding: 0px;
     padding-left:0px;
