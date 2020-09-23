@@ -31,10 +31,6 @@ import "animate.css/animate.min.css";
 //https://casesandberg.github.io/react-color/ for color picker
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
-//put current date somewhere, put day numbers on 7 day view
-//clicking arrow beside 'tasks' switches to 7 day view
-//important tasks names in settings (separate with comma) e.g. will highlight task in orange background? like Quiz, Assignment, Test, Midterm, Exam
-//make checked off tasks grayed out background in 7 day week
 
 
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
@@ -65,6 +61,7 @@ export default class App extends React.Component {
     this.courseColorsLight = ["#ffcdd2","#e1bee7","#c5cae9","#b3e5fc","#b2dfdb","#dcedc8","#fff9c4","#ffe0b2","#d7ccc8","#cfd8dc"];
     this.courseColorsDark = ["#cb9ca1","#af8eb5","#9499b7","#82b3c9","#82ada9","#aabb97","#cbc693","#cbae82","#a69b97","#9ea7aa"];
     this.courseColors = this.courseColorsLight;
+    this.darkMode=false;
     var currentHours = new Date().getHours();
     //Dark mode colors
     if(currentHours > 19 || currentHours < 7){
@@ -76,6 +73,7 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--accent', "#1565c0c9");
       document.documentElement.style.setProperty('--brightnessIcon', "1");
       this.courseColors = this.courseColorsDark;
+      this.darkMode = true;
     }
   }
 
@@ -111,6 +109,13 @@ export default class App extends React.Component {
         this.setState({ hoursBefore: value });
       } else {
         this.setState({ hoursBefore: 0 });
+      }
+    })
+    AsyncStorage.getItem('importantEvents').then((value) => {
+      if (value !== null && value !== "" && value !== undefined){
+        this.setState({ importantEvents: value });
+      } else {
+        this.setState({ importantEvents: "" });
       }
     })
     AsyncStorage.getItem('lastSort').then((value) => {
@@ -289,8 +294,7 @@ export default class App extends React.Component {
       ApiCalendar.setCalendar("primary")
     } else {
       ApiCalendar.setCalendar(this.state.calendarID)
-    }
-    
+    } 
     if (ApiCalendar.sign){
       listEvents(this.state.numEvents,this.state.hoursBefore)
         .then(({result}: any) => {
@@ -355,6 +359,19 @@ export default class App extends React.Component {
                 calendarObjects[i].courseRandomCode = -1;
                 calendarObjects[i].courseColor="";
               }
+              
+              if(this.state.importantEvents.split(",").length>0&&this.state.importantEvents!==""){
+                try{
+                  calendarObjects[i].important = false;
+                  for(var x=0; x<this.state.importantEvents.split(",").length;x++){
+                    if (calendarObjects[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
+                      calendarObjects[i].important = true;
+                    }
+                  }
+                }catch(e){
+                    console.log('error', e);     
+                }
+              }
               // calendarObjects[i].done = "";
               // calendarObjects[i].pin = "";
               // calendarObjects[i].name = "";
@@ -364,6 +381,7 @@ export default class App extends React.Component {
               // calendarObjects[i].timeEnd = "";
               // calendarObjects[i].courseColor = "";
               // calendarObjects[i].dateObjEnd = "";
+              // calendarObjects[i].important = "";
               calendarObjects[i].calendarID=this.state.calendarID;
               calendarObjectsReduced.push(calendarObjects[i]);
             }
@@ -438,6 +456,18 @@ export default class App extends React.Component {
                         calendarObjects2[i].course = "";
                         calendarObjects2[i].courseRandomCode = -1;
                         calendarObjects2[i].courseColor="";
+                      }
+                      if(this.state.importantEvents.split(",").length>0&&this.state.importantEvents!==""){
+                        try{
+                          calendarObjects2[i].important = false;
+                          for(var x=0; x<this.state.importantEvents.split(",").length;x++){
+                            if (calendarObjects2[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
+                              calendarObjects2[i].important = true;
+                            }
+                          }
+                        }catch(e){
+                            console.log('error', e);     
+                        }
                       }
                       // calendarObjects[i].done = "";
                       // calendarObjects[i].pin = "";
@@ -514,10 +544,10 @@ export default class App extends React.Component {
         <Header1 content={currentDisplayDate}/>
         <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
             <Tab eventKey="1" title="Task List">
-              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
+              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="2" title="Day View">
-              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
+              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
         </Tabs>
         <Settings refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus} setCalendarID={this.setCalendarID} setCalendarID2={this.setCalendarID2}/>
@@ -560,7 +590,7 @@ function DayList(props){
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td>
-        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin}/>
+        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
       </td> 
     )
   }
@@ -632,7 +662,6 @@ class DayEntry extends React.Component{
       }
     }    
     if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
-      console.log("")
       if (ApiCalendar.sign){
         //navigator.vibrate([10]);
         if(name==="checkOff"){
@@ -738,15 +767,21 @@ class DayEntry extends React.Component{
     } else {
       pinClass+=" pinOutWeek"
     }
+    var weekEntryClass="weekEntry fadeIn";
+    var weekEntryOpacity="1";
+    if(this.props.done===true){
+      weekEntryClass=weekEntryClass+" weekEntryDone";
+      weekEntryOpacity="0.5";
+    }
     return(
-      <div className="weekEntry fadeIn">
+      <div className={weekEntryClass}>
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
         <div className="iconBoxWeek" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
           <img onClick={(e) => this.handleItemClick(e, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
-            <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay}}/>
+            <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay, "opacity":weekEntryOpacity}}/>
           </OverlayTrigger>
         </div>
       </div> 
@@ -787,6 +822,11 @@ class DayListEntry extends React.Component{
         clickActionCheck="uncheckOff";
         checkColor="#777777";
       }
+      if(this.props.calendarObjects[i].important===true&&this.props.darkMode===true&&this.props.calendarObjects[i].done===false){
+        checkColor="#ff8b8b"
+      } else if (this.props.calendarObjects[i].important===true&&this.props.darkMode===false&&this.props.calendarObjects[i].done===false){
+        checkColor="#C85000"
+      }
       if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date()).addDays(this.props.dayOffset))){
         todayListEntries.push(
           <DayEntry
@@ -808,6 +848,8 @@ class DayListEntry extends React.Component{
             pin={this.props.calendarObjects[i].pin}
             updatePin={this.props.updatePin}
             pinDisplay={pinDisplay}
+            important={this.props.calendarObjects[i].important}
+            darkMode={this.props.darkMode}
           />
         )
       }
@@ -826,7 +868,7 @@ class WeekList extends React.Component {
                 <WeekListHeader days={this.props.nextWeekShow}/>
               </tr>
               <tr>
-                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin}/>
+                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
               </tr>
             </tbody>
           </table>
@@ -971,6 +1013,13 @@ class Settings extends React.Component{
         this.setState({ nextWeekShow: 7 });
       }
     })
+    AsyncStorage.getItem('importantEvents').then((value) => {
+      if (value !== null && value !== undefined && value !== ""){
+        this.setState({ importantEvents: value });
+      } else {
+        this.setState({ importantEvents: "" });
+      }
+    })
   }
 
   handleChange(event,props) {
@@ -986,6 +1035,8 @@ class Settings extends React.Component{
       AsyncStorage.setItem('hoursBefore', event.target.value);
     } else if(event.target.name==="nextWeekShow"){
       AsyncStorage.setItem('nextWeekShow', event.target.value);
+    } else if(event.target.name==="importantEvents"){
+      AsyncStorage.setItem('importantEvents', event.target.value);
     } 
   }
 
@@ -1040,6 +1091,13 @@ class Settings extends React.Component{
                   Number of hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
+              <Form.Group>
+                <Form.Label>Important Events</Form.Label>
+                <Form.Control name="importantEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.state.importantEvents}/>
+                <Form.Text className="text-muted">
+                  Events to highlight in the list, separate list with comma. For example: Test,Exam,Quiz
+                </Form.Text>
+              </Form.Group>
             </Form>
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXX9999". <br/>3 letters followed by 3 or 4 numbers.</p>
             <p>You can sort each category by clicking each category header.</p>
@@ -1063,7 +1121,7 @@ class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin}/>
+        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
       </div>
     )
   }
@@ -1091,6 +1149,8 @@ function TaskTable(props){
       errorTimeoutOpen={props.errorTimeoutOpen}
       updatePin={props.updatePin}
       pin={props.calendarObjects[i].pin}
+      important={props.calendarObjects[i].important}
+      darkMode={props.darkMode}
       />
     );
   }
@@ -1178,7 +1238,6 @@ class TaskEntry extends React.Component{
       }
     }    
     if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
-      console.log("")
       if (ApiCalendar.sign){
         //navigator.vibrate([10]);
         if(name==="checkOff"){
@@ -1322,6 +1381,12 @@ class TaskEntry extends React.Component{
       displayTimeEnd="";
     } else {
       displayTimeEnd=" - "+this.props.timeEnd;
+    }
+
+    if(this.props.important===true&&this.props.darkMode===true&&this.props.done===false){
+      checkColor="#ff8b8b"
+    } else if (this.props.important===true&&this.props.darkMode===false&&this.props.done===false){
+      checkColor="#C85000"
     }
     return(
       <tr className="taskEntry fadeIn">

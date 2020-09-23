@@ -27,7 +27,6 @@
   --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
-  --color: #66666623;
 }
 
 body{
@@ -403,6 +402,10 @@ table.weekList {
   margin-bottom: 8px;
   position: relative;
 }
+.weekList > tbody > tr > td > .weekEntryDone{
+  background-color: #5e5e5e0c;
+}
+
 .weekList > tbody > tr > td {
   vertical-align: top;
 }
@@ -413,6 +416,9 @@ table.weekList {
   background-color: var(--highlight);
   transition: background-color 0.2s;
   cursor: pointer;
+}
+.weekList > tbody > tr > td > .weekEntryDone:hover{
+  background-color: #5e5e5e18;
 }
 .weekList > tbody > tr > td > .weekEntry:active{
   filter: brightness(0.7);
