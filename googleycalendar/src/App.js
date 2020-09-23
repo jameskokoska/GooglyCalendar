@@ -28,10 +28,7 @@ import { SliderPicker } from 'react-color';
 
 
 //TODO:
-//instead of tasks put date name, short form on mobile (sept.)
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
-//custom course colours
-//https://casesandberg.github.io/react-color/ for color picker
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
 
@@ -541,6 +538,21 @@ export default class App extends React.Component {
                         }catch(e){
                             console.log('error', e);     
                         }
+                      }
+                      if(this.state.course1.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor1;
+                      } else if(this.state.course2.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor2;
+                      } else if(this.state.course3.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor3;
+                      } else if(this.state.course4.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor4;
+                      } else if(this.state.course5.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor5;
+                      } else if(this.state.course6.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor6;
+                      } else if(this.state.course7.toLowerCase()===calendarObjects2[i].course.toLowerCase()){
+                        calendarObjects2[i].courseColor=this.state.courseColor7;
                       }
                       // calendarObjects[i].done = "";
                       // calendarObjects[i].pin = "";
