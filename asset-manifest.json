@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/GoogleyCalendar/static/css/main.40992f38.chunk.css",
+    "main.css": "/GoogleyCalendar/static/css/main.27c592d6.chunk.css",
     "main.js": "/GoogleyCalendar/static/js/main.31ac5e92.chunk.js",
     "main.js.map": "/GoogleyCalendar/static/js/main.31ac5e92.chunk.js.map",
     "runtime-main.js": "/GoogleyCalendar/static/js/runtime-main.b0f46218.js",
@@ -9,10 +9,10 @@
     "static/js/2.da387c06.chunk.js": "/GoogleyCalendar/static/js/2.da387c06.chunk.js",
     "static/js/2.da387c06.chunk.js.map": "/GoogleyCalendar/static/js/2.da387c06.chunk.js.map",
     "index.html": "/GoogleyCalendar/index.html",
-    "precache-manifest.6e2dc924f040c4c1af4e414ea0539f98.js": "/GoogleyCalendar/precache-manifest.6e2dc924f040c4c1af4e414ea0539f98.js",
+    "precache-manifest.80451bedc29c9016a84971e1db73d31d.js": "/GoogleyCalendar/precache-manifest.80451bedc29c9016a84971e1db73d31d.js",
     "service-worker.js": "/GoogleyCalendar/service-worker.js",
     "static/css/2.da69928d.chunk.css.map": "/GoogleyCalendar/static/css/2.da69928d.chunk.css.map",
-    "static/css/main.40992f38.chunk.css.map": "/GoogleyCalendar/static/css/main.40992f38.chunk.css.map",
+    "static/css/main.27c592d6.chunk.css.map": "/GoogleyCalendar/static/css/main.27c592d6.chunk.css.map",
     "static/js/2.da387c06.chunk.js.LICENSE.txt": "/GoogleyCalendar/static/js/2.da387c06.chunk.js.LICENSE.txt",
     "static/media/App.css": "/GoogleyCalendar/static/media/PierSans-Regular.239bd637.otf",
     "static/media/check-solid.svg": "/GoogleyCalendar/static/media/check-solid.e597acab.svg",
@@ -25,7 +25,7 @@
     "static/js/runtime-main.b0f46218.js",
     "static/css/2.da69928d.chunk.css",
     "static/js/2.da387c06.chunk.js",
-    "static/css/main.40992f38.chunk.css",
+    "static/css/main.27c592d6.chunk.css",
     "static/js/main.31ac5e92.chunk.js"
   ]
 }
