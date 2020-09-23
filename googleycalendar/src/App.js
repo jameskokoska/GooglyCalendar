@@ -364,7 +364,7 @@ export default class App extends React.Component {
                 try{
                   calendarObjects[i].important = false;
                   for(var x=0; x<this.state.importantEvents.split(",").length;x++){
-                    if (calendarObjects[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
+                    if (calendarObjects[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
                       calendarObjects[i].important = true;
                     }
                   }
@@ -461,7 +461,7 @@ export default class App extends React.Component {
                         try{
                           calendarObjects2[i].important = false;
                           for(var x=0; x<this.state.importantEvents.split(",").length;x++){
-                            if (calendarObjects2[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
+                            if (calendarObjects2[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())||calendarObjects2[i].course.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
                               calendarObjects2[i].important = true;
                             }
                           }
