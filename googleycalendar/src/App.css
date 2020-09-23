@@ -27,7 +27,7 @@
   --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
-  --color: #8a8a8a46;
+  --color: #66666623;
 }
 
 body{
@@ -259,6 +259,10 @@ td.pin{
   opacity:0;
   animation: fadeIn 0.8s forwards;
 }
+.fadeOut{
+  opacity:1;
+  animation: fadeOut 0.8s forwards;
+}
 
 .hoverSort{
   opacity:1;
@@ -288,18 +292,40 @@ td.pin{
   cursor: pointer;
   user-select: none;
 }
+.iconBoxWeek{
+  /* The css position is in DayEntry class */
+  position: absolute;
+  padding-right: 3px;
+  padding-bottom: 5px;
+}
 .infoIconWeek{
-  right:0;
-  bottom:0;
-  margin-top: 5px;
-  margin-bottom: 3px;
-  padding: 10px;
-  width:40px;
+  margin: 0px;
+  margin-right: 1px;
+  margin-top: 0;
+  padding: 0px;
+  padding-left:0px;
+  margin-bottom: 8px;
+  width:19px;
   filter:invert(var(--brightnessIcon));
   opacity: 0.7;
-  position: absolute;
   cursor: pointer;
   user-select: none;
+  margin-right:6px;
+}
+.pinIconWeek{
+  margin: 0px;
+  margin-right: 1px;
+  margin-top: 0;
+  padding: 0px;
+  padding-left:0px;
+  margin-bottom: 8px;
+  margin-right:8px;
+  width:13px;
+  filter:invert(var(--brightnessIcon));
+  opacity: 0.7;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s;
 }
 .checkImg{
   width:20px;
@@ -333,6 +359,14 @@ td.pin{
   transform: scale(1);
   animation: scaleSpinOut 0.2s forwards;
 }
+.pinInWeek{
+  transform: scale(0.3);
+  animation: scaleSpinInWeek 0.2s forwards;
+}
+.pinOutWeek{
+  transform: scale(1);
+  animation: scaleSpinOutWeek 0.2s forwards;
+}
 .checkHeader{
   filter:invert(var(--brightnessIcon));
   transform: scale(0.8);
@@ -351,7 +385,7 @@ td.pin{
 }
 table.weekList {
   width: 100%;
-  min-width: 500px;
+  min-width: 1150px;
   max-width: 1450px;
   border-collapse: separate;
   border-spacing: 10px;
@@ -406,6 +440,8 @@ th.weekday{
 .weekTimeLabel{
   font-size: 16px;
   opacity: 0.8;
+  line-height: 1.1;
+  padding-bottom: 3px;
 }
 .courseBubble{
   margin-bottom: 2px;
@@ -447,6 +483,20 @@ th.weekday{
     transform: scale(1) rotate(-50deg);
   }
 }
+@keyframes scaleSpinInWeek{
+  0%{
+    opacity:0.2;
+    transform: scale(1) rotate(0deg);
+  }
+  91%{
+    opacity:0.9;
+    transform: scale(1) rotate(-50deg);
+  }
+  100%{
+    opacity:0.9;
+    transform: scale(1) rotate(-50deg);
+  }
+}
 @keyframes scaleOut{
   0%{
     opacity:1;
@@ -467,6 +517,16 @@ th.weekday{
     transform: scale(0.3) rotate(10deg);
   }
 }
+@keyframes scaleSpinOutWeek{
+  0%{
+    opacity:0.9;
+    transform: rotate(-50deg);
+  }
+  100%{
+    opacity:0.1;
+    transform: rotate(0deg);
+  }
+}
 .tabsLabel{
   font-size: 20px;
   color: var(--font-color);
@@ -483,10 +543,22 @@ th.weekday{
   margin-right:5px;
   transition: all 0.3s;
   outline: none !important;
+  
 }
 .tabsLabel a:hover{
   transition: all 0.3s;
   background-color: var(--highlight2);
+  outline: none !important;
+}
+.nav-item.nav-link:hover{
+  border:none;
+  border-bottom: solid;
+  border-color: var(--background);
+}
+.nav-item.nav-link{
+  border:none;
+  border-bottom: solid;
+  border-color: var(--background);
 }
 .nav-tabs .nav-item.nav-link.active{
   background-color: var(--highlight-tabs);
@@ -495,7 +567,8 @@ th.weekday{
   border-top-right-radius: 8px;
   color: var(--font-color);
   opacity: 1;
-  border-color: var(--highlight2);
+  border-width:2px;
+  border-color: var(--highlight);
 }
 
 .addButton{
@@ -537,6 +610,10 @@ th.weekday{
   0%{opacity:0}
   100%{opacity:1}
 }
+@keyframes fadeOut{
+  0%{opacity:1}
+  100%{opacity:0}
+}
 
 /* Mobile View */
 @media only screen and (max-width: 767px) {
@@ -575,22 +652,27 @@ th.weekday{
     width:30px;
   }
   .infoIconWeek{
-    right:6px;
-    top:unset;
-    bottom:9px;
     margin: 0px;
     margin-right: 0;
     margin-top: 0;
     padding: 0px;
-    padding-top:20px;
-    padding-left:10px;
-    width:30px;
+    padding-left:2px;
+    width:20px;
+  }
+  .pinIconWeek{
+    margin: 0px;
+    margin-right: 1px;
+    margin-top: 0;
+    padding: 0px;
+    padding-left:0px;
+    width:13px;
   }
   th.weekday{
     font-size: 130%;
   }
   .weekTimeLabel{
     font-size: 14px;
+    line-height: 1;
   }
   .weekEventLabel{
     font-size: 19px;
@@ -615,5 +697,9 @@ th.weekday{
     line-height: 1.15;
     margin-bottom: 28px;
     padding-right: 3px;
+  }
+  .iconBoxWeek{
+    padding-right: 5px;
+    padding-bottom: 6px;
   }
 }

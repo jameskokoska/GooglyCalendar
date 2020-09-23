@@ -71,7 +71,7 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--background', "#121212");
       document.documentElement.style.setProperty('--font-color', "#fafafa");
       document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
-      document.documentElement.style.setProperty('--highlight2', "#8a8a8a46");
+      document.documentElement.style.setProperty('--highlight2', "#66666623");
       document.documentElement.style.setProperty('--highlight-tabs', "#c9c9c925");
       document.documentElement.style.setProperty('--accent', "#1565c0c9");
       document.documentElement.style.setProperty('--brightnessIcon', "1");
@@ -516,7 +516,7 @@ export default class App extends React.Component {
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
             </Tab>
-            <Tab eventKey="2" title="Week View">
+            <Tab eventKey="2" title="Day View">
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin}/>
             </Tab>
         </Tabs>
@@ -720,14 +720,35 @@ class DayEntry extends React.Component{
   
   //--------------------------------------------------------------------------------------
   render(){
+    var weekTimeLabelMargin=0;
+    if((this.props.pinDisplay!=="none" && this.props.descriptionDisplay!=="none")&&this.props.courseDisplay==="none"){
+      weekTimeLabelMargin=47;
+    } else if(this.props.courseDisplay==="none"){
+      weekTimeLabelMargin=15;
+    }
+    var iconBoxWeekRight="0px";
+    var iconBoxWeekBottom="0px";
+    if(this.props.courseDisplay==="none"){
+      iconBoxWeekRight="-2px";
+      iconBoxWeekBottom="-5px";
+    }
+    var pinClass = "pinIconWeek"
+    if(this.props.pin===true){
+      pinClass+=" pinInWeek"
+    } else {
+      pinClass+=" pinOutWeek"
+    }
     return(
       <div className="weekEntry fadeIn">
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel">{this.props.timeStart+this.props.displayTimeEnd}</div>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
-        <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
-          <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay}}/>
-        </OverlayTrigger>
+        <div className="iconBoxWeek" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
+          <img onClick={(e) => this.handleItemClick(e, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
+          <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
+            <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay}}/>
+          </OverlayTrigger>
+        </div>
       </div> 
     )
       
@@ -753,6 +774,10 @@ class DayListEntry extends React.Component{
       var descriptionDisplay="none";
       if(this.props.calendarObjects[i].description!==undefined&&this.props.calendarObjects[i].description!==null){
         descriptionDisplay="";
+      }
+      var pinDisplay="none";
+      if(this.props.calendarObjects[i].done===false){
+        pinDisplay="";
       }
       var textStyle="none";
       var clickActionCheck="checkOff";
@@ -782,6 +807,7 @@ class DayListEntry extends React.Component{
             clickActionCheck={clickActionCheck}
             pin={this.props.calendarObjects[i].pin}
             updatePin={this.props.updatePin}
+            pinDisplay={pinDisplay}
           />
         )
       }
@@ -805,15 +831,6 @@ class WeekList extends React.Component {
             </tbody>
           </table>
         </div>
-      </div>
-    )
-  }
-}
-
-class WeekEntry extends React.Component {
-  render() {
-    return(
-      <div>
       </div>
     )
   }
