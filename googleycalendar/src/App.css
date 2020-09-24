@@ -22,11 +22,33 @@
 :root {
   --font-color: #111111;
   --background: #fafafa;
+  --background-settings: white;
   --highlight: #42424248;
   --highlight2: #8b8b8b1a;
   --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
+  --color:#141414;
+}
+
+.modal-content{
+  background-color:var(--background-settings);
+  color: var(--font-color);
+}
+
+.form-control{
+  background-color: var(--background);
+  color:var(--font-color);
+  transition: all 0.3s;
+}
+.form-control:valid {
+  background-color: var(--background);
+  color:var(--font-color);
+  border-color: var(--highlight);
+}
+.card{
+  background-color: var(--highlight2);
+  color:var(--font-color);
 }
 
 body{
@@ -34,7 +56,8 @@ body{
 }
 
 ::-webkit-scrollbar {
-  width: 13px;
+  width: 12px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
