@@ -22,6 +22,7 @@ import checkIcon from "./assets/check-solid.svg"
 import pinIcon from "./assets/thumbtack-solid.svg";
 import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
+import FlipMove from 'react-flip-move';
 //Eventually:
 //Fix vibration feedback
 //Add events
@@ -43,6 +44,7 @@ export default class App extends React.Component {
     super(props);
     this.handleItemClick = this.handleItemClick.bind(this);
     this.refreshWholeList = this.refreshWholeList.bind(this);
+    this.resetCalendarObjects = this.resetCalendarObjects.bind(this);
     this.signUpdate = this.signUpdate.bind(this);
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
@@ -59,6 +61,7 @@ export default class App extends React.Component {
         ApiCalendar.listenSign(this.signUpdate);
         this.setState({ signStatus: ApiCalendar.sign})
     });
+    this.resetDisable = false;
     //this.courseColorsLight = ["#ef5350","#ab47bc","#5c6bc0","#29b6f6","#26a69a","#9ccc65","#ffee58","#ffa726","#8d6e63","#78909c"];
     // this.courseColorsDark = ["#b61827","#790e8b","#26418f","#0086c3","#00766c","#6b9b37","#c9bc1f","#c77800","#5f4339","#4b636e"];
     this.courseColorsLight = ["#ffcdd2","#e1bee7","#c5cae9","#b3e5fc","#b2dfdb","#dcedc8","#fff9c4","#ffe0b2","#d7ccc8","#cfd8dc"];
@@ -460,12 +463,21 @@ export default class App extends React.Component {
       this.sortCalendarObjects(this.state.lastSort)
     })
   }
+  resetCalendarObjects(){
+    if(this.resetDisable===false){
+      this.resetDisable=true;
+      this.setState({calendarObjects:[]})
+      setTimeout(function () {
+          this.refreshWholeList()
+      }.bind(this), 1000);
+      setTimeout(function () {
+          this.resetDisable=false;
+      }.bind(this), 2000);
+    }
+  }
 
   refreshWholeList() {
     this.loadSyncData();
-    this.setState({
-      calendarObjects: [],
-    })
     if (ApiCalendar.sign){
       if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
         ApiCalendar.setCalendar("primary")
@@ -489,7 +501,7 @@ export default class App extends React.Component {
     } else {
       signStatusDisplay="";
     }
-    if(this.state.calendarObjects.length<=0 && this.state.signStatus){
+    if(this.state.calendarObjects.length<=0 && this.state.signStatus && !this.resetDisable){
       calendarObjectsLengthDisplay="";
     } else {
       calendarObjectsLengthDisplay="none";
@@ -537,7 +549,7 @@ export default class App extends React.Component {
             </Tab>
         </Tabs>
         <Settings 
-          refreshWholeList={this.refreshWholeList} 
+          resetCalendarObjects={this.resetCalendarObjects} 
           signStatus={this.state.signStatus} 
           setCalendarID={this.setCalendarID} 
           setCalendarID2={this.setCalendarID2} 
@@ -562,7 +574,7 @@ export default class App extends React.Component {
           course6={this.state.course6}
           course7={this.state.course7}
           />
-        <Refresh refreshWholeList={this.refreshWholeList} signStatus={this.state.signStatus}/>
+        <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
         {/* <AddEvent/> */}
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer"}}>
           You are not signed-in. Sign-in in the settings, or click this message.
@@ -937,20 +949,32 @@ class AddEvent extends React.Component{
 class Refresh extends React.Component{
   constructor(props) {
     super(props);
-    this.state ={show: false};
+    this.state ={show: false, resetDisable:false};
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     if (name==='refresh') {
-      this.props.refreshWholeList()
-      this.setState({show: true})
+      this.props.resetCalendarObjects();
+      if(!this.state.resetDisable){
+        this.setState({show: true})
+      }
+      this.setState({resetDisable:true})
+      setTimeout(function () {
+          this.setState({resetDisable:false})
+      }.bind(this), 2000);
     } 
   }
   render(){
-    var message="";
+    var message="";    
     if(!this.props.signStatus){
       message="You are not signed in!"
     } else {
       message="Refreshed!"
+    }
+    var refreshIconClass="refreshIcon";
+    var opacity=1;
+    if(this.state.resetDisable){
+      refreshIconClass+= " refreshIconSpin";
+      opacity=0.5;
     }
     return(
       <div>
@@ -959,7 +983,7 @@ class Refresh extends React.Component{
             <strong className="mr-auto">{message}</strong>
           </Toast.Header>
         </Toast>
-        <img alt="refresh" onClick={(e) => this.handleItemClick(e, "refresh")} src={refreshIcon} className="refreshIcon"/>
+        <img style={{"opacity":opacity, "transition":"all 0.5s"}} alt="refresh" onClick={(e) => this.handleItemClick(e, "refresh")} src={refreshIcon} className={refreshIconClass}/>
       </div>
     )
   }
@@ -978,7 +1002,7 @@ class Settings extends React.Component{
       })
     } else if (name==='closeSettings') {
       //Reload events on exit of settings
-      this.props.refreshWholeList()
+      this.props.resetCalendarObjects()
       this.setState({
         settingsOpen: false,
       })
@@ -1182,36 +1206,11 @@ class TaskList extends React.Component {
 }
 
 function TaskTable(props){
-  var tasks = [];
-  for (var i = 0; i < props.calendarObjects.length; i++) {
-    tasks.push(
-      <TaskEntry
-      name={props.calendarObjects[i].name}
-      date={props.calendarObjects[i].date}
-      timeStart={props.calendarObjects[i].timeStart}
-      timeEnd={props.calendarObjects[i].timeEnd}
-      course={props.calendarObjects[i].course}
-      courseColor={props.calendarObjects[i].courseColor}
-      done={props.calendarObjects[i].done}
-      id={props.calendarObjects[i].id}
-      hoursBefore={props.hoursBefore}
-      nextWeekShow={props.nextWeekShow}
-      updateDone={props.updateDone}
-      calendarIDCurrent={props.calendarObjects[i].calendarID}
-      description={props.calendarObjects[i].description}
-      dateObjEnd={props.calendarObjects[i].dateObjEnd}
-      errorTimeoutOpen={props.errorTimeoutOpen}
-      updatePin={props.updatePin}
-      pin={props.calendarObjects[i].pin}
-      important={props.calendarObjects[i].important}
-      darkMode={props.darkMode}
-      />
-    );
-  }
+  
   return(
     <div className="taskTable">
       <table className="taskList">
-        <tbody>
+        <thead>
           <tr className="fadeIn">
             <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
             <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
@@ -1220,8 +1219,33 @@ function TaskTable(props){
             <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
             <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
-          {tasks}
-        </tbody>
+        </thead>
+        <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={20} staggerDurationBy={15} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+          {props.calendarObjects.map(task => (
+            <TaskEntry
+            key={task.name}
+            name={task.name}
+            date={task.date}
+            timeStart={task.timeStart}
+            timeEnd={task.timeEnd}
+            course={task.course}
+            courseColor={task.courseColor}
+            done={task.done}
+            id={task.id}
+            hoursBefore={props.hoursBefore}
+            nextWeekShow={props.nextWeekShow}
+            updateDone={props.updateDone}
+            calendarIDCurrent={task.calendarID}
+            description={task.description}
+            dateObjEnd={task.dateObjEnd}
+            errorTimeoutOpen={props.errorTimeoutOpen}
+            updatePin={props.updatePin}
+            pin={task.pin}
+            important={task.important}
+            darkMode={props.darkMode}
+            />
+          ))}
+        </FlipMove>
       </table>
     </div>
   )
@@ -1443,9 +1467,9 @@ class TaskEntry extends React.Component{
       checkColor="#C85000"
     }
     return(
-      <tr className="taskEntry fadeIn">
-        <td className={pinDisplay} onClick={(e) => this.handleItemClick(e, "pin")}><img alt="check" className={pinClass} src={pinIcon}/></td>
-        <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><img alt="check" className={checkClass} src={checkIcon}/></td>
+      <tr className="taskEntry">
+        <td className={pinDisplay} onClick={(e) => this.handleItemClick(e, "pin")}><div className="fadeIn"><img alt="check" className={pinClass} src={pinIcon}/></div></td>
+        <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><div className="fadeIn"><img alt="check" className={checkClass} src={checkIcon}/></div></td>
         <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
           <div className={marginNameFix} style={{"textDecoration":textStyle}}>{this.props.course+" "+this.props.name}</div>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
