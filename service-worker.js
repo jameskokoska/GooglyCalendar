@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/GoogleyCalendar/precache-manifest.7540dfca77f5f876d42effb31e7bf7cd.js"
+  "/GoogleyCalendar/precache-manifest.fb9c6e1eb03e51b6ca1cad787c978e18.js"
 );
 
 self.addEventListener('message', (event) => {
