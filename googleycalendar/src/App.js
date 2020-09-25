@@ -1220,10 +1220,10 @@ function TaskTable(props){
             <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
           </tr>
         </thead>
-        <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={20} staggerDurationBy={15} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+        <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
           {props.calendarObjects.map(task => (
             <TaskEntry
-            key={task.name}
+            key={task.id}
             name={task.name}
             date={task.date}
             timeStart={task.timeStart}
