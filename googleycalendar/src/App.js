@@ -597,7 +597,12 @@ function WeekListHeader(props){
     numDays=props.days;
   }
   for (var i = 0; i < numDays; i++) {
-    weekHeaders.push( <th className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
+    if(i===0){
+      weekHeaders.push( <th className="weekday header3 fadeIn">Today</th> )
+    } else {
+      weekHeaders.push( <th className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
+    }
+    
   }
   return weekHeaders;
 }
@@ -612,7 +617,7 @@ function DayList(props){
   }
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
-      <td>
+      <td className="fadeIn">
         <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
       </td> 
     )
@@ -668,7 +673,7 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
+            this.props.errorTimeoutOpen("Timeout error")
           });
         } else {
           const event = {
@@ -679,7 +684,7 @@ class DayEntry extends React.Component{
             this.props.updateDone(this.props.id),
           )
           .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
+            this.props.errorTimeoutOpen("Timeout error")
           });
         }
       }
@@ -790,7 +795,7 @@ class DayEntry extends React.Component{
     } else {
       pinClass+=" pinOutWeek"
     }
-    var weekEntryClass="weekEntry fadeIn";
+    var weekEntryClass="weekEntry";
     var weekEntryOpacity="1";
     if(this.props.done===true){
       weekEntryClass=weekEntryClass+" weekEntryDone";
@@ -801,7 +806,7 @@ class DayEntry extends React.Component{
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
-        <div className="iconBoxWeek" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
+        <div className="iconBoxWeek fadeIn" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
           <img onClick={(e) => this.handleItemClick(e, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
             <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay, "opacity":weekEntryOpacity}}/>
@@ -816,68 +821,71 @@ class DayEntry extends React.Component{
 class DayListEntry extends React.Component{
   
   render(){
-    var todayListEntries = [];  
-    for (var i = 0; i < this.props.calendarObjects.length; i++) {
-      var displayTimeEnd;
-      if(this.props.calendarObjects[i].timeEnd==="All day"){
-        displayTimeEnd="";
-      } else {
-        displayTimeEnd=" - "+this.props.calendarObjects[i].timeEnd;
-      }
-      var courseDisplay="none";
-      if(this.props.calendarObjects[i].course!==""){
-        courseDisplay="";
-      }
-      
-      var descriptionDisplay="none";
-      if(this.props.calendarObjects[i].description!==undefined&&this.props.calendarObjects[i].description!==null){
-        descriptionDisplay="";
-      }
-      var pinDisplay="none";
-      if(this.props.calendarObjects[i].done===false){
-        pinDisplay="";
-      }
-      var textStyle="none";
-      var clickActionCheck="checkOff";
-      var checkColor="";
-      if(this.props.calendarObjects[i].done===true){
-        textStyle = "line-through";
-        clickActionCheck="uncheckOff";
-        checkColor="#777777";
-      }
-      if(this.props.calendarObjects[i].important===true&&this.props.darkMode===true&&this.props.calendarObjects[i].done===false){
-        checkColor="#ff8b8b"
-      } else if (this.props.calendarObjects[i].important===true&&this.props.darkMode===false&&this.props.calendarObjects[i].done===false){
-        checkColor="#C85000"
-      }
-      if(eventToday(new Date(this.props.calendarObjects[i].start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(this.props.calendarObjects[i].end.date),(new Date()).addDays(this.props.dayOffset))){
-        todayListEntries.push(
-          <DayEntry
-            checkColor={checkColor}
-            textStyle={textStyle}
-            name={this.props.calendarObjects[i].name}
-            timeStart={this.props.calendarObjects[i].timeStart}
-            displayTimeEnd={displayTimeEnd}
-            courseDisplay={courseDisplay}
-            courseColor={this.props.calendarObjects[i].courseColor}
-            course={this.props.calendarObjects[i].course}
-            descriptionDisplay={descriptionDisplay}
-            description={this.props.calendarObjects[i].description}
-            id={this.props.calendarObjects[i].id}
-            updateDone={this.props.updateDone}
-            calendarIDCurrent={this.props.calendarObjects[i].calendarID}
-            done={this.props.calendarObjects[i].done}
-            clickActionCheck={clickActionCheck}
-            pin={this.props.calendarObjects[i].pin}
-            updatePin={this.props.updatePin}
-            pinDisplay={pinDisplay}
-            important={this.props.calendarObjects[i].important}
-            darkMode={this.props.darkMode}
-          />
-        )
-      }
-    }
-    return todayListEntries
+    return(
+      <FlipMove staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+        {this.props.calendarObjects.map(function(task){
+          var displayTimeEnd;
+          if(task.timeEnd==="All day"){
+            displayTimeEnd="";
+          } else {
+            displayTimeEnd=" - "+task.timeEnd;
+          }
+          var courseDisplay="none";
+          if(task.course!==""){
+            courseDisplay="";
+          }
+          
+          var descriptionDisplay="none";
+          if(task.description!==undefined&&task.description!==null){
+            descriptionDisplay="";
+          }
+          var pinDisplay="none";
+          if(task.done===false){
+            pinDisplay="";
+          }
+          var textStyle="none";
+          var clickActionCheck="checkOff";
+          var checkColor="";
+          if(task.done===true){
+            textStyle = "line-through";
+            clickActionCheck="uncheckOff";
+            checkColor="#777777";
+          }
+          if(task.important===true&&this.props.darkMode===true&&task.done===false){
+            checkColor="#ff8b8b"
+          } else if (task.important===true&&this.props.darkMode===false&&task.done===false){
+            checkColor="#C85000"
+          }
+          if(eventToday(new Date(task.start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),(new Date()).addDays(this.props.dayOffset))){
+            return(
+              <DayEntry
+                key={task.id}
+                checkColor={checkColor}
+                textStyle={textStyle}
+                name={task.name}
+                timeStart={task.timeStart}
+                displayTimeEnd={displayTimeEnd}
+                courseDisplay={courseDisplay}
+                courseColor={task.courseColor}
+                course={task.course}
+                descriptionDisplay={descriptionDisplay}
+                description={task.description}
+                id={task.id}
+                updateDone={this.props.updateDone}
+                calendarIDCurrent={task.calendarID}
+                done={task.done}
+                clickActionCheck={clickActionCheck}
+                pin={task.pin}
+                updatePin={this.props.updatePin}
+                pinDisplay={pinDisplay}
+                important={task.important}
+                darkMode={this.props.darkMode}
+              />
+            )
+          }
+        }, this)}
+      </FlipMove>
+    )
   }
 }
 class WeekList extends React.Component {
