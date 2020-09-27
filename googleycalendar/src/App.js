@@ -1124,31 +1124,31 @@ class Settings extends React.Component{
                   <Accordion.Collapse eventKey="0">
                     <div>
                       <Form.Group style={{"paddingTop":"5px","paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course1" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course1}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course1" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course1}/>
                         <ColorPicker color={this.props.courseColor1} courseStorageID="courseColor1"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course2" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course2}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course2" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course2}/>
                         <ColorPicker color={this.props.courseColor2} courseStorageID="courseColor2"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course3" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course3}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course3" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course3}/>
                         <ColorPicker color={this.props.courseColor3} courseStorageID="courseColor3"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course4" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course4}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course4" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course4}/>
                         <ColorPicker color={this.props.courseColor4} courseStorageID="courseColor4"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course5" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course5}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course5" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course5}/>
                         <ColorPicker color={this.props.courseColor5} courseStorageID="courseColor5"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course6" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course6}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course6" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course6}/>
                         <ColorPicker color={this.props.courseColor6} courseStorageID="courseColor6"/>
                       </Form.Group>
                       <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-                        <Form.Control style={{"marginBottom":"10px"}} name="course7" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX9990 (Course Code)" defaultValue={this.props.course7}/>
+                        <Form.Control style={{"marginBottom":"10px"}} name="course7" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course7}/>
                         <ColorPicker color={this.props.courseColor7} courseStorageID="courseColor7"/>
                       </Form.Group>
                     </div>
@@ -1157,7 +1157,7 @@ class Settings extends React.Component{
               </Accordion>
               </Form.Group>
             </Form>
-            <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXX9999". <br/>3 letters followed by 3 or 4 numbers.</p>
+            <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXXY999". <br/>3 letters or 4 letters followed by 3 numbers.</p>
             <p>You can <b>sort</b> each category by clicking each category header.</p>
             <p>Closing settings will reload the calendar.</p>
             <p>This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/GoogleyCalendar">https://github.com/jameskokoska/GoogleyCalendar</a></p>
@@ -1783,7 +1783,7 @@ function determineTaskName(summary){
   } else {
     name=summary;
   }
-  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(3,7))&&!/\d/.test(name.substring(0,3))){
+  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(4,7))&&!/\d/.test(name.substring(0,4))){
     if(name.substring(7,8)!==" "){
       name=name.substring(7);
     } else {
@@ -1814,7 +1814,7 @@ function determineTaskCourse(summary){
     name=summary;
   }
 
-  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(3,7))&&!/\d/.test(name.substring(0,3))){
+  if(summary!==undefined&&name.length>7&&/^\d+$/.test(name.substring(4,7))&&!/\d/.test(name.substring(0,4))){
     course=name.substring(0,7);
   } else if(summary!==undefined&&name.length>=8&&/^\d+$/.test(name.substring(3,6))&&!/\d/.test(name.substring(0,3))&&name.substring(6,8)==="H1"){
     course=name.substring(0,8);
