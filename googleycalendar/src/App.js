@@ -823,7 +823,7 @@ class DayListEntry extends React.Component{
   
   render(){
     return(
-      <FlipMove staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+      <FlipMove staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="none">
         {this.props.calendarObjects.map(function(task){
           var displayTimeEnd;
           if(task.timeEnd==="All day"){

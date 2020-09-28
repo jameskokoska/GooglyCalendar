@@ -357,9 +357,7 @@ td.pin{
   user-select: none;
   transition: all 0.3s;
 }
-.pinIconWeek:hover{
-  padding:1px;
-}
+
 .checkImg{
   width:20px;
   padding-bottom:2px;
