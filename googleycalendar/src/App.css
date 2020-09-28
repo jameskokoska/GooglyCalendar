@@ -437,27 +437,27 @@ table.weekList {
   background-color: #5e5e5e0c;
 }
 
-.weekList > tbody > tr > td {
+.weekList  tbody  tr td {
   vertical-align: top;
 }
-.weekList > tbody > tr > td > .weekEntry{
+.weekList tbody  tr  td  .weekEntry{
   transition: all 0.5s;
 }
-.weekList > tbody > tr > td > .weekEntry:hover{
+.weekList  tbody  tr  td  .weekEntry:hover{
   background-color: var(--highlight);
   transition: background-color 0.2s;
 }
-.weekList > tbody > tr > td > .weekEntryDone:hover{
+.weekList  tbody  tr  td  .weekEntryDone:hover{
   background-color: #5e5e5e18;
 }
-.weekList > tbody > tr > td > .weekEntry:active{
+.weekList  tbody  tr  td  .weekEntry:active{
   filter: brightness(0.7);
   transition: all 0.1s;
 }
-.weekList > tbody > tr th{
+.weekList  tbody  tr th{
   background-color: var(--background);
 }
-.weekList > tbody > tr:hover th{
+.weekList  tbody  tr:hover th{
   background-color: var(--background);
 }
 th.weekday{

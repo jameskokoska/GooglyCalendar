@@ -33,6 +33,7 @@ import FlipMove from 'react-flip-move';
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
 
+//search bar for task name/course/date
 
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 
