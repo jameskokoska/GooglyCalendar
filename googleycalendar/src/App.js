@@ -32,7 +32,7 @@ import FlipMove from 'react-flip-move';
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
-//filter list of things to not show if it contains this tag, put at bottom of list?
+//move overdue events to bottom of list -> saved state of check-mark is not getting loaded properly -> see settings for code
 
 //search bar for task name/course/date
 
@@ -97,89 +97,95 @@ export default class App extends React.Component {
               AsyncStorage.getItem('lastSort').then((lastSort) => {
                 AsyncStorage.getItem('hideEvents').then((hideEvents) => {
                   AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
-                    AsyncStorage.getItem('courseColor1').then((courseColor1) => {
-                      AsyncStorage.getItem('courseColor2').then((courseColor2) => {
-                        AsyncStorage.getItem('courseColor3').then((courseColor3) => {
-                          AsyncStorage.getItem('courseColor4').then((courseColor4) => {
-                            AsyncStorage.getItem('courseColor5').then((courseColor5) => {
-                              AsyncStorage.getItem('courseColor6').then((courseColor6) => {
-                                AsyncStorage.getItem('courseColor7').then((courseColor7) => {
-                                  AsyncStorage.getItem('course1').then((course1) => {
-                                    AsyncStorage.getItem('course2').then((course2) => {
-                                      AsyncStorage.getItem('course3').then((course3) => {
-                                        AsyncStorage.getItem('course4').then((course4) => {
-                                          AsyncStorage.getItem('course5').then((course5) => {
-                                            AsyncStorage.getItem('course6').then((course6) => {
-                                              AsyncStorage.getItem('course7').then((course7) => {
-                                                if(calendarID==="" || calendarID===undefined){
-                                                  calendarID="primary";
-                                                }
-                                                if(calendarID2==="" || calendarID===undefined){
-                                                  calendarID2="";
-                                                }
-                                                if(numEvents==="" || numEvents===undefined){
-                                                  numEvents=20;
-                                                }
-                                                if(hoursBefore==="" || hoursBefore===undefined){
-                                                  hoursBefore=0;
-                                                }
-                                                if(importantEvents==="" || importantEvents===undefined){
-                                                  importantEvents="";
-                                                }
-                                                if(lastSort==="" || lastSort===undefined){
-                                                  lastSort="sortDate";
-                                                }
-                                                if(hideEvents==="" || hideEvents===undefined){
-                                                  hideEvents="";
-                                                }
-                                                if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                  nextWeekShow=7;
-                                                }
-                                                if(course1===undefined){
-                                                  course1="";
-                                                }
-                                                if(course2===undefined){
-                                                  course2="";
-                                                }
-                                                if(course3===undefined){
-                                                  course3="";
-                                                }
-                                                if(course4===undefined){
-                                                  course4="";
-                                                }
-                                                if(course5===undefined){
-                                                  course5="";
-                                                }
-                                                if(course6===undefined){
-                                                  course6="";
-                                                }
-                                                if(course7===undefined){
-                                                  course7="";
-                                                }
-                                                this.setState({ 
-                                                  calendarID: calendarID,
-                                                  calendarID2: calendarID2,
-                                                  numEvents:numEvents,
-                                                  hoursBefore:hoursBefore,
-                                                  importantEvents:importantEvents,
-                                                  lastSort:lastSort,
-                                                  hideEvents:hideEvents,
-                                                  nextWeekShow:nextWeekShow,
-                                                  courseColor1:courseColor1,
-                                                  courseColor2:courseColor2,
-                                                  courseColor3:courseColor3,
-                                                  courseColor4:courseColor4,
-                                                  courseColor5:courseColor5,
-                                                  courseColor6:courseColor6,
-                                                  courseColor7:courseColor7,
-                                                  course1:course1,
-                                                  course2:course2,
-                                                  course3:course3,
-                                                  course4:course4,
-                                                  course5:course5,
-                                                  course6:course6,
-                                                  course7:course7,
-                                                });
+                    AsyncStorage.getItem('bottomOverdue').then((bottomOverdue) => {
+                      AsyncStorage.getItem('courseColor1').then((courseColor1) => {
+                        AsyncStorage.getItem('courseColor2').then((courseColor2) => {
+                          AsyncStorage.getItem('courseColor3').then((courseColor3) => {
+                            AsyncStorage.getItem('courseColor4').then((courseColor4) => {
+                              AsyncStorage.getItem('courseColor5').then((courseColor5) => {
+                                AsyncStorage.getItem('courseColor6').then((courseColor6) => {
+                                  AsyncStorage.getItem('courseColor7').then((courseColor7) => {
+                                    AsyncStorage.getItem('course1').then((course1) => {
+                                      AsyncStorage.getItem('course2').then((course2) => {
+                                        AsyncStorage.getItem('course3').then((course3) => {
+                                          AsyncStorage.getItem('course4').then((course4) => {
+                                            AsyncStorage.getItem('course5').then((course5) => {
+                                              AsyncStorage.getItem('course6').then((course6) => {
+                                                AsyncStorage.getItem('course7').then((course7) => {
+                                                  if(calendarID==="" || calendarID===undefined){
+                                                    calendarID="primary";
+                                                  }
+                                                  if(calendarID2==="" || calendarID===undefined){
+                                                    calendarID2="";
+                                                  }
+                                                  if(numEvents==="" || numEvents===undefined){
+                                                    numEvents=20;
+                                                  }
+                                                  if(hoursBefore==="" || hoursBefore===undefined){
+                                                    hoursBefore=0;
+                                                  }
+                                                  if(importantEvents==="" || importantEvents===undefined){
+                                                    importantEvents="";
+                                                  }
+                                                  if(lastSort==="" || lastSort===undefined){
+                                                    lastSort="sortDate";
+                                                  }
+                                                  if(hideEvents==="" || hideEvents===undefined){
+                                                    hideEvents="";
+                                                  }
+                                                  if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                    nextWeekShow=7;
+                                                  }
+                                                  if(bottomOverdue==="" || bottomOverdue===undefined){
+                                                    bottomOverdue=false;
+                                                  }
+                                                  if(course1===undefined){
+                                                    course1="";
+                                                  }
+                                                  if(course2===undefined){
+                                                    course2="";
+                                                  }
+                                                  if(course3===undefined){
+                                                    course3="";
+                                                  }
+                                                  if(course4===undefined){
+                                                    course4="";
+                                                  }
+                                                  if(course5===undefined){
+                                                    course5="";
+                                                  }
+                                                  if(course6===undefined){
+                                                    course6="";
+                                                  }
+                                                  if(course7===undefined){
+                                                    course7="";
+                                                  }
+                                                  this.setState({ 
+                                                    calendarID: calendarID,
+                                                    calendarID2: calendarID2,
+                                                    numEvents:numEvents,
+                                                    hoursBefore:hoursBefore,
+                                                    importantEvents:importantEvents,
+                                                    lastSort:lastSort,
+                                                    hideEvents:hideEvents,
+                                                    nextWeekShow:nextWeekShow,
+                                                    bottomOverdue:bottomOverdue,
+                                                    courseColor1:courseColor1,
+                                                    courseColor2:courseColor2,
+                                                    courseColor3:courseColor3,
+                                                    courseColor4:courseColor4,
+                                                    courseColor5:courseColor5,
+                                                    courseColor6:courseColor6,
+                                                    courseColor7:courseColor7,
+                                                    course1:course1,
+                                                    course2:course2,
+                                                    course3:course3,
+                                                    course4:course4,
+                                                    course5:course5,
+                                                    course6:course6,
+                                                    course7:course7,
+                                                  });
+                                                })
                                               })
                                             })
                                           })
@@ -584,6 +590,7 @@ export default class App extends React.Component {
           hoursBefore={this.state.hoursBefore}
           importantEvents={this.state.importantEvents}
           hideEvents={this.state.hideEvents}
+          bottomOverdue={this.state.bottomOverdue}
           courseColor1={this.state.courseColor1} 
           courseColor2={this.state.courseColor2} 
           courseColor3={this.state.courseColor3} 
@@ -1065,6 +1072,8 @@ class Settings extends React.Component{
       AsyncStorage.setItem('importantEvents', event.target.value);
     } else if(event.target.name==="hideEvents"){
       AsyncStorage.setItem('hideEvents', event.target.value);
+    } else if(event.target.name==="bottomOverdue"){
+      AsyncStorage.setItem('bottomOverdue', event.target.checked);
     } else if(event.target.name==="course1"){
       AsyncStorage.setItem('course1', event.target.value);
     } else if(event.target.name==="course2"){
@@ -1133,6 +1142,13 @@ class Settings extends React.Component{
                   Number of hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
+              {/* <Form.Group>
+                <Form.Label>Overdue events at bottom</Form.Label>
+                <Form.Check name="bottomOverdue" type="checkbox" label="Move overdue events to the bottom" onChange={(e) => {this.handleChange(e, this.props)}} defaultChecked={this.state.checked}/>
+                <Form.Text className="text-muted">
+                  Show overdue events at bottom of list. Ensure 'Number od hours before to load is > 0'
+                </Form.Text>
+              </Form.Group> */}
               <Form.Group>
                 <Form.Label>Important Events</Form.Label>
                 <Form.Control name="importantEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.importantEvents}/>
