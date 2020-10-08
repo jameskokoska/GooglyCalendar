@@ -9,9 +9,14 @@ Turns your Google Calendar into a task list. It can be used here: <a href="https
 * Display information in a pleasing way
 * Custom animations
 * Color coded courses
+* Custom course color codes
+* Pin tasks top top of list
+* Specify key words to highlight tasks
+* Specify key words to hide specific events
 * Support for description of events
 * Overdue events become red
 * Support for 'all day' events
+* All possible sorting combinations are remembered when reloading the calendar
 * 7 day view dynamically adjusts to use specification for 'Number of days to view setting'
 * Can mark tasks as complete in 7 day view
 * Sort information based on Course/Completed/Task Name/Date set
@@ -24,7 +29,7 @@ Turns your Google Calendar into a task list. It can be used here: <a href="https
 * Error detection when session times out
 
 # Create and run a local copy
-### Setting up API Keys
+### Setting up API keys
 1. Setup Google API Keys 
 2. Create file in root of project (i.e. ```.\googleycalendar\```) called ```apiGoogleconfig.json```
 3. Get ```clientId``` and ```apiKey``` from Google Developers website and pass in the following format into the JSON file:
@@ -37,7 +42,7 @@ Turns your Google Calendar into a task list. It can be used here: <a href="https
 }
 ```
 
-### First Time Install
+### First time install
 Ensure React and NPM is properly installed
 1. ```cd .\googleycalendar\```
 2. ```npm install```
