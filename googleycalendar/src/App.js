@@ -38,9 +38,6 @@ import FlipMove from 'react-flip-move';
 
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 
-
-//FIX
-
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -491,6 +488,7 @@ export default class App extends React.Component {
         calendarObjects: calendarObjectsReduced,
       })
       this.sortCalendarObjects(this.state.lastSort)
+      // this.sortCalendarObjects("sortCheck")
     })
   }
   resetCalendarObjects(){
@@ -1271,11 +1269,11 @@ class TaskTable extends React.Component{
           <thead>
             <tr className="fadeIn">
               <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
-              <th className="check header3" onClick={function(e) {this.props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
-              <th className="task header3" onClick={function(e) {this.props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
-              <th className="date header3" onClick={function(e) {this.props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
-              <th className="time header3" onClick={function(e) {this.props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
-              <th className="course header3" onClick={function(e) {this.props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
+              <th className="check header3" onClick={e => this.props.sortCalendarObjects("sortCheck")}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
+              <th className="task header3" onClick={e => this.props.sortCalendarObjects("sortName")}><div className="hoverSort">Task</div></th>
+              <th className="date header3" onClick={e => this.props.sortCalendarObjects("sortDate")}><div className="hoverSort">Date</div></th>
+              <th className="time header3" onClick={e => this.props.sortCalendarObjects("sortDate")}><div className="hoverSort">Time</div></th>
+              <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse")}><div className="hoverSort">Course</div></th>
             </tr>
           </thead>
           <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
