@@ -32,6 +32,7 @@ import FlipMove from 'react-flip-move';
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
 //remember all filter options not just one -> with this apply the filters in order after unpinning
+//filter list of things to not show if it contains this tag, put at bottom of list?
 
 //search bar for task name/course/date
 
@@ -94,86 +95,92 @@ export default class App extends React.Component {
           AsyncStorage.getItem('hoursBefore').then((hoursBefore) => {
             AsyncStorage.getItem('importantEvents').then((importantEvents) => {
               AsyncStorage.getItem('lastSort').then((lastSort) => {
-                AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
-                  AsyncStorage.getItem('courseColor1').then((courseColor1) => {
-                    AsyncStorage.getItem('courseColor2').then((courseColor2) => {
-                      AsyncStorage.getItem('courseColor3').then((courseColor3) => {
-                        AsyncStorage.getItem('courseColor4').then((courseColor4) => {
-                          AsyncStorage.getItem('courseColor5').then((courseColor5) => {
-                            AsyncStorage.getItem('courseColor6').then((courseColor6) => {
-                              AsyncStorage.getItem('courseColor7').then((courseColor7) => {
-                                AsyncStorage.getItem('course1').then((course1) => {
-                                  AsyncStorage.getItem('course2').then((course2) => {
-                                    AsyncStorage.getItem('course3').then((course3) => {
-                                      AsyncStorage.getItem('course4').then((course4) => {
-                                        AsyncStorage.getItem('course5').then((course5) => {
-                                          AsyncStorage.getItem('course6').then((course6) => {
-                                            AsyncStorage.getItem('course7').then((course7) => {
-                                              if(calendarID==="" || calendarID===undefined){
-                                                calendarID="primary";
-                                              }
-                                              if(calendarID2==="" || calendarID===undefined){
-                                                calendarID2="";
-                                              }
-                                              if(numEvents==="" || numEvents===undefined){
-                                                numEvents=20;
-                                              }
-                                              if(hoursBefore==="" || hoursBefore===undefined){
-                                                hoursBefore=0;
-                                              }
-                                              if(importantEvents==="" || importantEvents===undefined){
-                                                importantEvents="";
-                                              }
-                                              if(lastSort==="" || lastSort===undefined){
-                                                lastSort="sortDate";
-                                              }
-                                              if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                nextWeekShow=7;
-                                              }
-                                              if(course1===undefined){
-                                                course1="";
-                                              }
-                                              if(course2===undefined){
-                                                course2="";
-                                              }
-                                              if(course3===undefined){
-                                                course3="";
-                                              }
-                                              if(course4===undefined){
-                                                course4="";
-                                              }
-                                              if(course5===undefined){
-                                                course5="";
-                                              }
-                                              if(course6===undefined){
-                                                course6="";
-                                              }
-                                              if(course7===undefined){
-                                                course7="";
-                                              }
-                                              this.setState({ 
-                                                calendarID: calendarID,
-                                                calendarID2: calendarID2,
-                                                numEvents:numEvents,
-                                                hoursBefore:hoursBefore,
-                                                importantEvents:importantEvents,
-                                                lastSort:lastSort,
-                                                nextWeekShow:nextWeekShow,
-                                                courseColor1:courseColor1,
-                                                courseColor2:courseColor2,
-                                                courseColor3:courseColor3,
-                                                courseColor4:courseColor4,
-                                                courseColor5:courseColor5,
-                                                courseColor6:courseColor6,
-                                                courseColor7:courseColor7,
-                                                course1:course1,
-                                                course2:course2,
-                                                course3:course3,
-                                                course4:course4,
-                                                course5:course5,
-                                                course6:course6,
-                                                course7:course7,
-                                              });
+                AsyncStorage.getItem('hideEvents').then((hideEvents) => {
+                  AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
+                    AsyncStorage.getItem('courseColor1').then((courseColor1) => {
+                      AsyncStorage.getItem('courseColor2').then((courseColor2) => {
+                        AsyncStorage.getItem('courseColor3').then((courseColor3) => {
+                          AsyncStorage.getItem('courseColor4').then((courseColor4) => {
+                            AsyncStorage.getItem('courseColor5').then((courseColor5) => {
+                              AsyncStorage.getItem('courseColor6').then((courseColor6) => {
+                                AsyncStorage.getItem('courseColor7').then((courseColor7) => {
+                                  AsyncStorage.getItem('course1').then((course1) => {
+                                    AsyncStorage.getItem('course2').then((course2) => {
+                                      AsyncStorage.getItem('course3').then((course3) => {
+                                        AsyncStorage.getItem('course4').then((course4) => {
+                                          AsyncStorage.getItem('course5').then((course5) => {
+                                            AsyncStorage.getItem('course6').then((course6) => {
+                                              AsyncStorage.getItem('course7').then((course7) => {
+                                                if(calendarID==="" || calendarID===undefined){
+                                                  calendarID="primary";
+                                                }
+                                                if(calendarID2==="" || calendarID===undefined){
+                                                  calendarID2="";
+                                                }
+                                                if(numEvents==="" || numEvents===undefined){
+                                                  numEvents=20;
+                                                }
+                                                if(hoursBefore==="" || hoursBefore===undefined){
+                                                  hoursBefore=0;
+                                                }
+                                                if(importantEvents==="" || importantEvents===undefined){
+                                                  importantEvents="";
+                                                }
+                                                if(lastSort==="" || lastSort===undefined){
+                                                  lastSort="sortDate";
+                                                }
+                                                if(hideEvents==="" || hideEvents===undefined){
+                                                  hideEvents="";
+                                                }
+                                                if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                  nextWeekShow=7;
+                                                }
+                                                if(course1===undefined){
+                                                  course1="";
+                                                }
+                                                if(course2===undefined){
+                                                  course2="";
+                                                }
+                                                if(course3===undefined){
+                                                  course3="";
+                                                }
+                                                if(course4===undefined){
+                                                  course4="";
+                                                }
+                                                if(course5===undefined){
+                                                  course5="";
+                                                }
+                                                if(course6===undefined){
+                                                  course6="";
+                                                }
+                                                if(course7===undefined){
+                                                  course7="";
+                                                }
+                                                this.setState({ 
+                                                  calendarID: calendarID,
+                                                  calendarID2: calendarID2,
+                                                  numEvents:numEvents,
+                                                  hoursBefore:hoursBefore,
+                                                  importantEvents:importantEvents,
+                                                  lastSort:lastSort,
+                                                  hideEvents:hideEvents,
+                                                  nextWeekShow:nextWeekShow,
+                                                  courseColor1:courseColor1,
+                                                  courseColor2:courseColor2,
+                                                  courseColor3:courseColor3,
+                                                  courseColor4:courseColor4,
+                                                  courseColor5:courseColor5,
+                                                  courseColor6:courseColor6,
+                                                  courseColor7:courseColor7,
+                                                  course1:course1,
+                                                  course2:course2,
+                                                  course3:course3,
+                                                  course4:course4,
+                                                  course5:course5,
+                                                  course6:course6,
+                                                  course7:course7,
+                                                });
+                                              })
                                             })
                                           })
                                         })
@@ -415,8 +422,7 @@ export default class App extends React.Component {
             calendarObjects[i].courseRandomCode = -1;
             calendarObjects[i].courseColor="";
           }
-          
-          if(this.state.importantEvents.split(",").length>0&&this.state.importantEvents!==""){
+          if(this.state.importantEvents!==""&&this.state.importantEvents.split(",").length>0){
             try{
               calendarObjects[i].important = false;
               for(var x=0; x<this.state.importantEvents.split(",").length;x++){
@@ -425,8 +431,24 @@ export default class App extends React.Component {
                 }
               }
             }catch(e){
-                console.log('error', e);     
+              console.log('error', e);     
             }
+          } else {
+            calendarObjects[i].important = false;
+          }
+          if(this.state.hideEvents!==""&&this.state.hideEvents.split(",").length>0){
+            try{
+              calendarObjects[i].hide = false;
+              for(var x=0; x<this.state.hideEvents.split(",").length;x++){
+                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[x])||calendarObjects[i].course.includes(this.state.importantEvents.split(",")[x])){
+                  calendarObjects[i].hide = true;
+                }
+              }
+            }catch(e){
+              console.log('error', e);     
+            }
+          } else {
+            calendarObjects[i].hide = false;
           }
           if(this.state.course1.toLowerCase()===calendarObjects[i].course.toLowerCase()){
             calendarObjects[i].courseColor=this.state.courseColor1;
@@ -453,6 +475,7 @@ export default class App extends React.Component {
           // calendarObjects[i].courseColor = "";
           // calendarObjects[i].dateObjEnd = "";
           // calendarObjects[i].important = "";
+          // calendarObjects[i].hide = "";
           calendarObjects[i].calendarID=calendarIDPassed;
           calendarObjectsReduced.push(calendarObjects[i]);
         }
@@ -560,6 +583,7 @@ export default class App extends React.Component {
           nextWeekShow={this.state.nextWeekShow}
           hoursBefore={this.state.hoursBefore}
           importantEvents={this.state.importantEvents}
+          hideEvents={this.state.hideEvents}
           courseColor1={this.state.courseColor1} 
           courseColor2={this.state.courseColor2} 
           courseColor3={this.state.courseColor3} 
@@ -857,7 +881,7 @@ class DayListEntry extends React.Component{
           } else if (task.important===true&&this.props.darkMode===false&&task.done===false){
             checkColor="#C85000"
           }
-          if(eventToday(new Date(task.start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),(new Date()).addDays(this.props.dayOffset))){
+          if(task.hide===false&&(eventToday(new Date(task.start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),(new Date()).addDays(this.props.dayOffset)))){
             return(
               <DayEntry
                 key={task.id}
@@ -1039,6 +1063,8 @@ class Settings extends React.Component{
       AsyncStorage.setItem('nextWeekShow', event.target.value);
     } else if(event.target.name==="importantEvents"){
       AsyncStorage.setItem('importantEvents', event.target.value);
+    } else if(event.target.name==="hideEvents"){
+      AsyncStorage.setItem('hideEvents', event.target.value);
     } else if(event.target.name==="course1"){
       AsyncStorage.setItem('course1', event.target.value);
     } else if(event.target.name==="course2"){
@@ -1112,6 +1138,13 @@ class Settings extends React.Component{
                 <Form.Control name="importantEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.importantEvents}/>
                 <Form.Text className="text-muted">
                   Events to highlight in the list, separate list with comma. For example: Test,Exam,Quiz
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Hide Events</Form.Label>
+                <Form.Control name="hideEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.hideEvents}/>
+                <Form.Text className="text-muted">
+                  Events to hide from the calendar, separate list with comma (CaSe sEnSiTIvE). For example: LEC,boring,not important,noshow
                 </Form.Text>
               </Form.Group>
               <Form.Group>
@@ -1214,50 +1247,53 @@ class TaskList extends React.Component {
   }
 }
 
-function TaskTable(props){
-  
-  return(
-    <div className="taskTable">
-      <table className="taskList">
-        <thead>
-          <tr className="fadeIn">
-            <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
-            <th className="check header3" onClick={function(e) {props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
-            <th className="task header3" onClick={function(e) {props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
-            <th className="date header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
-            <th className="time header3" onClick={function(e) {props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
-            <th className="course header3" onClick={function(e) {props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
-          </tr>
-        </thead>
-        <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
-          {props.calendarObjects.map(task => (
-            <TaskEntry
-            key={task.id}
-            name={task.name}
-            date={task.date}
-            timeStart={task.timeStart}
-            timeEnd={task.timeEnd}
-            course={task.course}
-            courseColor={task.courseColor}
-            done={task.done}
-            id={task.id}
-            hoursBefore={props.hoursBefore}
-            nextWeekShow={props.nextWeekShow}
-            updateDone={props.updateDone}
-            calendarIDCurrent={task.calendarID}
-            description={task.description}
-            dateObjEnd={task.dateObjEnd}
-            errorTimeoutOpen={props.errorTimeoutOpen}
-            updatePin={props.updatePin}
-            pin={task.pin}
-            important={task.important}
-            darkMode={props.darkMode}
-            />
-          ))}
-        </FlipMove>
-      </table>
-    </div>
-  )
+class TaskTable extends React.Component{
+  render() {
+    return(
+      <div className="taskTable">
+        <table className="taskList">
+          <thead>
+            <tr className="fadeIn">
+              <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
+              <th className="check header3" onClick={function(e) {this.props.sortCalendarObjects("sortCheck")}}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
+              <th className="task header3" onClick={function(e) {this.props.sortCalendarObjects("sortName")}}><div className="hoverSort">Task</div></th>
+              <th className="date header3" onClick={function(e) {this.props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Date</div></th>
+              <th className="time header3" onClick={function(e) {this.props.sortCalendarObjects("sortDate")}}><div className="hoverSort">Time</div></th>
+              <th className="course header3" onClick={function(e) {this.props.sortCalendarObjects("sortCourse")}}><div className="hoverSort">Course</div></th>
+            </tr>
+          </thead>
+          <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+            {this.props.calendarObjects.map(function(task){
+              if(task.hide===false){
+                return(<TaskEntry
+                key={task.id}
+                name={task.name}
+                date={task.date}
+                timeStart={task.timeStart}
+                timeEnd={task.timeEnd}
+                course={task.course}
+                courseColor={task.courseColor}
+                done={task.done}
+                id={task.id}
+                hoursBefore={this.props.hoursBefore}
+                nextWeekShow={this.props.nextWeekShow}
+                updateDone={this.props.updateDone}
+                calendarIDCurrent={task.calendarID}
+                description={task.description}
+                dateObjEnd={task.dateObjEnd}
+                errorTimeoutOpen={this.props.errorTimeoutOpen}
+                updatePin={this.props.updatePin}
+                pin={task.pin}
+                important={task.important}
+                darkMode={this.props.darkMode}
+                />)
+              }
+            }, this)}
+          </FlipMove>
+        </table>
+      </div>
+    )
+  }
 }
 
 class TaskEntry extends React.Component{
