@@ -31,7 +31,6 @@ import FlipMove from 'react-flip-move';
 //TODO:
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
-//remember all filter options not just one -> with this apply the filters in order after unpinning
 //move overdue events to bottom of list -> saved state of check-mark is not getting loaded properly -> see settings for code
 
 //search bar for task name/course/date
@@ -125,7 +124,7 @@ export default class App extends React.Component {
                                                     importantEvents="";
                                                   }
                                                   if(lastSort==="" || lastSort===undefined){
-                                                    lastSort="sortDate";
+                                                    lastSort="sortName,sortCourse,sortCheck,sortDate";
                                                   }
                                                   if(hideEvents==="" || hideEvents===undefined){
                                                     hideEvents="";
@@ -223,24 +222,28 @@ export default class App extends React.Component {
   sortCalendarObjects(type){
     if(this.state.signStatus){
       if(type==="sortName"){
-        AsyncStorage.setItem("lastSort", "sortName");
+        AsyncStorage.setItem("lastSort", appendLastSort("sortName",this.state.lastSort));
         this.setState({
           calendarObjects: sortPin(sortName(this.state.calendarObjects)),
+          lastSort: appendLastSort("sortName",this.state.lastSort)
         })
       } else if(type==="sortDate") {
-        AsyncStorage.setItem("lastSort", "sortDate");
+        AsyncStorage.setItem("lastSort", appendLastSort("sortDate",this.state.lastSort));
         this.setState({
           calendarObjects: sortPin(sortDate(this.state.calendarObjects)),
+          lastSort: appendLastSort("sortDate",this.state.lastSort)
         })
       } else if(type==="sortCourse") {
-        AsyncStorage.setItem("lastSort", "sortCourse");
+        AsyncStorage.setItem("lastSort", appendLastSort("sortCourse",this.state.lastSort));
         this.setState({
           calendarObjects: sortPin(sortCourse(this.state.calendarObjects)),
+          lastSort: appendLastSort("sortCourse",this.state.lastSort)
         })
       } else if(type==="sortCheck") {
-        AsyncStorage.setItem("lastSort", "sortCheck");
+        AsyncStorage.setItem("lastSort", appendLastSort("sortCheck",this.state.lastSort));
         this.setState({
           calendarObjects: sortPin(sortCheck(this.state.calendarObjects)),
+          lastSort: appendLastSort("sortCheck",this.state.lastSort)
         })
       }
     }
@@ -487,8 +490,10 @@ export default class App extends React.Component {
       this.setState({
         calendarObjects: calendarObjectsReduced,
       })
-      this.sortCalendarObjects(this.state.lastSort)
-      // this.sortCalendarObjects("sortCheck")
+      var lastSortList = this.state.lastSort.split(",");
+      lastSortList.map(function(sortElement){
+        this.sortCalendarObjects(sortElement);
+      }, this)
     })
   }
   resetCalendarObjects(){
@@ -1881,4 +1886,20 @@ Date.prototype.addDays = function(days) {
     var date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
+}
+
+function appendLastSort(newSort, lastSort){
+  var lastSortList = [];
+  lastSortList = lastSort.split(",");
+  lastSortList = lastSortList.filter(x=>x != newSort);
+  lastSortList = [...lastSortList, newSort];
+  var lastSortListStr="";
+  lastSortList.map(function(sortElement,i){
+    if(i!==lastSortList.length-1){
+      lastSortListStr=lastSortListStr+sortElement+",";
+    } else {
+      lastSortListStr=lastSortListStr+sortElement;
+    }
+  })
+  return lastSortListStr
 }
