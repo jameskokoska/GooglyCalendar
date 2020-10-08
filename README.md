@@ -1,5 +1,6 @@
-# Googley Calendar
+# Task Calendar
 Turns your Google Calendar into a task list. It can be used here: <a href="https://jameskokoska.github.io/GoogleyCalendar/">https://jameskokoska.github.io/GoogleyCalendar/</a>
+```Note: formerly called Googley Calendar.```
 
 # Features
 * Sync to your Google Calendar, with up to 2 calendars supported
