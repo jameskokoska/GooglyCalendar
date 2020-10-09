@@ -446,7 +446,7 @@ export default class App extends React.Component {
             try{
               calendarObjects[i].hide = false;
               for(var x=0; x<this.state.hideEvents.split(",").length;x++){
-                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[x])||calendarObjects[i].course.includes(this.state.importantEvents.split(",")[x])){
+                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[x])||calendarObjects[i].course.includes(this.state.hideEvents.split(",")[x])){
                   calendarObjects[i].hide = true;
                 }
               }
