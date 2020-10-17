@@ -24,12 +24,10 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "2.1";
+var versionGlobal = "2.2";
 var changeLogGlobal = [
-  "Added this welcome message - will appear each new version",
-  "Added version number",
-  "Now prompted to login on first launch",
-  "Fixed bug where hide events didn't work if important events was empty"
+  "Added toggle for dark mode in settings", 
+  "Can enable/disable auto dark mode",
 ]
 
 //Eventually:
@@ -39,7 +37,7 @@ var changeLogGlobal = [
 //TODO:
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
-//move overdue events to bottom of list -> saved state of check-mark is not getting loaded properly -> see settings for code
+//split up into multiple files
 
 //search bar for task name/course/date
 
@@ -60,7 +58,8 @@ export default class App extends React.Component {
     this.getEventObjects = this.getEventObjects.bind(this);
     this.setCalendarID = this.setCalendarID.bind(this);
     this.setCalendarID2 = this.setCalendarID2.bind(this);
-    this.state ={calendarObjects: [], signStatus:"", errorTimeoutOpen: false};
+    this.darkModeFunction = this.darkModeFunction.bind(this);
+    this.state ={calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -69,14 +68,16 @@ export default class App extends React.Component {
     });
     this.resetDisable = false;
     //this.courseColorsLight = ["#ef5350","#ab47bc","#5c6bc0","#29b6f6","#26a69a","#9ccc65","#ffee58","#ffa726","#8d6e63","#78909c"];
-    // this.courseColorsDark = ["#b61827","#790e8b","#26418f","#0086c3","#00766c","#6b9b37","#c9bc1f","#c77800","#5f4339","#4b636e"];
+    //this.courseColorsDark = ["#b61827","#790e8b","#26418f","#0086c3","#00766c","#6b9b37","#c9bc1f","#c77800","#5f4339","#4b636e"];
     this.courseColorsLight = ["#ffcdd2","#e1bee7","#c5cae9","#b3e5fc","#b2dfdb","#dcedc8","#fff9c4","#ffe0b2","#d7ccc8","#cfd8dc"];
     this.courseColorsDark = ["#cb9ca1","#af8eb5","#9499b7","#82b3c9","#82ada9","#aabb97","#cbc693","#cbae82","#a69b97","#9ea7aa"];
-    this.courseColors = this.courseColorsLight;
-    this.darkMode=false;
-    var currentHours = new Date().getHours();
+    this.darkModeFunction();
+  }
+
+  darkModeFunction(){
     //Dark mode colors
-    if(currentHours > 19 || currentHours < 7){
+    var currentHours = new Date().getHours();
+    if((this.state.autoDark==="true" && (currentHours > 19 || currentHours < 7)) || (this.state.autoDark==="false" && this.state.darkMode==="true")){
       document.documentElement.style.setProperty('--background', "#121212");
       document.documentElement.style.setProperty('--background-settings', "#141414");
       document.documentElement.style.setProperty('--font-color', "#fafafa");
@@ -87,9 +88,19 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--brightnessIcon', "1");
       this.courseColors = this.courseColorsDark;
       this.darkMode = true;
+    } else {
+      this.darkMode = false;
+      document.documentElement.style.setProperty('--background', "#fafafa");
+      document.documentElement.style.setProperty('--background-settings', "white");
+      document.documentElement.style.setProperty('--font-color', "#111111");
+      document.documentElement.style.setProperty('--highlight', "#42424248");
+      document.documentElement.style.setProperty('--highlight2', "#8b8b8b1a");
+      document.documentElement.style.setProperty('--highlight-tabs', "#3838381f");
+      document.documentElement.style.setProperty('--accent', "#64b5f6");
+      document.documentElement.style.setProperty('--brightnessIcon', "0");
+      this.courseColors = this.courseColorsLight;
     }
   }
-
   
 
   loadSyncData() {
@@ -101,99 +112,105 @@ export default class App extends React.Component {
               AsyncStorage.getItem('lastSort').then((lastSort) => {
                 AsyncStorage.getItem('hideEvents').then((hideEvents) => {
                   AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
-                    AsyncStorage.getItem('bottomOverdue').then((bottomOverdue) => {
-                      AsyncStorage.getItem('lastSignIn').then((lastSignIn) => {
-                        AsyncStorage.getItem('courseColor1').then((courseColor1) => {
-                          AsyncStorage.getItem('courseColor2').then((courseColor2) => {
-                            AsyncStorage.getItem('courseColor3').then((courseColor3) => {
-                              AsyncStorage.getItem('courseColor4').then((courseColor4) => {
-                                AsyncStorage.getItem('courseColor5').then((courseColor5) => {
-                                  AsyncStorage.getItem('courseColor6').then((courseColor6) => {
-                                    AsyncStorage.getItem('courseColor7').then((courseColor7) => {
-                                      AsyncStorage.getItem('course1').then((course1) => {
-                                        AsyncStorage.getItem('course2').then((course2) => {
-                                          AsyncStorage.getItem('course3').then((course3) => {
-                                            AsyncStorage.getItem('course4').then((course4) => {
-                                              AsyncStorage.getItem('course5').then((course5) => {
-                                                AsyncStorage.getItem('course6').then((course6) => {
-                                                  AsyncStorage.getItem('course7').then((course7) => {
-                                                    if(calendarID==="" || calendarID===undefined){
-                                                      calendarID="primary";
-                                                    }
-                                                    if(calendarID2==="" || calendarID===undefined){
-                                                      calendarID2="";
-                                                    }
-                                                    if(numEvents==="" || numEvents===undefined){
-                                                      numEvents=20;
-                                                    }
-                                                    if(hoursBefore==="" || hoursBefore===undefined){
-                                                      hoursBefore=0;
-                                                    }
-                                                    if(importantEvents==="" || importantEvents===undefined){
-                                                      importantEvents="";
-                                                    }
-                                                    if(lastSort==="" || lastSort===undefined){
-                                                      lastSort="sortName,sortCourse,sortCheck,sortDate";
-                                                    }
-                                                    if(hideEvents==="" || hideEvents===undefined){
-                                                      hideEvents="";
-                                                    }
-                                                    if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                      nextWeekShow=7;
-                                                    }
-                                                    if(bottomOverdue==="" || bottomOverdue===undefined){
-                                                      bottomOverdue=false;
-                                                    }
-                                                    if(lastSignIn==="" || bottomOverdue===lastSignIn){
-                                                      lastSignIn=0;
-                                                    }
-                                                    if(course1===undefined){
-                                                      course1="";
-                                                    }
-                                                    if(course2===undefined){
-                                                      course2="";
-                                                    }
-                                                    if(course3===undefined){
-                                                      course3="";
-                                                    }
-                                                    if(course4===undefined){
-                                                      course4="";
-                                                    }
-                                                    if(course5===undefined){
-                                                      course5="";
-                                                    }
-                                                    if(course6===undefined){
-                                                      course6="";
-                                                    }
-                                                    if(course7===undefined){
-                                                      course7="";
-                                                    }
-                                                    this.setState({ 
-                                                      calendarID: calendarID,
-                                                      calendarID2: calendarID2,
-                                                      numEvents:numEvents,
-                                                      hoursBefore:hoursBefore,
-                                                      importantEvents:importantEvents,
-                                                      lastSort:lastSort,
-                                                      hideEvents:hideEvents,
-                                                      nextWeekShow:nextWeekShow,
-                                                      bottomOverdue:bottomOverdue,
-                                                      lastSignIn:lastSignIn,
-                                                      courseColor1:courseColor1,
-                                                      courseColor2:courseColor2,
-                                                      courseColor3:courseColor3,
-                                                      courseColor4:courseColor4,
-                                                      courseColor5:courseColor5,
-                                                      courseColor6:courseColor6,
-                                                      courseColor7:courseColor7,
-                                                      course1:course1,
-                                                      course2:course2,
-                                                      course3:course3,
-                                                      course4:course4,
-                                                      course5:course5,
-                                                      course6:course6,
-                                                      course7:course7,
-                                                    });
+                    AsyncStorage.getItem('autoDark').then((autoDark) => {
+                      AsyncStorage.getItem('darkMode').then((darkMode) => {
+                        AsyncStorage.getItem('lastSignIn').then((lastSignIn) => {
+                          AsyncStorage.getItem('courseColor1').then((courseColor1) => {
+                            AsyncStorage.getItem('courseColor2').then((courseColor2) => {
+                              AsyncStorage.getItem('courseColor3').then((courseColor3) => {
+                                AsyncStorage.getItem('courseColor4').then((courseColor4) => {
+                                  AsyncStorage.getItem('courseColor5').then((courseColor5) => {
+                                    AsyncStorage.getItem('courseColor6').then((courseColor6) => {
+                                      AsyncStorage.getItem('courseColor7').then((courseColor7) => {
+                                        AsyncStorage.getItem('course1').then((course1) => {
+                                          AsyncStorage.getItem('course2').then((course2) => {
+                                            AsyncStorage.getItem('course3').then((course3) => {
+                                              AsyncStorage.getItem('course4').then((course4) => {
+                                                AsyncStorage.getItem('course5').then((course5) => {
+                                                  AsyncStorage.getItem('course6').then((course6) => {
+                                                    AsyncStorage.getItem('course7').then((course7) => {
+                                                      if(calendarID==="" || calendarID===undefined){
+                                                        calendarID="primary";
+                                                      }
+                                                      if(calendarID2==="" || calendarID===undefined){
+                                                        calendarID2="";
+                                                      }
+                                                      if(numEvents==="" || numEvents===undefined){
+                                                        numEvents=20;
+                                                      }
+                                                      if(hoursBefore==="" || hoursBefore===undefined){
+                                                        hoursBefore=0;
+                                                      }
+                                                      if(importantEvents==="" || importantEvents===undefined){
+                                                        importantEvents="";
+                                                      }
+                                                      if(lastSort==="" || lastSort===undefined){
+                                                        lastSort="sortName,sortCourse,sortCheck,sortDate";
+                                                      }
+                                                      if(hideEvents==="" || hideEvents===undefined){
+                                                        hideEvents="";
+                                                      }
+                                                      if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                        nextWeekShow=7;
+                                                      }
+                                                      if(autoDark==="" || autoDark===undefined){
+                                                        autoDark=false;
+                                                      }
+                                                      if(darkMode==="" || darkMode===undefined){
+                                                        darkMode=false;
+                                                      }
+                                                      if(lastSignIn==="" || lastSignIn===undefined){
+                                                        lastSignIn=0;
+                                                      }
+                                                      if(course1===undefined){
+                                                        course1="";
+                                                      }
+                                                      if(course2===undefined){
+                                                        course2="";
+                                                      }
+                                                      if(course3===undefined){
+                                                        course3="";
+                                                      }
+                                                      if(course4===undefined){
+                                                        course4="";
+                                                      }
+                                                      if(course5===undefined){
+                                                        course5="";
+                                                      }
+                                                      if(course6===undefined){
+                                                        course6="";
+                                                      }
+                                                      if(course7===undefined){
+                                                        course7="";
+                                                      }
+                                                      this.setState({ 
+                                                        calendarID: calendarID,
+                                                        calendarID2: calendarID2,
+                                                        numEvents:numEvents,
+                                                        hoursBefore:hoursBefore,
+                                                        importantEvents:importantEvents,
+                                                        lastSort:lastSort,
+                                                        hideEvents:hideEvents,
+                                                        nextWeekShow:nextWeekShow,
+                                                        autoDark:autoDark,
+                                                        darkMode:darkMode,
+                                                        lastSignIn:lastSignIn,
+                                                        courseColor1:courseColor1,
+                                                        courseColor2:courseColor2,
+                                                        courseColor3:courseColor3,
+                                                        courseColor4:courseColor4,
+                                                        courseColor5:courseColor5,
+                                                        courseColor6:courseColor6,
+                                                        courseColor7:courseColor7,
+                                                        course1:course1,
+                                                        course2:course2,
+                                                        course3:course3,
+                                                        course4:course4,
+                                                        course5:course5,
+                                                        course6:course6,
+                                                        course7:course7,
+                                                      });
+                                                    })
                                                   })
                                                 })
                                               })
@@ -459,8 +476,8 @@ export default class App extends React.Component {
           if(this.state.hideEvents!==""&&this.state.hideEvents.split(",").length>0){
             try{
               calendarObjects[i].hide = false;
-              for(var x=0; x<this.state.hideEvents.split(",").length;x++){
-                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[x])||calendarObjects[i].course.includes(this.state.hideEvents.split(",")[x])){
+              for(var y=0; y<this.state.hideEvents.split(",").length;y++){
+                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[y])||calendarObjects[i].course.includes(this.state.hideEvents.split(",")[y])){
                   calendarObjects[i].hide = true;
                 }
               }
@@ -519,12 +536,14 @@ export default class App extends React.Component {
       }.bind(this), 1000);
       setTimeout(function () {
           this.resetDisable=false;
+          this.darkModeFunction();
       }.bind(this), 2000);
     }
   }
 
   refreshWholeList() {
     this.loadSyncData();
+    this.darkModeFunction();
     if (ApiCalendar.sign){
       if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
         ApiCalendar.setCalendar("primary")
@@ -611,7 +630,8 @@ export default class App extends React.Component {
           hoursBefore={this.state.hoursBefore}
           importantEvents={this.state.importantEvents}
           hideEvents={this.state.hideEvents}
-          bottomOverdue={this.state.bottomOverdue}
+          autoDark={this.state.autoDark==="true"}
+          darkMode={this.state.darkMode==="true"}
           courseColor1={this.state.courseColor1} 
           courseColor2={this.state.courseColor2} 
           courseColor3={this.state.courseColor3} 
@@ -1094,8 +1114,10 @@ class Settings extends React.Component{
       AsyncStorage.setItem('importantEvents', event.target.value);
     } else if(event.target.name==="hideEvents"){
       AsyncStorage.setItem('hideEvents', event.target.value);
-    } else if(event.target.name==="bottomOverdue"){
-      AsyncStorage.setItem('bottomOverdue', event.target.checked);
+    } else if(event.target.name==="darkMode"){
+      AsyncStorage.setItem('darkMode', event.target.checked);
+    } else if(event.target.name==="autoDark"){
+      AsyncStorage.setItem('autoDark', event.target.checked);
     } else if(event.target.name==="course1"){
       AsyncStorage.setItem('course1', event.target.value);
     } else if(event.target.name==="course2"){
@@ -1164,13 +1186,18 @@ class Settings extends React.Component{
                   Number of hours before the current time to list events from. Refresh to see changes.
                 </Form.Text>
               </Form.Group>
-              {/* <Form.Group>
-                <Form.Label>Overdue events at bottom</Form.Label>
-                <Form.Check name="bottomOverdue" type="checkbox" label="Move overdue events to the bottom" onChange={(e) => {this.handleChange(e, this.props)}} defaultChecked={this.state.checked}/>
+              <Form.Group>
+                <Form.Check name="autoDark" type="checkbox" label="Auto dark mode" onChange={(e) => {this.handleChange(e, this.props)}} defaultChecked={this.props.autoDark}/>
                 <Form.Text className="text-muted">
-                  Show overdue events at bottom of list. Ensure 'Number od hours before to load is > 0'
+                  Changes the colour theme automatically based on the time of day
                 </Form.Text>
-              </Form.Group> */}
+              </Form.Group>
+              <Form.Group>
+                <Form.Check name="darkMode" type="checkbox" label="Dark mode" onChange={(e) => {this.handleChange(e, this.props)}} defaultChecked={this.props.darkMode}/>
+                <Form.Text className="text-muted">
+                  Toggles between light and dark modes. Ensure 'Auto Dark Mode' is off.
+                </Form.Text>
+              </Form.Group>
               <Form.Group>
                 <Form.Label>Important Events</Form.Label>
                 <Form.Control name="importantEvents" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.importantEvents}/>
@@ -1920,7 +1947,7 @@ function appendLastSort(newSort, lastSort){
       lastSortListStr=lastSortListStr+sortElement;
     }
   })
-  return lastSortListStr
+  return lastSortListStr;
 }
 
 class WelcomeMessage extends React.Component{
@@ -1969,7 +1996,7 @@ class WelcomeMessage extends React.Component{
         <Modal.Body>
           <p style={{marginTop:"10px"}}>{welcomeMessage}</p>
           <p dangerouslySetInnerHTML={{ __html: welcomeMessage2 }}></p>
-          <div className="header3">{"Change Log v."+ versionGlobal}</div>
+          <div className="header3">{"What's New? v."+ versionGlobal}</div>
           {changeLogGlobal.map(function(changeLogElement){
            return <li>{changeLogElement}</li>
           })}
