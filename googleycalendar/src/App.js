@@ -155,10 +155,10 @@ export default class App extends React.Component {
                                                         nextWeekShow=7;
                                                       }
                                                       if(autoDark==="" || autoDark===undefined){
-                                                        autoDark=true;
+                                                        autoDark="true";
                                                       }
                                                       if(darkMode==="" || darkMode===undefined){
-                                                        darkMode=false;
+                                                        darkMode="false";
                                                       }
                                                       if(lastSignIn==="" || lastSignIn===undefined){
                                                         lastSignIn=0;
