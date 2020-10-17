@@ -24,10 +24,11 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "2.2";
+var versionGlobal = "2.2.1";
 var changeLogGlobal = [
   "Added toggle for dark mode in settings", 
   "Can enable/disable auto dark mode",
+  "Now defaults to auto dark mode"
 ]
 
 //Eventually:
@@ -154,7 +155,7 @@ export default class App extends React.Component {
                                                         nextWeekShow=7;
                                                       }
                                                       if(autoDark==="" || autoDark===undefined){
-                                                        autoDark=false;
+                                                        autoDark=true;
                                                       }
                                                       if(darkMode==="" || darkMode===undefined){
                                                         darkMode=false;
