@@ -1,27 +1,27 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "74a98860d5118369c7d7159e057ec146",
+    "revision": "dd27bfb3ce6d61838df2aecc56ebc0b2",
     "url": "/GoogleyCalendar/index.html"
   },
   {
-    "revision": "d40129ce452e020909f3",
+    "revision": "136d4dbf84a4a12f78a4",
     "url": "/GoogleyCalendar/static/css/2.da69928d.chunk.css"
   },
   {
-    "revision": "131e76a39afdf798ad1e",
+    "revision": "450337dcabfa6f8a850c",
     "url": "/GoogleyCalendar/static/css/main.f080852c.chunk.css"
   },
   {
-    "revision": "d40129ce452e020909f3",
-    "url": "/GoogleyCalendar/static/js/2.a6c05437.chunk.js"
+    "revision": "136d4dbf84a4a12f78a4",
+    "url": "/GoogleyCalendar/static/js/2.64a0f672.chunk.js"
   },
   {
     "revision": "5e9b6f5c16b720e8a86875f97734673e",
-    "url": "/GoogleyCalendar/static/js/2.a6c05437.chunk.js.LICENSE.txt"
+    "url": "/GoogleyCalendar/static/js/2.64a0f672.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "131e76a39afdf798ad1e",
-    "url": "/GoogleyCalendar/static/js/main.735b690b.chunk.js"
+    "revision": "450337dcabfa6f8a850c",
+    "url": "/GoogleyCalendar/static/js/main.32ce427f.chunk.js"
   },
   {
     "revision": "29827b617be52e2f565f",
