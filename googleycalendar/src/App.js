@@ -24,11 +24,12 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "2.2.1";
+var versionGlobal = "2.2.4";
 var changeLogGlobal = [
   "Added toggle for dark mode in settings", 
   "Can enable/disable auto dark mode",
-  "Now defaults to auto dark mode"
+  "Now defaults to auto dark mode",
+  "Version number now in settings"
 ]
 
 //Eventually:
@@ -1260,7 +1261,13 @@ class Settings extends React.Component{
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXXY999". <br/>3 letters or 4 letters followed by 3 numbers.</p>
             <p>You can <b>sort</b> each category by clicking each category header.</p>
             <p>Closing settings will reload the calendar.</p>
-            <p>This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/GoogleyCalendar">https://github.com/jameskokoska/GoogleyCalendar</a></p>
+            <p>
+              This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/GoogleyCalendar">https://github.com/jameskokoska/GoogleyCalendar</a> 
+              <Form.Text style={{"float":"right"}}className="text-muted">
+                {"v"+versionGlobal}
+              </Form.Text>
+            </p>
+           
           </Modal.Body>
           <Modal.Footer>
             <div onClick={(e) => this.handleItemClick(e, "signInOut")} style={{"left":"5px","position":"absolute"}}>
@@ -1997,7 +2004,7 @@ class WelcomeMessage extends React.Component{
         <Modal.Body>
           <p style={{marginTop:"10px"}}>{welcomeMessage}</p>
           <p dangerouslySetInnerHTML={{ __html: welcomeMessage2 }}></p>
-          <div className="header3">{"What's New? v."+ versionGlobal}</div>
+          <div className="header3">{"What's New? v"+ versionGlobal}</div>
           {changeLogGlobal.map(function(changeLogElement){
            return <li>{changeLogElement}</li>
           })}
