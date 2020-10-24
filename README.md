@@ -27,6 +27,9 @@ Turns your Google Calendar into a task list. It can be used here: <a href="https
 * Load events before the current time (specify in settings)
 * Refresh and sync new data from your Google Calendar
 * Error detection when session times out
+* Welcome message, with change log and first time sign in button
+* Auto reload calendar when needed, for example on login
+* Auto dark mode toggle, and current theme toggle
 
 # Create and run a local copy
 ### Setting up API keys

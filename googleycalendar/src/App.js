@@ -24,12 +24,12 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "2.2.4";
+var versionGlobal = "2.3";
 var changeLogGlobal = [
+  "Calendar now refreshes automatically when signed in",
+  "Refresh more optimized",
+  "Calendar loads faster",
   "Added toggle for dark mode in settings", 
-  "Can enable/disable auto dark mode",
-  "Now defaults to auto dark mode",
-  "Version number now in settings"
 ]
 
 //Eventually:
@@ -40,6 +40,7 @@ var changeLogGlobal = [
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
 //split up into multiple files
+//make 7 day view option start on sunday->saturday instead of next 7 days
 
 //search bar for task name/course/date
 
@@ -239,7 +240,9 @@ export default class App extends React.Component {
     })   
   }
   signUpdate() {
-    this.setState({ signStatus: ApiCalendar.sign})
+    this.setState({ signStatus: ApiCalendar.sign});
+    console.log("loggedin");
+    this.refreshWholeList();
   }
   setCalendarID(calendarIDPassed){
     this.setState({ calendarID: calendarIDPassed});
@@ -534,12 +537,12 @@ export default class App extends React.Component {
       this.resetDisable=true;
       this.setState({calendarObjects:[]})
       setTimeout(function () {
-          this.refreshWholeList()
-      }.bind(this), 1000);
+          this.refreshWholeList();
+      }.bind(this), 1);
       setTimeout(function () {
           this.resetDisable=false;
           this.darkModeFunction();
-      }.bind(this), 2000);
+      }.bind(this), 1000);
     }
   }
 
@@ -655,7 +658,7 @@ export default class App extends React.Component {
           You are not logged-in. Login in the settings, or click this message.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
-          There are no events for this calendar. Add some and refresh to view. If this is the first time loading, hit refresh!
+          There are no events for this calendar. Add some and refresh to view.
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
         <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
@@ -1044,7 +1047,7 @@ class Refresh extends React.Component{
       this.setState({resetDisable:true})
       setTimeout(function () {
           this.setState({resetDisable:false})
-      }.bind(this), 2000);
+      }.bind(this), 1000);
     } 
   }
   render(){
@@ -1228,27 +1231,27 @@ class Settings extends React.Component{
                         <Form.Control style={{"marginBottom":"10px"}} name="course1" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course1}/>
                         <ColorPicker color={this.props.courseColor1} courseStorageID="courseColor1"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course2" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course2}/>
                         <ColorPicker color={this.props.courseColor2} courseStorageID="courseColor2"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course3" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course3}/>
                         <ColorPicker color={this.props.courseColor3} courseStorageID="courseColor3"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course4" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course4}/>
                         <ColorPicker color={this.props.courseColor4} courseStorageID="courseColor4"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course5" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course5}/>
                         <ColorPicker color={this.props.courseColor5} courseStorageID="courseColor5"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course6" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course6}/>
                         <ColorPicker color={this.props.courseColor6} courseStorageID="courseColor6"/>
                       </Form.Group>
-                      <Form.Group style={{"padding-bottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
+                      <Form.Group style={{"paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
                         <Form.Control style={{"marginBottom":"10px"}} name="course7" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="XXX(Y)999 (Course Code)" defaultValue={this.props.course7}/>
                         <ColorPicker color={this.props.courseColor7} courseStorageID="courseColor7"/>
                       </Form.Group>
