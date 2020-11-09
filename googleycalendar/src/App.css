@@ -28,7 +28,7 @@
   --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
-  --color:#141414;
+  --color:#eeeeee;
 }
 
 .modal-content{
@@ -109,8 +109,8 @@ body{
   padding-right: 25px;
   font-family: 'PierSans';
   background-color: #3651ef;
-  background-image: linear-gradient(to right, #36D1DC,#5B86E5, #6015a5, #6015a5);
-  background-size:225%;
+  background-image: linear-gradient(to right, #36D1DC,#5B86E5, #5B86E5, #6015a5, #6015a5, #6015a5);
+  background-size:240%;
   text-align: center;
   color: white;
   display: inline-block;
@@ -641,6 +641,27 @@ th.weekday{
   margin-right: 30px;
 }
 
+.pomoTimer{
+  height: 30px;
+  margin-left: 4%;
+  margin-right: 4%;
+  margin-top: 4vh;
+  background-color: var(--accent);
+  border-radius: 10px;
+  transition: width 1s;
+  text-align: center;
+}
+
+.pomoTimerContainer{
+  color: var(--font-color);
+  font-family: "PierSans";
+  font-size: 28px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
 
 @keyframes fadeIn{
   0%{opacity:0}
@@ -737,5 +758,12 @@ th.weekday{
   .iconBoxWeek{
     padding-right: 5px;
     padding-bottom: 6px;
+  }
+  .tabsLabel{
+    font-size: 16px;
+  }
+  
+  .tabsLabel a{
+    margin-right:0px;
   }
 }

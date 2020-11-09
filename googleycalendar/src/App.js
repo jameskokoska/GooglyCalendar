@@ -24,13 +24,12 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "2.3";
+var versionGlobal = "3.0";
 var changeLogGlobal = [
-  "Calendar now refreshes automatically when signed in",
-  "Refresh more optimized",
-  "Calendar loads faster",
-  "Added toggle for dark mode in settings", 
-]
+  "Added a Pomodoro timer",
+  "Pomodoro timer amounts can be configured in settings",
+  "Thanks Emily for the inspiration: https://mymyxtran.github.io/toasty/"
+];
 
 //Eventually:
 //Fix vibration feedback
@@ -41,6 +40,7 @@ var changeLogGlobal = [
 //add filter both ways (sort by least/most)
 //split up into multiple files
 //make 7 day view option start on sunday->saturday instead of next 7 days
+//pomodoro timer
 
 //search bar for task name/course/date
 
@@ -83,11 +83,11 @@ export default class App extends React.Component {
     if((this.state.autoDark==="true" && (currentHours > 19 || currentHours < 7)) || (this.state.autoDark==="false" && this.state.darkMode==="true")){
       document.documentElement.style.setProperty('--background', "#121212");
       document.documentElement.style.setProperty('--background-settings', "#141414");
-      document.documentElement.style.setProperty('--font-color', "#fafafa");
+      document.documentElement.style.setProperty('--font-color', "#eeeeee");
       document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
       document.documentElement.style.setProperty('--highlight2', "#66666623");
       document.documentElement.style.setProperty('--highlight-tabs', "#c9c9c925");
-      document.documentElement.style.setProperty('--accent', "#1565c0c9");
+      document.documentElement.style.setProperty('--accent', "#2889f7c9");
       document.documentElement.style.setProperty('--brightnessIcon', "1");
       this.courseColors = this.courseColorsDark;
       this.darkMode = true;
@@ -132,87 +132,115 @@ export default class App extends React.Component {
                                                 AsyncStorage.getItem('course5').then((course5) => {
                                                   AsyncStorage.getItem('course6').then((course6) => {
                                                     AsyncStorage.getItem('course7').then((course7) => {
-                                                      if(calendarID==="" || calendarID===undefined){
-                                                        calendarID="primary";
-                                                      }
-                                                      if(calendarID2==="" || calendarID===undefined){
-                                                        calendarID2="";
-                                                      }
-                                                      if(numEvents==="" || numEvents===undefined){
-                                                        numEvents=20;
-                                                      }
-                                                      if(hoursBefore==="" || hoursBefore===undefined){
-                                                        hoursBefore=0;
-                                                      }
-                                                      if(importantEvents==="" || importantEvents===undefined){
-                                                        importantEvents="";
-                                                      }
-                                                      if(lastSort==="" || lastSort===undefined){
-                                                        lastSort="sortName,sortCourse,sortCheck,sortDate";
-                                                      }
-                                                      if(hideEvents==="" || hideEvents===undefined){
-                                                        hideEvents="";
-                                                      }
-                                                      if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                        nextWeekShow=7;
-                                                      }
-                                                      if(autoDark==="" || autoDark===undefined){
-                                                        autoDark="true";
-                                                      }
-                                                      if(darkMode==="" || darkMode===undefined){
-                                                        darkMode="false";
-                                                      }
-                                                      if(lastSignIn==="" || lastSignIn===undefined){
-                                                        lastSignIn=0;
-                                                      }
-                                                      if(course1===undefined){
-                                                        course1="";
-                                                      }
-                                                      if(course2===undefined){
-                                                        course2="";
-                                                      }
-                                                      if(course3===undefined){
-                                                        course3="";
-                                                      }
-                                                      if(course4===undefined){
-                                                        course4="";
-                                                      }
-                                                      if(course5===undefined){
-                                                        course5="";
-                                                      }
-                                                      if(course6===undefined){
-                                                        course6="";
-                                                      }
-                                                      if(course7===undefined){
-                                                        course7="";
-                                                      }
-                                                      this.setState({ 
-                                                        calendarID: calendarID,
-                                                        calendarID2: calendarID2,
-                                                        numEvents:numEvents,
-                                                        hoursBefore:hoursBefore,
-                                                        importantEvents:importantEvents,
-                                                        lastSort:lastSort,
-                                                        hideEvents:hideEvents,
-                                                        nextWeekShow:nextWeekShow,
-                                                        autoDark:autoDark,
-                                                        darkMode:darkMode,
-                                                        lastSignIn:lastSignIn,
-                                                        courseColor1:courseColor1,
-                                                        courseColor2:courseColor2,
-                                                        courseColor3:courseColor3,
-                                                        courseColor4:courseColor4,
-                                                        courseColor5:courseColor5,
-                                                        courseColor6:courseColor6,
-                                                        courseColor7:courseColor7,
-                                                        course1:course1,
-                                                        course2:course2,
-                                                        course3:course3,
-                                                        course4:course4,
-                                                        course5:course5,
-                                                        course6:course6,
-                                                        course7:course7,
-                                                      });
+                                                      AsyncStorage.getItem('workSeconds').then((workSeconds) => {
+                                                        AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
+                                                          AsyncStorage.getItem('workMinutes').then((workMinutes) => {
+                                                            AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
+                                                              if(calendarID==="" || calendarID===undefined){
+                                                                calendarID="primary";
+                                                              }
+                                                              if(calendarID2==="" || calendarID===undefined){
+                                                                calendarID2="";
+                                                              }
+                                                              if(numEvents==="" || numEvents===undefined){
+                                                                numEvents=20;
+                                                              }
+                                                              if(hoursBefore==="" || hoursBefore===undefined){
+                                                                hoursBefore=0;
+                                                              }
+                                                              if(importantEvents==="" || importantEvents===undefined){
+                                                                importantEvents="";
+                                                              }
+                                                              if(lastSort==="" || lastSort===undefined){
+                                                                lastSort="sortName,sortCourse,sortCheck,sortDate";
+                                                              }
+                                                              if(hideEvents==="" || hideEvents===undefined){
+                                                                hideEvents="";
+                                                              }
+                                                              if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                                nextWeekShow=7;
+                                                              }
+                                                              if(autoDark==="" || autoDark===undefined){
+                                                                autoDark="true";
+                                                              }
+                                                              if(darkMode==="" || darkMode===undefined){
+                                                                darkMode="false";
+                                                              }
+                                                              if(lastSignIn==="" || lastSignIn===undefined){
+                                                                lastSignIn=0;
+                                                              }
+                                                              if(course1===undefined){
+                                                                course1="";
+                                                              }
+                                                              if(course2===undefined){
+                                                                course2="";
+                                                              }
+                                                              if(course3===undefined){
+                                                                course3="";
+                                                              }
+                                                              if(course4===undefined){
+                                                                course4="";
+                                                              }
+                                                              if(course5===undefined){
+                                                                course5="";
+                                                              }
+                                                              if(course6===undefined){
+                                                                course6="";
+                                                              }
+                                                              if(course7===undefined){
+                                                                course7="";
+                                                              }
+                                                              if(workSeconds===undefined){
+                                                                workSeconds=0;
+                                                                AsyncStorage.setItem('workSeconds', 0);
+                                                              }
+                                                              if(workMinutes===undefined){
+                                                                workMinutes=25;
+                                                                AsyncStorage.setItem('workMinutes', 25);
+                                                              }
+                                                              if(breakSeconds===undefined){
+                                                                breakSeconds=0;
+                                                                 AsyncStorage.setItem('breakSeconds', 0);
+                                                              }
+                                                              if(breakMinutes===undefined){
+                                                                breakMinutes=5;
+                                                                AsyncStorage.setItem('breakMinutes', 5);
+                                                              }
+                                                              this.setState({ 
+                                                                calendarID: calendarID,
+                                                                calendarID2: calendarID2,
+                                                                numEvents:numEvents,
+                                                                hoursBefore:hoursBefore,
+                                                                importantEvents:importantEvents,
+                                                                lastSort:lastSort,
+                                                                hideEvents:hideEvents,
+                                                                nextWeekShow:nextWeekShow,
+                                                                autoDark:autoDark,
+                                                                darkMode:darkMode,
+                                                                lastSignIn:lastSignIn,
+                                                                courseColor1:courseColor1,
+                                                                courseColor2:courseColor2,
+                                                                courseColor3:courseColor3,
+                                                                courseColor4:courseColor4,
+                                                                courseColor5:courseColor5,
+                                                                courseColor6:courseColor6,
+                                                                courseColor7:courseColor7,
+                                                                course1:course1,
+                                                                course2:course2,
+                                                                course3:course3,
+                                                                course4:course4,
+                                                                course5:course5,
+                                                                course6:course6,
+                                                                course7:course7,
+                                                                workSeconds:workSeconds,
+                                                                breakSeconds:breakSeconds,
+                                                                workMinutes:workMinutes,
+                                                                breakMinutes:breakMinutes,
+                                                              });
+                                                            })
+                                                          })
+                                                        })
+                                                      })
                                                     })
                                                   })
                                                 })
@@ -241,7 +269,6 @@ export default class App extends React.Component {
   }
   signUpdate() {
     this.setState({ signStatus: ApiCalendar.sign});
-    console.log("loggedin");
     this.refreshWholeList();
   }
   setCalendarID(calendarIDPassed){
@@ -551,15 +578,14 @@ export default class App extends React.Component {
     this.darkModeFunction();
     if (ApiCalendar.sign){
       if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
-        ApiCalendar.setCalendar("primary")
+        ApiCalendar.setCalendar("primary");
       } else {
-        ApiCalendar.setCalendar(this.state.calendarID)
+        ApiCalendar.setCalendar(this.state.calendarID);
       } 
-      this.getEventObjects(this.state.calendarID)
-      
+      this.getEventObjects(this.state.calendarID);
       if(this.state.calendarID2!==this.state.calendarID&&this.state.calendarID2!==""&&this.state.calendarID2!==null&&this.state.calendarID2!==undefined){
-        ApiCalendar.setCalendar(this.state.calendarID2)  
-        this.getEventObjects(this.state.calendarID2)   
+        ApiCalendar.setCalendar(this.state.calendarID2);
+        this.getEventObjects(this.state.calendarID2);
       }
     }
   }
@@ -622,6 +648,9 @@ export default class App extends React.Component {
             <Tab eventKey="2" title="Day View">
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
+            <Tab eventKey="3" title="Pomodoro">
+              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode}/>
+            </Tab>
         </Tabs>
         <Settings 
           resetCalendarObjects={this.resetCalendarObjects} 
@@ -651,6 +680,10 @@ export default class App extends React.Component {
           course5={this.state.course5}
           course6={this.state.course6}
           course7={this.state.course7}
+          breakSeconds={this.state.breakSeconds}
+          workSeconds={this.state.workSeconds}
+          breakMinutes={this.state.breakMinutes}
+          workMinutes={this.state.workMinutes}
           />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
         {/* <AddEvent/> */}
@@ -665,6 +698,157 @@ export default class App extends React.Component {
       </div>
     );
   }
+}
+
+class Pomo extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state = {currentSeconds: 0, paused: true, work: true};
+    this.getAsyncStorage();
+    this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus."];
+    this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
+  }
+  getAsyncStorage(){
+    AsyncStorage.getItem('workSeconds').then((workSeconds) => {
+      AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
+        AsyncStorage.getItem('workMinutes').then((workMinutes) => {
+          AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
+            if(workSeconds===undefined){
+              workSeconds=0;
+              AsyncStorage.setItem('workSeconds', 0);
+            }
+            if(workMinutes===undefined){
+              workMinutes=25;
+              AsyncStorage.setItem('workMinutes', 25);
+            }
+            if(breakSeconds===undefined){
+              breakSeconds=0;
+                AsyncStorage.setItem('breakSeconds', 0);
+            }
+            if(breakMinutes===undefined){
+              breakMinutes=5;
+              AsyncStorage.setItem('breakMinutes', 5);
+            }
+            this.setState({
+              workSeconds:workSeconds,
+              breakSeconds:breakSeconds,
+              workMinutes:workMinutes,
+              breakMinutes:breakMinutes,
+              currentSeconds:parseInt(workSeconds)+parseInt(workMinutes*60),
+              paused: true,
+            });
+          })
+        })
+      })
+    })
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+  startTimer(){
+    this.interval = setInterval(() => this.setState({currentSeconds: this.state.currentSeconds-1}), 1000);
+  }
+  handleItemClick(event: SyntheticEvent<any>, name: string): void {
+    console.log(this.state.workSeconds);
+    console.log(parseInt(this.state.workSeconds));
+    if (name==="resetTimer") {
+      this.getAsyncStorage();
+      this.setState({paused: true, work: true});
+      clearInterval(this.interval);
+      this.setState({currentSeconds: parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60)});
+    } else if (name==="pauseTimer") {
+      if(!this.state.paused){
+        clearInterval(this.interval);
+      } else {
+        this.startTimer();
+      }
+      this.setState({paused: !this.state.paused});
+    } else if (name==="startBreak") {
+      this.setState({currentSeconds: parseInt(this.state.breakSeconds)+parseInt(this.state.breakMinutes*60), work:false});
+      this.startTimer();
+    } else if (name="startWork"){
+      this.setState({currentSeconds: parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60), work:true});
+      this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
+      this.startTimer();
+    }
+  }
+  render(){
+    var totalWidth=92;
+    var percent;
+    if(this.state.work){
+      percent = (this.state.currentSeconds/(parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60)))*totalWidth; 
+    } else {
+      percent = (this.state.currentSeconds/(parseInt(this.state.breakSeconds)+parseInt(this.state.breakMinutes*60)))*totalWidth; 
+    }
+    var pauseButtonLabel;
+    if(!this.state.paused){
+      pauseButtonLabel="Pause";
+    } else {
+      pauseButtonLabel="Start";
+    }
+
+    var minutes = "minutes";
+    if(Math.floor(this.state.currentSeconds/60)===1){
+      minutes = "minute";
+    }
+    var seconds = "seconds";
+    if(this.state.currentSeconds%60===1){
+      seconds = "second";
+    }
+    var timerMessage;
+    if(this.state.currentSeconds<0){
+      timerMessage = " ";
+    }else if(Math.floor(this.state.currentSeconds/60)===0){
+      timerMessage = (this.state.currentSeconds%60).toString() + " " + seconds;
+    } else {
+      timerMessage = (Math.floor(this.state.currentSeconds/60)).toString() + " " + minutes + " " + (this.state.currentSeconds%60).toString() + " " + seconds;
+    } 
+    if(isNaN(this.state.currentSeconds)){
+      timerMessage="Make sure the timer is set up properly in settings";
+    }
+
+    
+    var textMessage;
+    if(this.state.work===false){
+      textMessage = "Go enjoy your break!"
+    } else {
+      textMessage = this.chosenWorkMessage;
+    }
+
+    var displayBreakButton = "none";
+    var displayWorkButton = "none";
+    //set timer between break and work modes
+    if (this.state.currentSeconds < 0 && this.state.work===true){
+      displayBreakButton = "unset";
+      clearInterval(this.interval);
+    } else if (this.state.currentSeconds < 0 && this.state.work===false){
+      displayWorkButton = "unset";
+      clearInterval(this.interval);
+    }
+    
+    return <div>
+      <div className="pomoTimerContainer">
+        <div className="header1" style={{marginTop: "12vh", textAlign: "center"}}>{textMessage}</div>
+        <div className="pomoTimer" style={{width:percent+"%"}}>
+        </div>
+        <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startBreak")} style={{display:displayBreakButton, marginTop: "-14px"}}>
+          <ButtonStyle label={"Start Break"}/>
+        </div>
+        <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startWork")} style={{display:displayWorkButton, marginTop: "-14px"}}>
+          <ButtonStyle label={"Start Work"}/>
+        </div>
+        <div style={{textAlign: "center"}}>{timerMessage}</div>
+        <div style={{marginTop: "30px", marginBottom: "30px"}}>
+          <Button variant="primary" onClick={(e) => this.handleItemClick(e, "pauseTimer")} style={{marginRight: '20px'}}>
+            {pauseButtonLabel}
+          </Button>
+          <Button variant="outline-primary" onClick={(e) => this.handleItemClick(e, "resetTimer")}>
+            Reset
+          </Button>
+        </div>
+      </div>
+    </div>
+  } 
 }
 
 function WeekListHeader(props){
@@ -969,10 +1153,16 @@ class DayListEntry extends React.Component{
 }
 class WeekList extends React.Component {
   render() {
+    if(this.props.nextWeekShow<7){
+      var minWidthNum = this.props.nextWeekShow/7*1150;
+    } else {
+      var minWidthNum = 1150;
+    }
+    
     return(
       <div className="week">
         <div className="weekTable">
-          <table className="weekList">
+          <table className="weekList" style={{minWidth:minWidthNum+"px"}}>
             <tbody>
               <tr>
                 <WeekListHeader days={this.props.nextWeekShow}/>
@@ -1137,6 +1327,14 @@ class Settings extends React.Component{
       AsyncStorage.setItem('course6', event.target.value);
     } else if(event.target.name==="course7"){
       AsyncStorage.setItem('course7', event.target.value);
+    } else if(event.target.name==="workSeconds"){
+      AsyncStorage.setItem('workSeconds', event.target.value);
+    } else if(event.target.name==="breakSeconds"){
+      AsyncStorage.setItem('breakSeconds', event.target.value);
+    } else if(event.target.name==="workMinutes"){
+      AsyncStorage.setItem('workMinutes', event.target.value);
+    } else if(event.target.name==="breakMinutes"){
+      AsyncStorage.setItem('breakMinutes', event.target.value);
     }
   }
 
@@ -1218,6 +1416,30 @@ class Settings extends React.Component{
                 </Form.Text>
               </Form.Group>
               <Form.Group>
+              <Form.Group>
+                <Form.Label>Pomodoro Timer Work Session</Form.Label>
+                <div>
+                  <Form.Control name="workMinutes" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.workMinutes} style={{width:"70px", display:"inline-block", marginLeft:"0px", marginRight:"5px"}}/>
+                  minutes
+                  <Form.Control name="workSeconds" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.workSeconds} style={{width:"70px", display:"inline-block", marginLeft:"20px", marginRight:"5px"}}/>
+                  seconds
+                </div>
+                <Form.Text className="text-muted">
+                  Set the time for work sessions for the pomodoro timer.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Pomodoro Timer Break Session</Form.Label>
+                <div>
+                  <Form.Control name="breakMinutes" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.breakMinutes} style={{width:"70px", display:"inline-block", marginLeft:"0px", marginRight:"5px"}}/>
+                  minutes
+                  <Form.Control name="breakSeconds" onChange={(e) => {this.handleChange(e, this.props)}} placeholder="" defaultValue={this.props.breakSeconds} style={{width:"70px", display:"inline-block", marginLeft:"20px", marginRight:"5px"}}/>
+                  seconds
+                </div>
+                <Form.Text className="text-muted">
+                  Set the time for break sessions for the pomodoro timer.
+                </Form.Text>
+              </Form.Group>
               <Accordion defaultActiveKey="10">
                 <Card>
                   <Card.Header style={{"padding":"4px"}}>
