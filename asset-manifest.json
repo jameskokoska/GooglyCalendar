@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/GoogleyCalendar/static/css/main.4a1502c5.chunk.css",
-    "main.js": "/GoogleyCalendar/static/js/main.965d41a9.chunk.js",
-    "main.js.map": "/GoogleyCalendar/static/js/main.965d41a9.chunk.js.map",
+    "main.css": "/GoogleyCalendar/static/css/main.c5eec380.chunk.css",
+    "main.js": "/GoogleyCalendar/static/js/main.d4ee8493.chunk.js",
+    "main.js.map": "/GoogleyCalendar/static/js/main.d4ee8493.chunk.js.map",
     "runtime-main.js": "/GoogleyCalendar/static/js/runtime-main.b0f46218.js",
     "runtime-main.js.map": "/GoogleyCalendar/static/js/runtime-main.b0f46218.js.map",
     "static/css/2.da69928d.chunk.css": "/GoogleyCalendar/static/css/2.da69928d.chunk.css",
-    "static/js/2.46a1dd56.chunk.js": "/GoogleyCalendar/static/js/2.46a1dd56.chunk.js",
-    "static/js/2.46a1dd56.chunk.js.map": "/GoogleyCalendar/static/js/2.46a1dd56.chunk.js.map",
+    "static/js/2.1dfb1043.chunk.js": "/GoogleyCalendar/static/js/2.1dfb1043.chunk.js",
+    "static/js/2.1dfb1043.chunk.js.map": "/GoogleyCalendar/static/js/2.1dfb1043.chunk.js.map",
     "index.html": "/GoogleyCalendar/index.html",
-    "precache-manifest.6591036b76373fb26cce9bb54286f270.js": "/GoogleyCalendar/precache-manifest.6591036b76373fb26cce9bb54286f270.js",
+    "precache-manifest.cc3c51bc4d3bdfa6531c0564ccaa9bd0.js": "/GoogleyCalendar/precache-manifest.cc3c51bc4d3bdfa6531c0564ccaa9bd0.js",
     "service-worker.js": "/GoogleyCalendar/service-worker.js",
     "static/css/2.da69928d.chunk.css.map": "/GoogleyCalendar/static/css/2.da69928d.chunk.css.map",
-    "static/css/main.4a1502c5.chunk.css.map": "/GoogleyCalendar/static/css/main.4a1502c5.chunk.css.map",
-    "static/js/2.46a1dd56.chunk.js.LICENSE.txt": "/GoogleyCalendar/static/js/2.46a1dd56.chunk.js.LICENSE.txt",
+    "static/css/main.c5eec380.chunk.css.map": "/GoogleyCalendar/static/css/main.c5eec380.chunk.css.map",
+    "static/js/2.1dfb1043.chunk.js.LICENSE.txt": "/GoogleyCalendar/static/js/2.1dfb1043.chunk.js.LICENSE.txt",
     "static/media/App.css": "/GoogleyCalendar/static/media/PierSans-Regular.239bd637.otf",
     "static/media/check-solid.svg": "/GoogleyCalendar/static/media/check-solid.e597acab.svg",
     "static/media/cog-solid.svg": "/GoogleyCalendar/static/media/cog-solid.9f07a3df.svg",
@@ -25,8 +25,8 @@
   "entrypoints": [
     "static/js/runtime-main.b0f46218.js",
     "static/css/2.da69928d.chunk.css",
-    "static/js/2.46a1dd56.chunk.js",
-    "static/css/main.4a1502c5.chunk.css",
-    "static/js/main.965d41a9.chunk.js"
+    "static/js/2.1dfb1043.chunk.js",
+    "static/css/main.c5eec380.chunk.css",
+    "static/js/main.d4ee8493.chunk.js"
   ]
 }
