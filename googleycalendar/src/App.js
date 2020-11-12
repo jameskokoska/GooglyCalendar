@@ -24,7 +24,7 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "3.1.2";
+var versionGlobal = "3.1.3";
 var changeLogGlobal = [
   "3.1: Added Pomodoro timer sound effect",
   "3.1: Can disable/enable sound effect in settings",
@@ -45,6 +45,7 @@ var changeLogGlobal = [
 //split up into multiple files
 //make 7 day view option start on sunday->saturday instead of next 7 days
 //pomodoro timer
+//count how many successful pomodoros
 
 //search bar for task name/course/date
 
@@ -718,11 +719,11 @@ class Pomo extends React.Component{
     this.getAsyncStorage();
     this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus."];
     this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
+    this.audio = new Audio(require("./assets/ding.m4a"))
   }
   playSound(){
     if(this.props.pomoSound==="true" && this.state.currentSeconds === 0){
-      let audio = new Audio(require("./assets/ding.m4a"))
-      audio.play()
+      this.audio.play()
     }
   }
   getAsyncStorage(){
@@ -763,7 +764,10 @@ class Pomo extends React.Component{
     clearInterval(this.interval);
   }
   startTimer(){
-    this.interval = setInterval(() => this.setState({currentSeconds: this.state.currentSeconds-1}), 1000);
+    this.interval = setInterval(() => {
+      this.setState({currentSeconds: this.state.currentSeconds-1});
+      this.playSound();
+    }, 1000);
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
     if (name==="resetTimer") {
@@ -833,7 +837,6 @@ class Pomo extends React.Component{
     var displayBreakButton = "none";
     var displayWorkButton = "none";
     //set timer between break and work modes
-    this.playSound();
     if (this.state.currentSeconds < 0 && this.state.work===true){
       displayBreakButton = "unset";
       clearInterval(this.interval);
