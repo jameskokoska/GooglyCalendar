@@ -24,11 +24,15 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "3.0";
+var versionGlobal = "3.1.2";
 var changeLogGlobal = [
-  "Added a Pomodoro timer",
-  "Pomodoro timer amounts can be configured in settings",
-  "Thanks Emily for the inspiration: https://mymyxtran.github.io/toasty/"
+  "3.1: Added Pomodoro timer sound effect",
+  "3.1: Can disable/enable sound effect in settings",
+  "3.1: Edited text for not signed in error",
+  "3.1: Can continue without logging in - to use Pomodoro timer",
+  "3.0: Added a Pomodoro timer",
+  "3.0: Pomodoro timer amounts can be configured in settings",
+  "3.0: Thanks Emily for the inspiration: https://mymyxtran.github.io/toasty/",
 ];
 
 //Eventually:
@@ -136,107 +140,113 @@ export default class App extends React.Component {
                                                         AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
                                                           AsyncStorage.getItem('workMinutes').then((workMinutes) => {
                                                             AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
-                                                              if(calendarID==="" || calendarID===undefined){
-                                                                calendarID="primary";
-                                                              }
-                                                              if(calendarID2==="" || calendarID===undefined){
-                                                                calendarID2="";
-                                                              }
-                                                              if(numEvents==="" || numEvents===undefined){
-                                                                numEvents=20;
-                                                              }
-                                                              if(hoursBefore==="" || hoursBefore===undefined){
-                                                                hoursBefore=0;
-                                                              }
-                                                              if(importantEvents==="" || importantEvents===undefined){
-                                                                importantEvents="";
-                                                              }
-                                                              if(lastSort==="" || lastSort===undefined){
-                                                                lastSort="sortName,sortCourse,sortCheck,sortDate";
-                                                              }
-                                                              if(hideEvents==="" || hideEvents===undefined){
-                                                                hideEvents="";
-                                                              }
-                                                              if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                                nextWeekShow=7;
-                                                              }
-                                                              if(autoDark==="" || autoDark===undefined){
-                                                                autoDark="true";
-                                                              }
-                                                              if(darkMode==="" || darkMode===undefined){
-                                                                darkMode="false";
-                                                              }
-                                                              if(lastSignIn==="" || lastSignIn===undefined){
-                                                                lastSignIn=0;
-                                                              }
-                                                              if(course1===undefined){
-                                                                course1="";
-                                                              }
-                                                              if(course2===undefined){
-                                                                course2="";
-                                                              }
-                                                              if(course3===undefined){
-                                                                course3="";
-                                                              }
-                                                              if(course4===undefined){
-                                                                course4="";
-                                                              }
-                                                              if(course5===undefined){
-                                                                course5="";
-                                                              }
-                                                              if(course6===undefined){
-                                                                course6="";
-                                                              }
-                                                              if(course7===undefined){
-                                                                course7="";
-                                                              }
-                                                              if(workSeconds===undefined){
-                                                                workSeconds=0;
-                                                                AsyncStorage.setItem('workSeconds', 0);
-                                                              }
-                                                              if(workMinutes===undefined){
-                                                                workMinutes=25;
-                                                                AsyncStorage.setItem('workMinutes', 25);
-                                                              }
-                                                              if(breakSeconds===undefined){
-                                                                breakSeconds=0;
-                                                                 AsyncStorage.setItem('breakSeconds', 0);
-                                                              }
-                                                              if(breakMinutes===undefined){
-                                                                breakMinutes=5;
-                                                                AsyncStorage.setItem('breakMinutes', 5);
-                                                              }
-                                                              this.setState({ 
-                                                                calendarID: calendarID,
-                                                                calendarID2: calendarID2,
-                                                                numEvents:numEvents,
-                                                                hoursBefore:hoursBefore,
-                                                                importantEvents:importantEvents,
-                                                                lastSort:lastSort,
-                                                                hideEvents:hideEvents,
-                                                                nextWeekShow:nextWeekShow,
-                                                                autoDark:autoDark,
-                                                                darkMode:darkMode,
-                                                                lastSignIn:lastSignIn,
-                                                                courseColor1:courseColor1,
-                                                                courseColor2:courseColor2,
-                                                                courseColor3:courseColor3,
-                                                                courseColor4:courseColor4,
-                                                                courseColor5:courseColor5,
-                                                                courseColor6:courseColor6,
-                                                                courseColor7:courseColor7,
-                                                                course1:course1,
-                                                                course2:course2,
-                                                                course3:course3,
-                                                                course4:course4,
-                                                                course5:course5,
-                                                                course6:course6,
-                                                                course7:course7,
-                                                                workSeconds:workSeconds,
-                                                                breakSeconds:breakSeconds,
-                                                                workMinutes:workMinutes,
-                                                                breakMinutes:breakMinutes,
-                                                              });
+                                                              AsyncStorage.getItem('pomoSound').then((pomoSound) => {
+                                                                if(calendarID==="" || calendarID===undefined){
+                                                                  calendarID="primary";
+                                                                }
+                                                                if(calendarID2==="" || calendarID===undefined){
+                                                                  calendarID2="";
+                                                                }
+                                                                if(numEvents==="" || numEvents===undefined){
+                                                                  numEvents=20;
+                                                                }
+                                                                if(hoursBefore==="" || hoursBefore===undefined){
+                                                                  hoursBefore=0;
+                                                                }
+                                                                if(importantEvents==="" || importantEvents===undefined){
+                                                                  importantEvents="";
+                                                                }
+                                                                if(lastSort==="" || lastSort===undefined){
+                                                                  lastSort="sortName,sortCourse,sortCheck,sortDate";
+                                                                }
+                                                                if(hideEvents==="" || hideEvents===undefined){
+                                                                  hideEvents="";
+                                                                }
+                                                                if(nextWeekShow==="" || nextWeekShow===undefined){
+                                                                  nextWeekShow=7;
+                                                                }
+                                                                if(autoDark==="" || autoDark===undefined){
+                                                                  autoDark="true";
+                                                                }
+                                                                if(darkMode==="" || darkMode===undefined){
+                                                                  darkMode="false";
+                                                                }
+                                                                if(lastSignIn==="" || lastSignIn===undefined){
+                                                                  lastSignIn=0;
+                                                                }
+                                                                if(course1===undefined){
+                                                                  course1="";
+                                                                }
+                                                                if(course2===undefined){
+                                                                  course2="";
+                                                                }
+                                                                if(course3===undefined){
+                                                                  course3="";
+                                                                }
+                                                                if(course4===undefined){
+                                                                  course4="";
+                                                                }
+                                                                if(course5===undefined){
+                                                                  course5="";
+                                                                }
+                                                                if(course6===undefined){
+                                                                  course6="";
+                                                                }
+                                                                if(course7===undefined){
+                                                                  course7="";
+                                                                }
+                                                                if(workSeconds===undefined){
+                                                                  workSeconds=0;
+                                                                  AsyncStorage.setItem('workSeconds', 0);
+                                                                }
+                                                                if(workMinutes===undefined){
+                                                                  workMinutes=25;
+                                                                  AsyncStorage.setItem('workMinutes', 25);
+                                                                }
+                                                                if(breakSeconds===undefined){
+                                                                  breakSeconds=0;
+                                                                  AsyncStorage.setItem('breakSeconds', 0);
+                                                                }
+                                                                if(breakMinutes===undefined){
+                                                                  breakMinutes=5;
+                                                                  AsyncStorage.setItem('breakMinutes', 5);
+                                                                }
+                                                                if(pomoSound===undefined){
+                                                                  pomoSound="true";
+                                                                }
+                                                                this.setState({ 
+                                                                  calendarID: calendarID,
+                                                                  calendarID2: calendarID2,
+                                                                  numEvents:numEvents,
+                                                                  hoursBefore:hoursBefore,
+                                                                  importantEvents:importantEvents,
+                                                                  lastSort:lastSort,
+                                                                  hideEvents:hideEvents,
+                                                                  nextWeekShow:nextWeekShow,
+                                                                  autoDark:autoDark,
+                                                                  darkMode:darkMode,
+                                                                  lastSignIn:lastSignIn,
+                                                                  courseColor1:courseColor1,
+                                                                  courseColor2:courseColor2,
+                                                                  courseColor3:courseColor3,
+                                                                  courseColor4:courseColor4,
+                                                                  courseColor5:courseColor5,
+                                                                  courseColor6:courseColor6,
+                                                                  courseColor7:courseColor7,
+                                                                  course1:course1,
+                                                                  course2:course2,
+                                                                  course3:course3,
+                                                                  course4:course4,
+                                                                  course5:course5,
+                                                                  course6:course6,
+                                                                  course7:course7,
+                                                                  workSeconds:workSeconds,
+                                                                  breakSeconds:breakSeconds,
+                                                                  workMinutes:workMinutes,
+                                                                  breakMinutes:breakMinutes,
+                                                                  pomoSound:pomoSound,
+                                                                });
+                                                              })
                                                             })
                                                           })
                                                         })
@@ -649,7 +659,7 @@ export default class App extends React.Component {
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
-              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode}/>
+              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={this.state.pomoSound}/>
             </Tab>
         </Tabs>
         <Settings 
@@ -684,11 +694,12 @@ export default class App extends React.Component {
           workSeconds={this.state.workSeconds}
           breakMinutes={this.state.breakMinutes}
           workMinutes={this.state.workMinutes}
+          pomoSound={this.state.pomoSound==="true"}
           />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
         {/* <AddEvent/> */}
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer"}}>
-          You are not logged-in. Login in the settings, or click this message.
+          You are not logged-in. Login <u>here</u> or in the settings.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
           There are no events for this calendar. Add some and refresh to view.
@@ -707,6 +718,12 @@ class Pomo extends React.Component{
     this.getAsyncStorage();
     this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus."];
     this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
+  }
+  playSound(){
+    if(this.props.pomoSound==="true" && this.state.currentSeconds === 0){
+      let audio = new Audio(require("./assets/ding.m4a"))
+      audio.play()
+    }
   }
   getAsyncStorage(){
     AsyncStorage.getItem('workSeconds').then((workSeconds) => {
@@ -749,8 +766,6 @@ class Pomo extends React.Component{
     this.interval = setInterval(() => this.setState({currentSeconds: this.state.currentSeconds-1}), 1000);
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
-    console.log(this.state.workSeconds);
-    console.log(parseInt(this.state.workSeconds));
     if (name==="resetTimer") {
       this.getAsyncStorage();
       this.setState({paused: true, work: true});
@@ -818,6 +833,7 @@ class Pomo extends React.Component{
     var displayBreakButton = "none";
     var displayWorkButton = "none";
     //set timer between break and work modes
+    this.playSound();
     if (this.state.currentSeconds < 0 && this.state.work===true){
       displayBreakButton = "unset";
       clearInterval(this.interval);
@@ -1335,6 +1351,8 @@ class Settings extends React.Component{
       AsyncStorage.setItem('workMinutes', event.target.value);
     } else if(event.target.name==="breakMinutes"){
       AsyncStorage.setItem('breakMinutes', event.target.value);
+    } else if(event.target.name==="pomoSound"){
+      AsyncStorage.setItem('pomoSound', event.target.checked);
     }
   }
 
@@ -1438,6 +1456,12 @@ class Settings extends React.Component{
                 </div>
                 <Form.Text className="text-muted">
                   Set the time for break sessions for the pomodoro timer.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Check name="pomoSound" type="checkbox" label="Pomodoro Sound" onChange={(e) => {this.handleChange(e, this.props)}} defaultChecked={this.props.pomoSound}/>
+                <Form.Text className="text-muted">
+                  Play a sound when break or work time is up.
                 </Form.Text>
               </Form.Group>
               <Accordion defaultActiveKey="10">
@@ -2204,9 +2228,14 @@ class WelcomeMessage extends React.Component{
     )
     } else {
       return (
-        <Button variant="primary" onClick={(e) => ApiCalendar.handleAuthClick()}>
-          Login
-        </Button>
+        <div>
+          <Button variant="outline-secondary" onClick={(e) => this.handleItemClick(e, "closeWelcome")} style={{'marginRight':"15px"}}>
+            Continue without login
+          </Button>
+          <Button variant="primary" onClick={(e) => ApiCalendar.handleAuthClick()}>
+            Login
+          </Button>
+        </div>
       )
     }
   }
