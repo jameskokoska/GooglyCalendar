@@ -24,8 +24,9 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 
-var versionGlobal = "3.1.3";
+var versionGlobal = "3.2.0";
 var changeLogGlobal = [
+  "3.2: Added Pomodoro tracking, can be reset in settings",
   "3.1: Added Pomodoro timer sound effect",
   "3.1: Can disable/enable sound effect in settings",
   "3.1: Edited text for not signed in error",
@@ -719,11 +720,18 @@ class Pomo extends React.Component{
     this.getAsyncStorage();
     this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus."];
     this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
-    this.audio = new Audio(require("./assets/ding.m4a"))
+    this.audio = new Audio(require("./assets/ding.m4a"));
   }
   playSound(){
     if(this.props.pomoSound==="true" && this.state.currentSeconds === 0){
-      this.audio.play()
+      this.audio.play();
+      this.addTotalTime();
+    }
+  }
+  addTotalTime(){
+    if(this.state.work===true){
+      this.setState({pomoTotalSec:parseInt(this.state.pomoTotalSec)+parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60)})
+      AsyncStorage.setItem('pomoTotalSec', this.state.pomoTotalSec);
     }
   }
   getAsyncStorage(){
@@ -731,30 +739,37 @@ class Pomo extends React.Component{
       AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
         AsyncStorage.getItem('workMinutes').then((workMinutes) => {
           AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
-            if(workSeconds===undefined){
-              workSeconds=0;
-              AsyncStorage.setItem('workSeconds', 0);
-            }
-            if(workMinutes===undefined){
-              workMinutes=25;
-              AsyncStorage.setItem('workMinutes', 25);
-            }
-            if(breakSeconds===undefined){
-              breakSeconds=0;
-                AsyncStorage.setItem('breakSeconds', 0);
-            }
-            if(breakMinutes===undefined){
-              breakMinutes=5;
-              AsyncStorage.setItem('breakMinutes', 5);
-            }
-            this.setState({
-              workSeconds:workSeconds,
-              breakSeconds:breakSeconds,
-              workMinutes:workMinutes,
-              breakMinutes:breakMinutes,
-              currentSeconds:parseInt(workSeconds)+parseInt(workMinutes*60),
-              paused: true,
-            });
+            AsyncStorage.getItem('pomoTotalSec').then((pomoTotalSec) => {
+              if(workSeconds===undefined){
+                workSeconds=0;
+                AsyncStorage.setItem('workSeconds', 0);
+              }
+              if(workMinutes===undefined){
+                workMinutes=25;
+                AsyncStorage.setItem('workMinutes', 25);
+              }
+              if(breakSeconds===undefined){
+                breakSeconds=0;
+                  AsyncStorage.setItem('breakSeconds', 0);
+              }
+              if(breakMinutes===undefined){
+                breakMinutes=5;
+                AsyncStorage.setItem('breakMinutes', 5);
+              }
+              if(pomoTotalSec===undefined){
+                pomoTotalSec=0;
+                AsyncStorage.setItem('pomoTotalSec', 0);
+              }
+              this.setState({
+                workSeconds:workSeconds,
+                breakSeconds:breakSeconds,
+                workMinutes:workMinutes,
+                breakMinutes:breakMinutes,
+                pomoTotalSec:pomoTotalSec,
+                currentSeconds:parseInt(workSeconds)+parseInt(workMinutes*60),
+                paused: true,
+              });
+            })
           })
         })
       })
@@ -806,14 +821,9 @@ class Pomo extends React.Component{
       pauseButtonLabel="Start";
     }
 
-    var minutes = "minutes";
-    if(Math.floor(this.state.currentSeconds/60)===1){
-      minutes = "minute";
-    }
-    var seconds = "seconds";
-    if(this.state.currentSeconds%60===1){
-      seconds = "second";
-    }
+    var minutes = pluralString(Math.floor(this.state.currentSeconds/60)===1,"minute");
+    var seconds = pluralString(this.state.currentSeconds%60===0,"second");
+
     var timerMessage;
     if(this.state.currentSeconds<0){
       timerMessage = " ";
@@ -845,30 +855,38 @@ class Pomo extends React.Component{
       clearInterval(this.interval);
     }
     
-    return <div>
-      <div className="pomoTimerContainer">
-        <div className="header1" style={{marginTop: "12vh", textAlign: "center"}}>{textMessage}</div>
-        <div className="pomoTimer" style={{width:percent+"%"}}>
-        </div>
-        <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startBreak")} style={{display:displayBreakButton, marginTop: "-14px"}}>
-          <ButtonStyle label={"Start Break"}/>
-        </div>
-        <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startWork")} style={{display:displayWorkButton, marginTop: "-14px"}}>
-          <ButtonStyle label={"Start Work"}/>
-        </div>
-        <div style={{textAlign: "center"}}>{timerMessage}</div>
-        <div style={{marginTop: "30px", marginBottom: "30px"}}>
-          <Button variant="primary" onClick={(e) => this.handleItemClick(e, "pauseTimer")} style={{marginRight: '20px'}}>
-            {pauseButtonLabel}
-          </Button>
-          <Button variant="outline-primary" onClick={(e) => this.handleItemClick(e, "resetTimer")}>
-            Reset
-          </Button>
-        </div>
+    return <div className="pomoTimerContainer">
+      <div className="header1" style={{marginTop: "12vh", textAlign: "center"}}>{textMessage}</div>
+      <div className="pomoTimer" style={{width:percent+"%"}}>
       </div>
+      <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startBreak")} style={{display:displayBreakButton, marginTop: "-14px"}}>
+        <ButtonStyle label={"Start Break"}/>
+      </div>
+      <div className="fadeIn" onClick={(e) => this.handleItemClick(e, "startWork")} style={{display:displayWorkButton, marginTop: "-14px"}}>
+        <ButtonStyle label={"Start Work"}/>
+      </div>
+      <div style={{textAlign: "center"}}>{timerMessage}</div>
+      <div style={{marginTop: "30px", marginBottom: "30px"}}>
+        <Button variant="primary" onClick={(e) => this.handleItemClick(e, "pauseTimer")} style={{marginRight: '20px'}}>
+          {pauseButtonLabel}
+        </Button>
+        <Button variant="outline-primary" onClick={(e) => this.handleItemClick(e, "resetTimer")}>
+          Reset
+        </Button>
+      </div>
+      <p style={{marginBottom:"30px"}}>You focused for {parseInt(this.state.pomoTotalSec/60)} {pluralString(parseInt(this.state.pomoTotalSec/60)===1,"minute")}.</p>
     </div>
   } 
 }
+
+function pluralString(condition,string){
+  if(condition){
+    return string;
+  } else {
+    return string+"s";
+  }
+}
+
 
 function WeekListHeader(props){
   var weekHeaders = [];
@@ -1356,6 +1374,11 @@ class Settings extends React.Component{
       AsyncStorage.setItem('breakMinutes', event.target.value);
     } else if(event.target.name==="pomoSound"){
       AsyncStorage.setItem('pomoSound', event.target.checked);
+    } else if(event.target.name==="resetPomoStats"){
+      AsyncStorage.setItem('pomoTotalSec', 0);
+      this.setState({
+        settingsOpen: false,
+      })
     }
   }
 
@@ -1467,10 +1490,15 @@ class Settings extends React.Component{
                   Play a sound when break or work time is up.
                 </Form.Text>
               </Form.Group>
+              <Form.Group>
+                <Button name="resetPomoStats" variant="outline-secondary" onClick={(e) => {this.handleChange(e, this.props)}}>
+                  Reset Pomodoro Stats
+                </Button>
+              </Form.Group>
               <Accordion defaultActiveKey="10">
                 <Card>
                   <Card.Header style={{"padding":"4px"}}>
-                    <Accordion.Toggle as={Button} variant="link" eventKey="0">
+                    <Accordion.Toggle as={Button} variant="outline-primary" eventKey="0">
                       ▼ Set custom course colours... 
                     </Accordion.Toggle>
                   </Card.Header>

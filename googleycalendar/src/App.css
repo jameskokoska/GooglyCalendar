@@ -109,7 +109,7 @@ body{
   padding-right: 25px;
   font-family: 'PierSans';
   background-color: #3651ef;
-  background-image: linear-gradient(to right, #36D1DC,#5B86E5, #5B86E5, #6015a5, #6015a5, #6015a5);
+  background-image: linear-gradient(to right, #36D1DC,#5bb2e5, #5B86E5, #6015a5, #6015a5, #6015a5);
   background-size:240%;
   text-align: center;
   color: white;
@@ -661,6 +661,10 @@ th.weekday{
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+.pomoTimerContainer > p{
+  font-size: 20px;
 }
 
 @keyframes fadeIn{

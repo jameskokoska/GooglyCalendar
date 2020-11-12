@@ -30,6 +30,9 @@ Turns your Google Calendar into a task list. It can be used here: <a href="https
 * Welcome message, with change log and first time sign in button
 * Auto reload calendar when needed, for example on login
 * Auto dark mode toggle, and current theme toggle
+* Configurable Pomodoro timer
+* Pomodoro timer sounds
+* Pomodoro timer tracking, and motivational messages
 
 # Create and run a local copy
 ### Setting up API keys
