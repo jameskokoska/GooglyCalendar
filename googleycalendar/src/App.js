@@ -23,6 +23,7 @@ import pinIcon from "./assets/thumbtack-solid.svg";
 import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
+import CountUp from 'react-countup';
 
 var versionGlobal = "3.2.0";
 var changeLogGlobal = [
@@ -718,20 +719,20 @@ class Pomo extends React.Component{
     super(props);
     this.state = {currentSeconds: 0, paused: true, work: true};
     this.getAsyncStorage();
-    this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus."];
+    this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus.","Keep going!","Keep pushing."];
     this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
     this.audio = new Audio(require("./assets/ding.m4a"));
+    this.addPomoTotalSec=0;
   }
   playSound(){
     if(this.props.pomoSound==="true" && this.state.currentSeconds === 0){
       this.audio.play();
-      this.addTotalTime();
     }
   }
   addTotalTime(){
     if(this.state.work===true){
-      this.setState({pomoTotalSec:parseInt(this.state.pomoTotalSec)+parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60)})
-      AsyncStorage.setItem('pomoTotalSec', this.state.pomoTotalSec);
+      this.addPomoTotalSec=parseInt(this.addPomoTotalSec)+parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60);
+      AsyncStorage.setItem('pomoTotalSec', this.addPomoTotalSec);
     }
   }
   getAsyncStorage(){
@@ -760,12 +761,12 @@ class Pomo extends React.Component{
                 pomoTotalSec=0;
                 AsyncStorage.setItem('pomoTotalSec', 0);
               }
+              this.addPomoTotalSec=pomoTotalSec;
               this.setState({
                 workSeconds:workSeconds,
                 breakSeconds:breakSeconds,
                 workMinutes:workMinutes,
                 breakMinutes:breakMinutes,
-                pomoTotalSec:pomoTotalSec,
                 currentSeconds:parseInt(workSeconds)+parseInt(workMinutes*60),
                 paused: true,
               });
@@ -790,6 +791,9 @@ class Pomo extends React.Component{
       this.setState({paused: true, work: true});
       clearInterval(this.interval);
       this.setState({currentSeconds: parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60)});
+      if(this.state.currentSeconds<0){
+        this.addTotalTime();
+      }
     } else if (name==="pauseTimer") {
       if(!this.state.paused){
         clearInterval(this.interval);
@@ -800,6 +804,7 @@ class Pomo extends React.Component{
     } else if (name==="startBreak") {
       this.setState({currentSeconds: parseInt(this.state.breakSeconds)+parseInt(this.state.breakMinutes*60), work:false});
       this.startTimer();
+      this.addTotalTime();
     } else if (name="startWork"){
       this.setState({currentSeconds: parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60), work:true});
       this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
@@ -854,7 +859,6 @@ class Pomo extends React.Component{
       displayWorkButton = "unset";
       clearInterval(this.interval);
     }
-    
     return <div className="pomoTimerContainer">
       <div className="header1" style={{marginTop: "12vh", textAlign: "center"}}>{textMessage}</div>
       <div className="pomoTimer" style={{width:percent+"%"}}>
@@ -874,7 +878,9 @@ class Pomo extends React.Component{
           Reset
         </Button>
       </div>
-      <p style={{marginBottom:"30px"}}>You focused for {parseInt(this.state.pomoTotalSec/60)} {pluralString(parseInt(this.state.pomoTotalSec/60)===1,"minute")}.</p>
+      <p style={{marginBottom:"30px"}}>
+        You focused for <CountUp start={0} end={Math.floor(this.addPomoTotalSec/60)} duration={10} useEasing preserveValue redraw/> {pluralString(Math.floor(this.addPomoTotalSec/60)===1,"minute")}.
+      </p>
     </div>
   } 
 }
