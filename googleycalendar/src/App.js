@@ -25,7 +25,7 @@ import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 import CountUp from 'react-countup';
 
-var versionGlobal = "3.2.0";
+var versionGlobal = "3.2.2";
 var changeLogGlobal = [
   "3.2: Added Pomodoro tracking, can be reset in settings",
   "3.1: Added Pomodoro timer sound effect",
@@ -827,7 +827,7 @@ class Pomo extends React.Component{
     }
 
     var minutes = pluralString(Math.floor(this.state.currentSeconds/60)===1,"minute");
-    var seconds = pluralString(this.state.currentSeconds%60===0,"second");
+    var seconds = pluralString(this.state.currentSeconds%60===1,"second");
 
     var timerMessage;
     if(this.state.currentSeconds<0){
