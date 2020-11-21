@@ -25,8 +25,10 @@ import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 import CountUp from 'react-countup';
 
-var versionGlobal = "3.2.2";
+var versionGlobal = "3.2.3";
 var changeLogGlobal = [
+  "3.2.3: Cleaned up backend database functions",
+  "3.2.3: Fixed Pomodoro timer bug with pausing",
   "3.2: Added Pomodoro tracking, can be reset in settings",
   "3.1: Added Pomodoro timer sound effect",
   "3.1: Can disable/enable sound effect in settings",
@@ -113,172 +115,62 @@ export default class App extends React.Component {
   }
   
 
-  loadSyncData() {
-    AsyncStorage.getItem('calendarIDKey').then((calendarID) => {
-      AsyncStorage.getItem('calendarIDKey2').then((calendarID2) => {
-        AsyncStorage.getItem('numEventsKey').then((numEvents) => {
-          AsyncStorage.getItem('hoursBefore').then((hoursBefore) => {
-            AsyncStorage.getItem('importantEvents').then((importantEvents) => {
-              AsyncStorage.getItem('lastSort').then((lastSort) => {
-                AsyncStorage.getItem('hideEvents').then((hideEvents) => {
-                  AsyncStorage.getItem('nextWeekShow').then((nextWeekShow) => {
-                    AsyncStorage.getItem('autoDark').then((autoDark) => {
-                      AsyncStorage.getItem('darkMode').then((darkMode) => {
-                        AsyncStorage.getItem('lastSignIn').then((lastSignIn) => {
-                          AsyncStorage.getItem('courseColor1').then((courseColor1) => {
-                            AsyncStorage.getItem('courseColor2').then((courseColor2) => {
-                              AsyncStorage.getItem('courseColor3').then((courseColor3) => {
-                                AsyncStorage.getItem('courseColor4').then((courseColor4) => {
-                                  AsyncStorage.getItem('courseColor5').then((courseColor5) => {
-                                    AsyncStorage.getItem('courseColor6').then((courseColor6) => {
-                                      AsyncStorage.getItem('courseColor7').then((courseColor7) => {
-                                        AsyncStorage.getItem('course1').then((course1) => {
-                                          AsyncStorage.getItem('course2').then((course2) => {
-                                            AsyncStorage.getItem('course3').then((course3) => {
-                                              AsyncStorage.getItem('course4').then((course4) => {
-                                                AsyncStorage.getItem('course5').then((course5) => {
-                                                  AsyncStorage.getItem('course6').then((course6) => {
-                                                    AsyncStorage.getItem('course7').then((course7) => {
-                                                      AsyncStorage.getItem('workSeconds').then((workSeconds) => {
-                                                        AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
-                                                          AsyncStorage.getItem('workMinutes').then((workMinutes) => {
-                                                            AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
-                                                              AsyncStorage.getItem('pomoSound').then((pomoSound) => {
-                                                                if(calendarID==="" || calendarID===undefined){
-                                                                  calendarID="primary";
-                                                                }
-                                                                if(calendarID2==="" || calendarID===undefined){
-                                                                  calendarID2="";
-                                                                }
-                                                                if(numEvents==="" || numEvents===undefined){
-                                                                  numEvents=20;
-                                                                }
-                                                                if(hoursBefore==="" || hoursBefore===undefined){
-                                                                  hoursBefore=0;
-                                                                }
-                                                                if(importantEvents==="" || importantEvents===undefined){
-                                                                  importantEvents="";
-                                                                }
-                                                                if(lastSort==="" || lastSort===undefined){
-                                                                  lastSort="sortName,sortCourse,sortCheck,sortDate";
-                                                                }
-                                                                if(hideEvents==="" || hideEvents===undefined){
-                                                                  hideEvents="";
-                                                                }
-                                                                if(nextWeekShow==="" || nextWeekShow===undefined){
-                                                                  nextWeekShow=7;
-                                                                }
-                                                                if(autoDark==="" || autoDark===undefined){
-                                                                  autoDark="true";
-                                                                }
-                                                                if(darkMode==="" || darkMode===undefined){
-                                                                  darkMode="false";
-                                                                }
-                                                                if(lastSignIn==="" || lastSignIn===undefined){
-                                                                  lastSignIn=0;
-                                                                }
-                                                                if(course1===undefined){
-                                                                  course1="";
-                                                                }
-                                                                if(course2===undefined){
-                                                                  course2="";
-                                                                }
-                                                                if(course3===undefined){
-                                                                  course3="";
-                                                                }
-                                                                if(course4===undefined){
-                                                                  course4="";
-                                                                }
-                                                                if(course5===undefined){
-                                                                  course5="";
-                                                                }
-                                                                if(course6===undefined){
-                                                                  course6="";
-                                                                }
-                                                                if(course7===undefined){
-                                                                  course7="";
-                                                                }
-                                                                if(workSeconds===undefined){
-                                                                  workSeconds=0;
-                                                                  AsyncStorage.setItem('workSeconds', 0);
-                                                                }
-                                                                if(workMinutes===undefined){
-                                                                  workMinutes=25;
-                                                                  AsyncStorage.setItem('workMinutes', 25);
-                                                                }
-                                                                if(breakSeconds===undefined){
-                                                                  breakSeconds=0;
-                                                                  AsyncStorage.setItem('breakSeconds', 0);
-                                                                }
-                                                                if(breakMinutes===undefined){
-                                                                  breakMinutes=5;
-                                                                  AsyncStorage.setItem('breakMinutes', 5);
-                                                                }
-                                                                if(pomoSound===undefined){
-                                                                  pomoSound="true";
-                                                                }
-                                                                this.setState({ 
-                                                                  calendarID: calendarID,
-                                                                  calendarID2: calendarID2,
-                                                                  numEvents:numEvents,
-                                                                  hoursBefore:hoursBefore,
-                                                                  importantEvents:importantEvents,
-                                                                  lastSort:lastSort,
-                                                                  hideEvents:hideEvents,
-                                                                  nextWeekShow:nextWeekShow,
-                                                                  autoDark:autoDark,
-                                                                  darkMode:darkMode,
-                                                                  lastSignIn:lastSignIn,
-                                                                  courseColor1:courseColor1,
-                                                                  courseColor2:courseColor2,
-                                                                  courseColor3:courseColor3,
-                                                                  courseColor4:courseColor4,
-                                                                  courseColor5:courseColor5,
-                                                                  courseColor6:courseColor6,
-                                                                  courseColor7:courseColor7,
-                                                                  course1:course1,
-                                                                  course2:course2,
-                                                                  course3:course3,
-                                                                  course4:course4,
-                                                                  course5:course5,
-                                                                  course6:course6,
-                                                                  course7:course7,
-                                                                  workSeconds:workSeconds,
-                                                                  breakSeconds:breakSeconds,
-                                                                  workMinutes:workMinutes,
-                                                                  breakMinutes:breakMinutes,
-                                                                  pomoSound:pomoSound,
-                                                                });
-                                                              })
-                                                            })
-                                                          })
-                                                        })
-                                                      })
-                                                    })
-                                                  })
-                                                })
-                                              })
-                                            })
-                                          })
-                                        })
-                                      })
-                                    })
-                                  })
-                                })
-                              })
-                            })
-                          })
-                        })
-                      })
-                    })
-                  })
-                })
-              })
-            })
-          })
-        })
-      })
-    })   
+  async loadSyncData(){
+    var storedIDs = [['calendarIDKey','primary'], ['calendarIDKey2',''], ['numEventsKey',20], ['hoursBefore',0], ['importantEvents',''],
+    ['lastSort',"sortName,sortCourse,sortCheck,sortDate"],['hideEvents',""], ['nextWeekShow',7], ['autoDark',"true"],['darkMode',"false"],['lastSignIn',0],['courseColor1',""],['courseColor2',""],
+    ['courseColor3',""],['courseColor4',""], ['courseColor5',""], ['courseColor6',""], ['courseColor7',""], ['course1',""], ['course2',""],
+    ['course3',""], ['course4',""], ['course5',""], ['course6',""], ['course7',""]];
+    var savedID = [];
+    var storedIDsAndSet = [['workSeconds',0], ['breakSeconds',0], ['workMinutes',25], ['breakMinutes',5],['pomoSound',"true"]];
+    var savedIDAndSet = [];
+    var storedID;
+    for(var i=0; i<storedIDs.length; i++){
+      storedID = await AsyncStorage.getItem(storedIDs[i][0]);
+      if(storedID === undefined){
+        storedID = storedIDs[i][1]
+      }
+      savedID[i] = storedID;
+    }
+    for(i=0; i<storedIDsAndSet.length; i++){
+      storedID = await AsyncStorage.getItem(storedIDsAndSet[i][0]);
+      if(storedID === undefined){
+        storedID = storedIDsAndSet[i][1];
+        await AsyncStorage.setItem(storedIDsAndSet[i][0], storedID);
+      }
+      savedIDAndSet[i] = storedID;
+    }
+    this.setState({ 
+      calendarID: savedID[0],
+      calendarID2: savedID[1],
+      numEvents:savedID[2],
+      hoursBefore:savedID[3],
+      importantEvents:savedID[4],
+      lastSort:savedID[5],
+      hideEvents:savedID[6],
+      nextWeekShow:savedID[7],
+      autoDark:savedID[8],
+      darkMode:savedID[9],
+      lastSignIn:savedID[10],
+      courseColor1:savedID[11],
+      courseColor2:savedID[12],
+      courseColor3:savedID[13],
+      courseColor4:savedID[14],
+      courseColor5:savedID[15],
+      courseColor6:savedID[16],
+      courseColor7:savedID[17],
+      course1:savedID[18],
+      course2:savedID[19],
+      course3:savedID[20],
+      course4:savedID[21],
+      course5:savedID[22],
+      course6:savedID[23],
+      course7:savedID[24],
+      workSeconds:savedIDAndSet[0],
+      breakSeconds:savedIDAndSet[1],
+      workMinutes:savedIDAndSet[2],
+      breakMinutes:savedIDAndSet[3],
+      pomoSound:savedIDAndSet[4],
+    });
   }
   signUpdate() {
     this.setState({ signStatus: ApiCalendar.sign});
@@ -735,46 +627,28 @@ class Pomo extends React.Component{
       AsyncStorage.setItem('pomoTotalSec', this.addPomoTotalSec);
     }
   }
-  getAsyncStorage(){
-    AsyncStorage.getItem('workSeconds').then((workSeconds) => {
-      AsyncStorage.getItem('breakSeconds').then((breakSeconds) => {
-        AsyncStorage.getItem('workMinutes').then((workMinutes) => {
-          AsyncStorage.getItem('breakMinutes').then((breakMinutes) => {
-            AsyncStorage.getItem('pomoTotalSec').then((pomoTotalSec) => {
-              if(workSeconds===undefined){
-                workSeconds=0;
-                AsyncStorage.setItem('workSeconds', 0);
-              }
-              if(workMinutes===undefined){
-                workMinutes=25;
-                AsyncStorage.setItem('workMinutes', 25);
-              }
-              if(breakSeconds===undefined){
-                breakSeconds=0;
-                  AsyncStorage.setItem('breakSeconds', 0);
-              }
-              if(breakMinutes===undefined){
-                breakMinutes=5;
-                AsyncStorage.setItem('breakMinutes', 5);
-              }
-              if(pomoTotalSec===undefined){
-                pomoTotalSec=0;
-                AsyncStorage.setItem('pomoTotalSec', 0);
-              }
-              this.addPomoTotalSec=pomoTotalSec;
-              this.setState({
-                workSeconds:workSeconds,
-                breakSeconds:breakSeconds,
-                workMinutes:workMinutes,
-                breakMinutes:breakMinutes,
-                currentSeconds:parseInt(workSeconds)+parseInt(workMinutes*60),
-                paused: true,
-              });
-            })
-          })
-        })
-      })
-    })
+  async getAsyncStorage(){
+    var storedIDsAndSet = [['workSeconds',0], ['breakSeconds',0], ['workMinutes',25], ['breakMinutes',5],['pomoSound',"true"],['pomoTotalSec', 0]];
+    var savedIDAndSet = [];
+    var storedID;
+    for(var i=0; i<storedIDsAndSet.length; i++){
+      storedID = await AsyncStorage.getItem(storedIDsAndSet[i][0]);
+      if(storedID === undefined){
+        storedID = storedIDsAndSet[i][1];
+        await AsyncStorage.setItem(storedIDsAndSet[i][0], storedID);
+      }
+      savedIDAndSet[i] = storedID;
+    }
+    this.addPomoTotalSec=savedIDAndSet[5];
+    this.setState({ 
+      workSeconds:savedIDAndSet[0],
+      breakSeconds:savedIDAndSet[1],
+      workMinutes:savedIDAndSet[2],
+      breakMinutes:savedIDAndSet[3],
+      pomoSound:savedIDAndSet[4],
+      currentSeconds:parseInt(savedIDAndSet[0])+parseInt(savedIDAndSet[2]*60),
+      paused: true,
+    });
   }
   componentWillUnmount() {
     clearInterval(this.interval);
@@ -794,13 +668,15 @@ class Pomo extends React.Component{
       if(this.state.currentSeconds<0){
         this.addTotalTime();
       }
-    } else if (name==="pauseTimer") {
+    } else if (name==="pauseTimer"&&this.state.currentSeconds>0) {
       if(!this.state.paused){
         clearInterval(this.interval);
       } else {
         this.startTimer();
       }
       this.setState({paused: !this.state.paused});
+    } else if (name==="pauseTimer"&&this.state.currentSeconds<=0){
+      return;
     } else if (name==="startBreak") {
       this.setState({currentSeconds: parseInt(this.state.breakSeconds)+parseInt(this.state.breakMinutes*60), work:false});
       this.startTimer();
@@ -1196,10 +1072,11 @@ class DayListEntry extends React.Component{
 }
 class WeekList extends React.Component {
   render() {
+    var minWidthNum;
     if(this.props.nextWeekShow<7){
-      var minWidthNum = this.props.nextWeekShow/7*1150;
+      minWidthNum = this.props.nextWeekShow/7*1150;
     } else {
-      var minWidthNum = 1150;
+      minWidthNum = 1150;
     }
     
     return(
