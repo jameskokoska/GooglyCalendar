@@ -25,8 +25,9 @@ import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 import CountUp from 'react-countup';
 
-var versionGlobal = "3.2.3";
+var versionGlobal = "3.2.4";
 var changeLogGlobal = [
+  "3.2.4: Huge performance optimizations and loading of data. Also added warning for invalid calendar ID",
   "3.2.3: Cleaned up backend database functions",
   "3.2.3: Fixed Pomodoro timer bug with pausing",
   "3.2: Added Pomodoro tracking, can be reset in settings",
@@ -76,7 +77,6 @@ export default class App extends React.Component {
         this.loadSyncData();
         this.refreshWholeList();
         ApiCalendar.listenSign(this.signUpdate);
-        this.setState({ signStatus: ApiCalendar.sign})
     });
     this.resetDisable = false;
     //this.courseColorsLight = ["#ef5350","#ab47bc","#5c6bc0","#29b6f6","#26a69a","#9ccc65","#ffee58","#ffa726","#8d6e63","#78909c"];
@@ -127,7 +127,7 @@ export default class App extends React.Component {
     for(var i=0; i<storedIDs.length; i++){
       storedID = await AsyncStorage.getItem(storedIDs[i][0]);
       if(storedID === undefined){
-        storedID = storedIDs[i][1]
+        storedID = storedIDs[i][1];
       }
       savedID[i] = storedID;
     }
@@ -140,6 +140,7 @@ export default class App extends React.Component {
       savedIDAndSet[i] = storedID;
     }
     this.setState({ 
+      signStatus: ApiCalendar.sign,
       calendarID: savedID[0],
       calendarID2: savedID[1],
       numEvents:savedID[2],
@@ -187,37 +188,37 @@ export default class App extends React.Component {
     this.loadSyncData();  
   }
 
-  sortCalendarObjects(type){
+  sortCalendarObjects(type, calendarObjects){
     if(this.state.signStatus){
       if(type==="sortName"){
         AsyncStorage.setItem("lastSort", appendLastSort("sortName",this.state.lastSort));
         this.setState({
-          calendarObjects: sortPin(sortName(this.state.calendarObjects)),
           lastSort: appendLastSort("sortName",this.state.lastSort)
         })
+        return sortPin(sortName(calendarObjects));
       } else if(type==="sortDate") {
         AsyncStorage.setItem("lastSort", appendLastSort("sortDate",this.state.lastSort));
         this.setState({
-          calendarObjects: sortPin(sortDate(this.state.calendarObjects)),
           lastSort: appendLastSort("sortDate",this.state.lastSort)
         })
+        return sortPin(sortDate(calendarObjects));
       } else if(type==="sortCourse") {
         AsyncStorage.setItem("lastSort", appendLastSort("sortCourse",this.state.lastSort));
         this.setState({
-          calendarObjects: sortPin(sortCourse(this.state.calendarObjects)),
           lastSort: appendLastSort("sortCourse",this.state.lastSort)
         })
+        return sortPin(sortCourse(calendarObjects));
       } else if(type==="sortCheck") {
         AsyncStorage.setItem("lastSort", appendLastSort("sortCheck",this.state.lastSort));
         this.setState({
-          calendarObjects: sortPin(sortCheck(this.state.calendarObjects)),
           lastSort: appendLastSort("sortCheck",this.state.lastSort)
         })
+        return sortPin(sortCheck(calendarObjects));
       }
     }
   }
       
-  handleItemClick(event: SyntheticEvent<any>, name: string): void {
+  handleItemClick(event: SyntheticEvent<any>, name: string, calendarObjects: string): void {
     if (name === 'signIn') {
       ApiCalendar.handleAuthClick();
     } else if (name === 'signOut') {
@@ -250,15 +251,13 @@ export default class App extends React.Component {
           })
         });
     } else if (name==='sortName'){
-      this.sortCalendarObjects('sortName')
+      this.setState({calendarObjects: this.sortCalendarObjects('sortName', calendarObjects)})
     } else if (name==='sortCourse'){
-      this.sortCalendarObjects('sortCourse')
+      this.setState({calendarObjects: this.sortCalendarObjects('sortCourse', calendarObjects)})
     } else if (name==='sortDate'){
-      this.sortCalendarObjects('sortDate')
+      this.setState({calendarObjects: this.sortCalendarObjects('sortDate', calendarObjects)})
     } else if (name==='sortPin'){
-      this.setState({
-        calendarObjects: sortPin(this.state.calendarObjects),
-      })
+      this.setState({calendarObjects: sortPin(calendarObjects)});
     } else if (name==='errorTimeoutOpen'){
       this.errorTimeoutOpen("Error Code")
     } else if (name==='addEvent'){
@@ -325,7 +324,6 @@ export default class App extends React.Component {
     }
   }
   
-
   errorTimeoutOpen(error){
     this.setState({
       errorCode: error,
@@ -455,32 +453,36 @@ export default class App extends React.Component {
         }
       }
       Array.prototype.push.apply(calendarObjectsReduced,this.state.calendarObjects); 
-      this.setState({
-        calendarObjects: calendarObjectsReduced,
-      })
+      
       var lastSortList = this.state.lastSort.split(",");
       lastSortList.map(function(sortElement){
-        this.sortCalendarObjects(sortElement);
+        calendarObjectsReduced = this.sortCalendarObjects(sortElement, calendarObjectsReduced);
       }, this)
-    })
+
+      this.setState({
+        calendarObjects: calendarObjectsReduced,
+      });
+    }).catch(error => {
+      this.setState({
+        calendarObjects: ["invalidID"],
+      });
+      console.log(this.state.calendarObjects.length);
+    });
   }
-  resetCalendarObjects(){
+  async resetCalendarObjects(){
     if(this.resetDisable===false){
       this.resetDisable=true;
-      this.setState({calendarObjects:[]})
-      setTimeout(function () {
-          this.refreshWholeList();
-      }.bind(this), 1);
+      await this.setState({calendarObjects:[]});
+      await this.refreshWholeList();
       setTimeout(function () {
           this.resetDisable=false;
-          this.darkModeFunction();
       }.bind(this), 1000);
     }
   }
 
-  refreshWholeList() {
-    this.loadSyncData();
-    this.darkModeFunction();
+  async refreshWholeList() {
+    await this.loadSyncData();
+    await this.darkModeFunction();
     if (ApiCalendar.sign){
       if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
         ApiCalendar.setCalendar("primary");
@@ -498,15 +500,16 @@ export default class App extends React.Component {
   render(): ReactNode {
     var signStatusDisplay="none";
     var calendarObjectsLengthDisplay="none";
+    var invalidCalendarDisplay="none";
     if(this.state.signStatus){
       signStatusDisplay="none";
     } else {
       signStatusDisplay="";
     }
-    if(this.state.calendarObjects.length<=0 && this.state.signStatus && !this.resetDisable){
+    if(this.state.calendarObjects.length<=0 && this.state.signStatus){
       calendarObjectsLengthDisplay="";
-    } else {
-      calendarObjectsLengthDisplay="none";
+    } else if (this.state.calendarObjects[0]==="invalidID" && this.state.signStatus){
+      invalidCalendarDisplay="";
     }
     var today=new Date();
     var currentDisplayDate;
@@ -593,11 +596,14 @@ export default class App extends React.Component {
           />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
         {/* <AddEvent/> */}
-        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer"}}>
+        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
           You are not logged-in. Login <u>here</u> or in the settings.
         </div>
-        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%"}}>
+        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
           There are no events for this calendar. Add some and refresh to view.
+        </div>
+        <div className="alert alert-warning fadeIn" role="alert" style={{"display":invalidCalendarDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
+          It seems you are using an invalid calendar ID. Open settings and double check.
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
         <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
@@ -610,7 +616,6 @@ class Pomo extends React.Component{
   constructor(props) {
     super(props);
     this.state = {currentSeconds: 0, paused: true, work: true};
-    this.getAsyncStorage();
     this.workMessages = ["Go get some work done!", "You got this!", "Keep going at it!", "Hard work pays off.",":)","You can do it!","Work smart, get things done.","Work now, party later.","Don't be distracted.", "Be productive.","Don't waste time.","Focus.","Keep going!","Keep pushing."];
     this.chosenWorkMessage = this.workMessages[Math.floor(Math.random() * this.workMessages.length)];
     this.audio = new Audio(require("./assets/ding.m4a"));
@@ -626,6 +631,9 @@ class Pomo extends React.Component{
       this.addPomoTotalSec=parseInt(this.addPomoTotalSec)+parseInt(this.state.workSeconds)+parseInt(this.state.workMinutes*60);
       AsyncStorage.setItem('pomoTotalSec', this.addPomoTotalSec);
     }
+  }
+  componentDidMount(){
+    this.getAsyncStorage();
   }
   async getAsyncStorage(){
     var storedIDsAndSet = [['workSeconds',0], ['breakSeconds',0], ['workMinutes',25], ['breakMinutes',5],['pomoSound',"true"],['pomoTotalSec', 0]];
@@ -780,9 +788,9 @@ function WeekListHeader(props){
   }
   for (var i = 0; i < numDays; i++) {
     if(i===0){
-      weekHeaders.push( <th className="weekday header3 fadeIn">Today</th> )
+      weekHeaders.push( <th key={i} className="weekday header3 fadeIn">Today</th> )
     } else {
-      weekHeaders.push( <th className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
+      weekHeaders.push( <th key={i} className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
     }
     
   }
@@ -800,7 +808,7 @@ function DayList(props){
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td className="fadeIn">
-        <DayListEntry calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
+        <DayListEntry key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
       </td> 
     )
   }
@@ -1199,7 +1207,7 @@ class Settings extends React.Component{
       })
     } else if (name==='closeSettings') {
       //Reload events on exit of settings
-      this.props.resetCalendarObjects()
+      this.props.resetCalendarObjects();
       this.setState({
         settingsOpen: false,
       })
@@ -1491,11 +1499,11 @@ class TaskTable extends React.Component{
           <thead>
             <tr className="fadeIn">
               <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
-              <th className="check header3" onClick={e => this.props.sortCalendarObjects("sortCheck")}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
-              <th className="task header3" onClick={e => this.props.sortCalendarObjects("sortName")}><div className="hoverSort">Task</div></th>
-              <th className="date header3" onClick={e => this.props.sortCalendarObjects("sortDate")}><div className="hoverSort">Date</div></th>
-              <th className="time header3" onClick={e => this.props.sortCalendarObjects("sortDate")}><div className="hoverSort">Time</div></th>
-              <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse")}><div className="hoverSort">Course</div></th>
+              <th className="check header3" onClick={e => this.props.sortCalendarObjects("sortCheck", this.props.calendarObjects)}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
+              <th className="task header3" onClick={e => this.props.sortCalendarObjects("sortName", this.props.calendarObjects)}><div className="hoverSort">Task</div></th>
+              <th className="date header3" onClick={e => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Date</div></th>
+              <th className="time header3" onClick={e => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Time</div></th>
+              <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse", this.props.calendarObjects)}><div className="hoverSort">Course</div></th>
             </tr>
           </thead>
           <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
@@ -1940,8 +1948,8 @@ function Header1(props){
 // }
 
 function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) { 
-  var datePast = new Date()
-  datePast.setHours(datePast.getHours()-hoursPast)
+  var datePast = new Date();
+  datePast.setHours(datePast.getHours()-hoursPast);
   if (ApiCalendar.gapi) {
     return ApiCalendar.gapi.client.calendar.events.list({
             'calendarId': calendarId,
@@ -2174,7 +2182,7 @@ class WelcomeMessage extends React.Component{
           <p dangerouslySetInnerHTML={{ __html: welcomeMessage2 }}></p>
           <div className="header3">{"What's New? v"+ versionGlobal}</div>
           {changeLogGlobal.map(function(changeLogElement){
-           return <li>{changeLogElement}</li>
+           return <li key={changeLogElement}>{changeLogElement}</li>
           })}
         </Modal.Body>
         <Modal.Footer>
