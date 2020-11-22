@@ -10,8 +10,6 @@ import Form from 'react-bootstrap/Form'
 import Toast from 'react-bootstrap/Toast'
 import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
-import { makeStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import './App.css';
@@ -24,6 +22,10 @@ import "animate.css/animate.min.css";
 import { SliderPicker } from 'react-color';
 import FlipMove from 'react-flip-move';
 import CountUp from 'react-countup';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
 
 var versionGlobal = "3.2.4";
 var changeLogGlobal = [
@@ -595,7 +597,6 @@ export default class App extends React.Component {
           pomoSound={this.state.pomoSound==="true"}
           />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
-        {/* <AddEvent/> */}
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
           You are not logged-in. Login <u>here</u> or in the settings.
         </div>
@@ -607,6 +608,7 @@ export default class App extends React.Component {
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
         <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
+        {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
       </div>
     );
   }
@@ -1138,18 +1140,62 @@ function ButtonStyle(props){
     </div>
   )
 }
-class AddEvent extends React.Component{
-  render(){
-    return(
-      <div>
-      <form noValidate autoComplete="off">
-        <div className="addButton"><div className="addButtonOffset">+</div></div>
-        <TextField fullWidth size="medium" label="Event Name" inputProps={{style: {fontSize: 40}}} InputLabelProps={{style: {fontSize: 20}}} style={{width:"50%"}}/>
-      </form>
-      </div>
-    )
-  }
-}
+const theme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    primary: {
+      main: '#64b5f6',
+    },
+  },
+});
+
+// class AddEvent extends React.Component{
+//   constructor(props) {
+//     super(props);
+//     this.state ={show: false};
+//   }
+//   handleItemClick(event: SyntheticEvent<any>, name: string): void {
+//     if (name==='openAdd') {
+//       this.setState({show: true})
+//     } else if (name==='close'){
+//       this.setState({show: false})
+//     } else if (name==='add'){
+//       this.props.resetCalendarObjects();
+//       this.setState({show: false})
+//     }
+//   }
+//   handleChange(event,props) {
+//     if(event.target.name==="calendarID"){
+//       AsyncStorage.setItem('calendarIDKey', event.target.value);
+//       this.props.setCalendarID(event.target.value)
+//     }
+//   }
+//   render(){
+//     return(
+//       <div>
+//         <div className="addButton" onClick={(e) => this.handleItemClick(e, "openAdd")}><div className="addButtonOffset">+</div></div>
+//         <Modal className="settingsModal" backdrop="static" show={this.state.show} size="lg">
+//           <Modal.Header>
+//             <div className="header1" style={{"marginBottom":"0px"}}>Add Task</div>
+//           </Modal.Header>
+//           <Modal.Body>
+//             <ThemeProvider theme={theme}>
+//               <TextField placeholder="Task" color="primary" fullWidth size="medium" label="" inputProps={{style: {fontSize: 40}}} InputLabelProps={{style: {fontSize: 10}}} style={{width:"50%"}}/>
+//             </ThemeProvider>  
+//           </Modal.Body>
+//           <Modal.Footer>
+//           <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "close")} style={{"position":"absolute", "left":"10px"}}>
+//             Close
+//           </Button>
+//           <Button variant="primary" onClick={(e) => this.handleItemClick(e, "add")}>
+//             Add
+//           </Button>
+//           </Modal.Footer>
+//         </Modal>
+//       </div>
+//     )
+//   }
+// }
 
 class Refresh extends React.Component{
   constructor(props) {
@@ -2191,4 +2237,14 @@ class WelcomeMessage extends React.Component{
       </Modal>
     )
   }
+}
+
+const Input = ({ id, type, label, value, onChange }) => {
+  const classes = value.length ? 'Input Input--has-value' : 'Input'
+  return (
+    <div className={classes}>
+      <input id={id}  type={type} value={value} onChange={onChange} />
+      <label htmlFor={id} className="Input__label">{label}</label>
+    </div>
+  )
 }
