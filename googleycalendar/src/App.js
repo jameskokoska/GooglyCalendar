@@ -70,8 +70,6 @@ export default class App extends React.Component {
     this.updatePin = this.updatePin.bind(this);
     this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
     this.getEventObjects = this.getEventObjects.bind(this);
-    this.setCalendarID = this.setCalendarID.bind(this);
-    this.setCalendarID2 = this.setCalendarID2.bind(this);
     this.darkModeFunction = this.darkModeFunction.bind(this);
     this.state ={calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
@@ -126,10 +124,6 @@ export default class App extends React.Component {
         global.settings[i]["currentValue"] = await getStorage(settingsOptions[i]["keyName"],settingsOptions[i]["defaultValue"]);
       }
     }
-    global.settingsColour = settingsOptionsColour();
-    for(i = 0; i<settingsOptionsColour().length; i++){
-      global.settingsColour[i]["currentValue"] = await getStorage(settingsOptionsColour()[i]["keyName"],"");
-    }
 
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
@@ -138,20 +132,12 @@ export default class App extends React.Component {
       signStatus: ApiCalendar.sign,
       lastSignIn:lastSignIn,
       lastSort:lastSort,
-      calendarID: getSettingsValue("calendarID"),
-      calendarID2: getSettingsValue("calendarID2"),
-      calendarID3: getSettingsValue("calendarID3"),
+      calendarIDs: [getSettingsValue("calendarID"),getSettingsValue("calendarID2"),getSettingsValue("calendarID3")],
     });
   }
   signUpdate() {
     this.setState({ signStatus: ApiCalendar.sign});
     this.refreshWholeList();
-  }
-  setCalendarID(calendarIDPassed){
-    this.setState({ calendarID: calendarIDPassed});
-  }
-  setCalendarID2(calendarIDPassed){
-    this.setState({calendarID2: calendarIDPassed});
   }
 
   componentDidMount() {
@@ -301,145 +287,171 @@ export default class App extends React.Component {
     })
   }
 
-  getEventObjects(calendarIDPassed){
-    listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(({result}: any) => {
-      var calendarObjects = result.items;
-      var calendarObjectsReduced = [];
-      for (var i = 0; i < calendarObjects.length; i++) {
-        //Determine if within the week days range specified in settings
-        var dateObj;
-        if (displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
-          dateObj = new Date(calendarObjects[i].start.date);
-        } else {
-          dateObj = new Date(calendarObjects[i].start.dateTime);
-        }
-        //Fix for all day and hours past
-        var allDayPastTest=false;
-        if(displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
-          if(new Date(calendarObjects[i].end.date)>new Date().addDays(-1*(getSettingsValue("hoursBefore")+24)/24)){
+  async getEventObjects(calendarIDsPassed){
+    global.courses = [];
+    this.setState({invalidID: false});
+    var calendarObjectsTotal = [];
+    for(var z = 0; z < calendarIDsPassed.length; z++){
+      var calendarIDPassed = "";
+      if(z!==0 && calendarIDsPassed[z]===""){
+        continue;
+      } else if (z===0 && (calendarIDPassed[0]==="primary"||calendarIDPassed[0]==="")){
+        calendarIDPassed = "primary";
+      } else {
+        calendarIDPassed = calendarIDsPassed[z];
+      }
+      await ApiCalendar.setCalendar(calendarIDPassed);
+      await listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(async ({result}: any) => {
+        var calendarObjectsReduced = [];
+        var calendarObjects = result.items;
+        for (var i = 0; i < calendarObjects.length; i++) {
+          //Determine if within the week days range specified in settings
+          var dateObj;
+          if (displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
+            dateObj = new Date(calendarObjects[i].start.date);
+          } else {
+            dateObj = new Date(calendarObjects[i].start.dateTime);
+          }
+          //Fix for all day and hours past
+          var allDayPastTest=false;
+          if(displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
+            if(new Date(calendarObjects[i].end.date)>new Date().addDays(-1*(getSettingsValue("hoursBefore")+24)/24)){
+              allDayPastTest=true;
+            }
+          } else {
             allDayPastTest=true;
           }
-        } else {
-          allDayPastTest=true;
-        }
-        if(dateObj < new Date().addDays(parseInt(getSettingsValue("nextWeekShow"))) && allDayPastTest){
-          //Set up attributes of each object
-          if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
-            calendarObjects[i].done=true;
-          } else {
-            calendarObjects[i].done=false;
-          }
-          if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="📌"){
-            calendarObjects[i].pin=true;
-          } else {
-            calendarObjects[i].pin=false;
-          }
-          if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && (calendarObjects[i].summary.substring(0,2)==="✔️" || calendarObjects[i].summary.substring(0,2)==="📌")){
-            calendarObjects[i].name=calendarObjects[i].summary.substring(2);
-          } else {
-            calendarObjects[i].name=calendarObjects[i].summary;
-          }
-          calendarObjects[i].date = displayDate(new Date(calendarObjects[i].start.dateTime));
-          if (calendarObjects[i].date==="All day"){
-            calendarObjects[i].date = displayDate(new Date(calendarObjects[i].end.date));
-            calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.date);
-          } else {
-            calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.dateTime);
-          }
-          calendarObjects[i].timeStart = displayTime(new Date(calendarObjects[i].start.dateTime));
-          calendarObjects[i].timeEnd = displayTime(new Date(calendarObjects[i].end.dateTime));
-
-          var courseRandomCode;
-          if(determineTaskCourse(calendarObjects[i].summary)!==""){
-            calendarObjects[i].course=determineTaskCourse(calendarObjects[i].summary);
-            if(calendarObjects[i].course.length>6){
-              courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5)+calendarObjects[i].course.charCodeAt(6);
+          if(dateObj < new Date().addDays(parseInt(getSettingsValue("nextWeekShow"))) && allDayPastTest){
+            //Set up attributes of each object
+            if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
+              calendarObjects[i].done=true;
             } else {
-              courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5);
+              calendarObjects[i].done=false;
             }
-            calendarObjects[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
-            calendarObjects[i].name=determineTaskName(calendarObjects[i].summary);
-          } else {
-            calendarObjects[i].course = "";
-            calendarObjects[i].courseRandomCode = -1;
-            calendarObjects[i].courseColor="";
-          }
-          if(getSettingsValue("importantEvents")!==""&&getSettingsValue("importantEvents").split(",").length>0){
-            try{
-              calendarObjects[i].important = false;
-              for(var x=0; x<getSettingsValue("importantEvents").split(",").length;x++){
-                if (calendarObjects[i].name.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())){
-                  calendarObjects[i].important = true;
-                }
-              }
-            }catch(e){
-              console.log('error', e);     
+            if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="📌"){
+              calendarObjects[i].pin=true;
+            } else {
+              calendarObjects[i].pin=false;
             }
-          } else {
-            calendarObjects[i].important = false;
-          }
-          if(getSettingsValue("hideEvents")!==""&&getSettingsValue("hideEvents").split(",").length>0){
-            try{
-              calendarObjects[i].hide = false;
-              for(var y=0; y<getSettingsValue("hideEvents").split(",").length;y++){
-                if (calendarObjects[i].name.includes(getSettingsValue("hideEvents").split(",")[y])||calendarObjects[i].course.includes(getSettingsValue("hideEvents").split(",")[y])){
-                  calendarObjects[i].hide = true;
-                }
-              }
-            }catch(e){
-              console.log('error', e);     
+            if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && (calendarObjects[i].summary.substring(0,2)==="✔️" || calendarObjects[i].summary.substring(0,2)==="📌")){
+              calendarObjects[i].name=calendarObjects[i].summary.substring(2);
+            } else {
+              calendarObjects[i].name=calendarObjects[i].summary;
             }
-          } else {
-            calendarObjects[i].hide = false;
-          }
-          // if(this.state.course1.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor1;
-          // } else if(this.state.course2.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor2;
-          // } else if(this.state.course3.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor3;
-          // } else if(this.state.course4.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor4;
-          // } else if(this.state.course5.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor5;
-          // } else if(this.state.course6.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor6;
-          // } else if(this.state.course7.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-          //   calendarObjects[i].courseColor=this.state.courseColor7;
-          // }
-          
-          // calendarObjects[i].done = "";
-          // calendarObjects[i].pin = "";
-          // calendarObjects[i].name = "";
-          // calendarObjects[i].course = "";
-          // calendarObjects[i].date = "";
-          // calendarObjects[i].timeStart = "";
-          // calendarObjects[i].timeEnd = "";
-          // calendarObjects[i].courseColor = "";
-          // calendarObjects[i].dateObjEnd = "";
-          // calendarObjects[i].important = "";
-          // calendarObjects[i].hide = "";
-          calendarObjects[i].calendarID=calendarIDPassed;
-          calendarObjectsReduced.push(calendarObjects[i]);
-        }
-      }
-      Array.prototype.push.apply(calendarObjectsReduced,this.state.calendarObjects); 
-      
-      var lastSortList = this.state.lastSort.split(",");
-      lastSortList.map(function(sortElement){
-        calendarObjectsReduced = this.sortCalendarObjects(sortElement, calendarObjectsReduced);
-      }, this)
+            calendarObjects[i].date = displayDate(new Date(calendarObjects[i].start.dateTime));
+            if (calendarObjects[i].date==="All day"){
+              calendarObjects[i].date = displayDate(new Date(calendarObjects[i].end.date));
+              calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.date);
+            } else {
+              calendarObjects[i].dateObjEnd = new Date(calendarObjects[i].end.dateTime);
+            }
+            calendarObjects[i].timeStart = displayTime(new Date(calendarObjects[i].start.dateTime));
+            calendarObjects[i].timeEnd = displayTime(new Date(calendarObjects[i].end.dateTime));
 
-      this.setState({
-        calendarObjects: calendarObjectsReduced,
+            var courseRandomCode;
+            var currentCourse = determineTaskCourse(calendarObjects[i].summary);
+            if(currentCourse !==""){
+              calendarObjects[i].course=currentCourse;
+              if(!global.courses.includes(calendarObjects[i].course)){
+                global.courses.push(calendarObjects[i].course)
+              }
+              var selectedColor = await getStorage("courseColor"+calendarObjects[i].course,"")
+              if(selectedColor!==""){
+                calendarObjects[i].courseColor=selectedColor;
+              } else {
+                if(calendarObjects[i].course.length>6){
+                  courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5)+calendarObjects[i].course.charCodeAt(6);
+                } else {
+                  courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5);
+                }
+                calendarObjects[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
+                calendarObjects[i].name=determineTaskName(calendarObjects[i].summary);
+              }
+            } else {
+              calendarObjects[i].course = "";
+              calendarObjects[i].courseRandomCode = -1;
+              calendarObjects[i].courseColor="";
+            }
+            
+            if(getSettingsValue("importantEvents")!==""&&getSettingsValue("importantEvents").split(",").length>0){
+              try{
+                calendarObjects[i].important = false;
+                for(var x=0; x<getSettingsValue("importantEvents").split(",").length;x++){
+                  if (calendarObjects[i].name.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())){
+                    calendarObjects[i].important = true;
+                  }
+                }
+              }catch(e){
+                console.log('error', e);     
+              }
+            } else {
+              calendarObjects[i].important = false;
+            }
+            if(getSettingsValue("hideEvents")!==""&&getSettingsValue("hideEvents").split(",").length>0){
+              try{
+                calendarObjects[i].hide = false;
+                for(var y=0; y<getSettingsValue("hideEvents").split(",").length;y++){
+                  if (calendarObjects[i].name.includes(getSettingsValue("hideEvents").split(",")[y])||calendarObjects[i].course.includes(getSettingsValue("hideEvents").split(",")[y])){
+                    calendarObjects[i].hide = true;
+                  }
+                }
+              }catch(e){
+                console.log('error', e);     
+              }
+            } else {
+              calendarObjects[i].hide = false;
+            }
+            
+            //else if(this.state.course2.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor2;
+            // } else if(this.state.course3.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor3;
+            // } else if(this.state.course4.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor4;
+            // } else if(this.state.course5.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor5;
+            // } else if(this.state.course6.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor6;
+            // } else if(this.state.course7.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+            //   calendarObjects[i].courseColor=this.state.courseColor7;
+            // }
+            
+            // calendarObjects[i].done = "";
+            // calendarObjects[i].pin = "";
+            // calendarObjects[i].name = "";
+            // calendarObjects[i].course = "";
+            // calendarObjects[i].date = "";
+            // calendarObjects[i].timeStart = "";
+            // calendarObjects[i].timeEnd = "";
+            // calendarObjects[i].courseColor = "";
+            // calendarObjects[i].dateObjEnd = "";
+            // calendarObjects[i].important = "";
+            // calendarObjects[i].hide = "";
+            calendarObjects[i].calendarID=calendarIDPassed;
+            calendarObjectsReduced.push(calendarObjects[i]);
+          }
+        }
+        Array.prototype.push.apply(calendarObjectsTotal,calendarObjectsReduced); 
+        var lastSortList = this.state.lastSort.split(",");
+        lastSortList.map(function(sortElement){
+          calendarObjectsTotal = this.sortCalendarObjects(sortElement, calendarObjectsTotal);
+        }, this)
+      }).catch(error => {
+        this.setState({
+          invalidID:true,
+        });
       });
-    }).catch(error => {
-      this.setState({
-        calendarObjects: ["invalidID"],
-      });
-      console.log(this.state.calendarObjects.length);
+    }
+    this.setState({
+      calendarObjects: calendarObjectsTotal,
     });
+
+    global.settingsColour = settingsOptionsColour();
+    for(var i = 0; i<settingsOptionsColour().length; i++){
+      global.settingsColour[i]["currentValue"] = await getStorage(settingsOptionsColour()[i]["keyName"],"");
+    }
   }
+
   async resetCalendarObjects(){
     if(this.resetDisable===false){
       this.resetDisable=true;
@@ -455,16 +467,7 @@ export default class App extends React.Component {
     await this.loadSyncData();
     await this.darkModeFunction();
     if (ApiCalendar.sign){
-      if(this.state.calendarID===""||this.state.calendarID===null||this.state.calendarID===undefined){
-        ApiCalendar.setCalendar("primary");
-      } else {
-        ApiCalendar.setCalendar(this.state.calendarID);
-      } 
-      this.getEventObjects(this.state.calendarID);
-      if(this.state.calendarID2!==this.state.calendarID&&this.state.calendarID2!==""&&this.state.calendarID2!==null&&this.state.calendarID2!==undefined){
-        ApiCalendar.setCalendar(this.state.calendarID2);
-        this.getEventObjects(this.state.calendarID2);
-      }
+      this.getEventObjects(this.state.calendarIDs);
     }
   }
   
@@ -479,7 +482,7 @@ export default class App extends React.Component {
     }
     if(this.state.calendarObjects.length<=0 && this.state.signStatus){
       calendarObjectsLengthDisplay="";
-    } else if (this.state.calendarObjects[0]==="invalidID" && this.state.signStatus){
+    } else if (this.state.invalidID===true && this.state.signStatus){
       invalidCalendarDisplay="";
     }
     var today=new Date();

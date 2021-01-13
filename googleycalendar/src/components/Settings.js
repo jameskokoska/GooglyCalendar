@@ -125,7 +125,7 @@ class SettingsContainerColor extends React.Component{
   render(){
     return(
       <Form.Group style={{"paddingTop":"5px","paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-        <Form.Label>{this.props.settingColour.course}</Form.Label>
+        <Form.Label>{this.props.settingColour.course + " course color"}</Form.Label>
         <ColorPicker color={this.props.settingColour.currentValue} courseStorageID={this.props.settingColour.keyName}/>
       </Form.Group>
     )
@@ -206,7 +206,10 @@ export function getSettingsValue(keyName){
 
 
 export const settingsOptionsColour = () => {
-  var courses = ["1","2","3","4","5","6"]
+  if(global.courses===undefined||global.courses===[]){
+    return [];
+  }
+  var courses = global.courses;
   var settingsOptionColour = [];
   
   for(var x = 0; x<courses.length;x++){
