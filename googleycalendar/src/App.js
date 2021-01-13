@@ -22,8 +22,9 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.5.5";
+global.version = "3.5.8";
 global.changeLog = [
+  "3.5.8 : Fixed initial course adding to marks",
   "3.5.5 : Keep track of your marks for each course!",
   "3.5.0: Courses are automatically added, each one can have a custom colour",
   "3.5.0: Back end has been sorted",
@@ -518,7 +519,7 @@ export default class App extends React.Component {
           sortPin
         </Button> */}
         <Header1 content={currentDisplayDate}/>
-        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="4">
+        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>

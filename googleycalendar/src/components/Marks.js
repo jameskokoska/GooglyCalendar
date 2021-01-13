@@ -29,10 +29,9 @@ class MarksCourse extends React.Component{
   }
   async componentDidMount() {
     this.setState({
-      currentCourseEntries: JSON.parse(await getStorage("courseMarks"+this.props.course,"[['','','']]")),
+      currentCourseEntries: JSON.parse(await getStorage("courseMarks"+this.props.course,'[["","",""]]')),
       goal: await getStorage("courseGoal"+this.props.course,"70"),
       examMark: await getStorage("courseExamMark"+this.props.course,"70"),
-
     })
   }
   handleGoalChange(form, key,) {
@@ -81,33 +80,52 @@ class MarksCourse extends React.Component{
     var finalMark = 0;
     var currentWeight;
     var currentMark;
+
+    var fail = false;
     for(var x = 0; x<this.state.currentCourseEntries.length; x++){
       currentWeight = this.state.currentCourseEntries[x][1];
       currentMark = this.state.currentCourseEntries[x][2];
-      if(currentWeight!==""){
-        examPercentage = examPercentage - parseFloat(this.state.currentCourseEntries[x][1]);
-      }
-      if(currentWeight!=="" && currentMark!==""){
-        totalPercentageSubmitted = totalPercentageSubmitted + parseFloat(this.state.currentCourseEntries[x][1]);
-        totalCurrentMark = currentWeight/100 * currentMark + totalCurrentMark;
+      fail = true;
+      if(/^\d+$/.test(currentWeight) && /^\d+$/.test(currentMark )){
+        fail = false;
+      } else {
+        break;
       }
     }
-    if(totalPercentageSubmitted!==0){
-      totalCurrentMark = totalCurrentMark*100 / totalPercentageSubmitted;
-    }
+    if(!fail){
+      for(var x = 0; x<this.state.currentCourseEntries.length; x++){
+        currentWeight = this.state.currentCourseEntries[x][1];
+        currentMark = this.state.currentCourseEntries[x][2];
+        if(currentWeight!==""){
+          examPercentage = examPercentage - parseFloat(this.state.currentCourseEntries[x][1]);
+        }
+        if(currentWeight!=="" && currentMark!==""){
+          totalPercentageSubmitted = totalPercentageSubmitted + parseFloat(this.state.currentCourseEntries[x][1]);
+          totalCurrentMark = currentWeight/100 * currentMark + totalCurrentMark;
+        }
+      }
+      if(totalPercentageSubmitted!==0){
+        totalCurrentMark = totalCurrentMark*100 / totalPercentageSubmitted;
+      }
 
-    var goal = this.state.goal;
-    if(this.state.goal===""){
-      goal = 70;
+      var goal = this.state.goal;
+      if(this.state.goal===""){
+        goal = 70;
+      }
+      if(Math.round(examPercentage)===0){
+        required = 0;
+      } else {
+        required = ((parseFloat(goal) - totalCurrentMark * (1 - examPercentage/100)) / (examPercentage/100));
+        required = Math.round((required + Number.EPSILON) * 100) / 100
+      }
+      
+      finalMark = totalCurrentMark*(totalPercentageSubmitted/100) + this.state.examMark*(examPercentage/100)
+      
+      finalMark = Math.round((finalMark + Number.EPSILON) * 100) / 100
+      totalCurrentMark = Math.round((totalCurrentMark + Number.EPSILON) * 100) / 100
+      examPercentage = Math.round((examPercentage + Number.EPSILON) * 100) / 100
     }
-    required = ((parseFloat(goal) - totalCurrentMark * (1 - examPercentage/100)) / (examPercentage/100));
     
-    finalMark = totalCurrentMark*(totalPercentageSubmitted/100) + this.state.examMark*(examPercentage/100)
-    
-    finalMark = Math.round((finalMark + Number.EPSILON) * 100) / 100
-    totalCurrentMark = Math.round((totalCurrentMark + Number.EPSILON) * 100) / 100
-    examPercentage = Math.round((examPercentage + Number.EPSILON) * 100) / 100
-    required = Math.round((required + Number.EPSILON) * 100) / 100
 
     return(
       <Form style={{paddingTop: "30px"}}>
