@@ -7,14 +7,71 @@ import Button from 'react-bootstrap/Button'
 import CountUp from 'react-countup';
 
 export default class Marks extends React.Component{
+  constructor(props) {
+    super(props);
+    this.handleAddCourseInput = this.handleAddCourseInput.bind(this);
+    this.handleAddCourse = this.handleAddCourse.bind(this);
+    this.handleRemoveCourse = this.handleRemoveCourse.bind(this);
+  }
+  async componentDidMount() {
+    // await AsyncStorage.setItem("coursesExtra","[]")
+    this.setState({
+      coursesExtra: JSON.parse(await getStorage("coursesExtra","[]")),
+    })
+  }
+  handleAddCourseInput(value){
+    this.addCourseName = value;
+  }
+  handleAddCourse() {
+    var tempData = this.state.coursesExtra;
+    if(global.courses.includes(this.addCourseName) || tempData.includes(this.addCourseName)){
+      return; //course already added automatically
+    } else {
+      tempData.push(this.addCourseName);
+      this.setState({
+        coursesExtra: tempData
+      })
+      AsyncStorage.setItem("coursesExtra", JSON.stringify(tempData));
+    }
+  }
+  handleRemoveCourse(course="") {
+    var tempData = this.state.coursesExtra;
+    if(course==="")
+      tempData = tempData.filter(e => e !== this.addCourseName);
+    else
+      tempData = tempData.filter(e => e !== course);
+    this.setState({
+      coursesExtra: tempData
+    })
+    AsyncStorage.setItem("coursesExtra", JSON.stringify(tempData));
+  }
   render(){
+    if(this.state===undefined || this.state===null){
+      return(<div/>)
+    }
+    var coursesTotal;
     if(global.courses===undefined){
-      global.courses=[];
+      coursesTotal=[];
+    } else {
+      coursesTotal = global.courses.slice(0);
+      Array.prototype.push.apply(coursesTotal,this.state.coursesExtra); 
+      coursesTotal = [...new Set(coursesTotal)] //remove any duplicates that may come up if it was added before
+      coursesTotal.sort();
     }
     return(
       <div className="marks-content" style={{paddingBottom:"100px"}}>
-        {global.courses.map( (course, index)=>
-          {return <MarksCourse course={course}/>}
+        <div style={{marginTop: "10px", flexDirection:"row",display: "flex"}}>
+          <Form.Control maxLength={50} onChange={(form) => {this.handleAddCourseInput(form.target.value)}} placeholder={"Course name"} defaultValue={""} style={{maxWidth:"490px", width: "60%"}}/>
+          <Button variant="outline-info" onClick={()=>{this.handleAddCourse()}}>
+            Add course
+          </Button>
+        </div>
+        {coursesTotal.map( (course, index)=>
+          {return <MarksCourse 
+            course={course} 
+            coursesExtra={this.state.coursesExtra} 
+            handleRemoveCourse={this.handleRemoveCourse}
+          />}
         )}
       </div>
     )
@@ -27,12 +84,13 @@ class MarksCourse extends React.Component{
     this.handleGoalChange = this.handleGoalChange.bind(this);
     this.handleDataChange = this.handleDataChange.bind(this);
   }
-  async componentDidMount() {
-    this.setState({
-      currentCourseEntries: JSON.parse(await getStorage("courseMarks"+this.props.course,'[["","",""]]')),
-      goal: await getStorage("courseGoal"+this.props.course,"70"),
-      examMark: await getStorage("courseExamMark"+this.props.course,"70"),
-    })
+  async componentDidUpdate(prevProps) {
+    if(prevProps!==this.props)
+      this.setState({
+        currentCourseEntries: JSON.parse(await getStorage("courseMarks"+this.props.course,'[["","",""]]')),
+        goal: await getStorage("courseGoal"+this.props.course,"70"),
+        examMark: await getStorage("courseExamMark"+this.props.course,"70"),
+      })
   }
   handleGoalChange(form, key,) {
     AsyncStorage.setItem(key, form.target.value);
@@ -86,21 +144,21 @@ class MarksCourse extends React.Component{
       currentWeight = this.state.currentCourseEntries[x][1];
       currentMark = this.state.currentCourseEntries[x][2];
       fail = true;
-      if(/^\d+$/.test(currentWeight) && /^\d+$/.test(currentMark )){
+      if((/^\d+$/.test(currentWeight) || currentWeight === "" )&& (/^\d+$/.test(currentMark ) || currentMark === "")){
         fail = false;
       } else {
         break;
       }
     }
     if(!fail){
-      for(var x = 0; x<this.state.currentCourseEntries.length; x++){
-        currentWeight = this.state.currentCourseEntries[x][1];
-        currentMark = this.state.currentCourseEntries[x][2];
+      for(var i = 0; i<this.state.currentCourseEntries.length; i++){
+        currentWeight = this.state.currentCourseEntries[i][1];
+        currentMark = this.state.currentCourseEntries[i][2];
         if(currentWeight!==""){
-          examPercentage = examPercentage - parseFloat(this.state.currentCourseEntries[x][1]);
+          examPercentage = examPercentage - parseFloat(this.state.currentCourseEntries[i][1]);
         }
         if(currentWeight!=="" && currentMark!==""){
-          totalPercentageSubmitted = totalPercentageSubmitted + parseFloat(this.state.currentCourseEntries[x][1]);
+          totalPercentageSubmitted = totalPercentageSubmitted + parseFloat(this.state.currentCourseEntries[i][1]);
           totalCurrentMark = currentWeight/100 * currentMark + totalCurrentMark;
         }
       }
@@ -126,7 +184,12 @@ class MarksCourse extends React.Component{
       examPercentage = Math.round((examPercentage + Number.EPSILON) * 100) / 100
     }
     
-
+    var extraCourseButton = <div/>
+    if(this.props.coursesExtra.includes(this.props.course)){
+      extraCourseButton = <Button variant="outline-danger" onClick={()=>{this.props.handleRemoveCourse(this.props.course);}}>
+        Remove course
+      </Button>
+    }
     return(
       <Form style={{paddingTop: "30px"}}>
         <Form.Group>
@@ -135,12 +198,13 @@ class MarksCourse extends React.Component{
             {return <MarksRow entry={entry} index={index} handleDataChange={this.handleDataChange}/>}
           )}
           <div style={{height:"5px"}}/>
-          <Button variant="outline-info" onClick={()=>{this.addEntry()}}>
+          <Button style={{marginRight:"5px"}} variant="outline-info" onClick={()=>{this.addEntry()}}>
             Add assessment
           </Button>
-          <Button variant="outline-secondary" onClick={()=>{this.removeEntry()}}>
+          <Button style={{marginRight:"5px"}} variant="outline-secondary" onClick={()=>{this.removeEntry()}}>
             Remove assessment
           </Button>
+          {extraCourseButton}
           <table style={{maxWidth:"550px",width:"100%",}}>
           <tr>
             <th>
@@ -202,9 +266,9 @@ class MarksRow extends React.Component{
     return(
       <>
         <div style={{flexDirection:"row",display: "flex"}}>
-          <Form.Control onChange={(form) => {this.props.handleDataChange(this.props.index,0,form.target.value)}} placeholder={"Assessment name"} defaultValue={this.props.entry[0]} style={{maxWidth: "400px", width:"60%",}}/>
-          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,1,form.target.value)}} placeholder={"Worth (%)"} defaultValue={this.props.entry[1]} style={{maxWidth: "100px", width:"20%",}}/>
-          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,2,form.target.value)}} placeholder={"Mark (%)"} defaultValue={this.props.entry[2]} style={{maxWidth: "100px", width:"20%",}}/>
+          <Form.Control onChange={(form) => {this.props.handleDataChange(this.props.index,0,form.target.value)}} placeholder={"Assessment name"} value={this.props.entry[0]} style={{maxWidth: "400px", width:"60%",}}/>
+          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,1,form.target.value)}} placeholder={"Worth (%)"} value={this.props.entry[1]} style={{maxWidth: "100px", width:"20%",}}/>
+          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,2,form.target.value)}} placeholder={"Mark (%)"} value={this.props.entry[2]} style={{maxWidth: "100px", width:"20%",}}/>
         </div>
         <div style={{height:"5px"}}/>
       </>

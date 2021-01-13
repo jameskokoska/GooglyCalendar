@@ -22,8 +22,9 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.5.8";
+global.version = "3.6.0";
 global.changeLog = [
+  "3.6.0 : Can now add more courses to the mark list, also fixed some bugs with input",
   "3.5.8 : Fixed initial course adding to marks",
   "3.5.5 : Keep track of your marks for each course!",
   "3.5.0: Courses are automatically added, each one can have a custom colour",
@@ -40,12 +41,9 @@ global.changeLog = [
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
 //make 7 day view option start on sunday->saturday instead of next 7 days
-//pomodoro timer
 //count how many successful pomodoros
 
-//mark tracker
-//split up into multiple files
-//add third calendar ID
+//ability to add courses to the marks forever (and remove courses)
 //verify on google - rename name - https://medium.com/cafe24-ph-blog/tips-on-verifying-google-application-that-uses-sensitive-scopes-3b75dfb590ae
 //tabs with different course names - based on what was entered (and separate by tests, homework, etc)
 
@@ -519,7 +517,7 @@ export default class App extends React.Component {
           sortPin
         </Button> */}
         <Header1 content={currentDisplayDate}/>
-        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
+        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="4">
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
