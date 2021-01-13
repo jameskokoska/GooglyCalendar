@@ -36,6 +36,12 @@
   color: var(--font-color);
 }
 
+.marks-content{
+  margin: 30px;
+  margin-top: 10px;
+  color: var(--font-color);
+}
+
 .form-control{
   background-color: var(--background);
   color:var(--font-color);
@@ -566,6 +572,26 @@ th.weekday{
     transform: rotate(0deg);
   }
 }
+.courseLabel{
+  font-size: 30px;
+  color: var(--font-color);
+  font-family: "PierSansBold";
+  margin-bottom: 5px;
+}
+.markLabelBold{
+  font-size: 20px;
+  color: var(--font-color);
+  font-family: "PierSansBold";
+  display:"inline-block";
+}
+.markLabel{
+  font-size: 20px;
+  margin-right: 10px;
+  color: var(--font-color);
+  font-family: "PierSans";
+  display:"inline-block";
+}
+
 .tabsLabel{
   font-size: 20px;
   color: var(--font-color);
@@ -678,6 +704,28 @@ th.weekday{
 
 /* Mobile View */
 @media only screen and (max-width: 767px) {
+  .marks-content{
+    margin: 5px;
+    margin-top: 10px;
+  }
+  .courseLabel{
+    font-size: 22px;
+    color: var(--font-color);
+    font-family: "PierSansBold";
+    margin-bottom: 5px;
+  }
+  .markLabel{
+    font-size: 16px;
+    color: var(--font-color);
+    font-family: "PierSans";
+    display:"inline-block";
+  }
+  .markLabelBold{
+    font-size: 16px;
+    color: var(--font-color);
+    font-family: "PierSansBold";
+    display:"inline-block";
+  }
   .screen{
     padding:3vw;
   }

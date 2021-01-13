@@ -247,7 +247,7 @@ export const settingsOptions = [
     "currentValue" : "",
     "title" : "Calendar ID 3",
     "placeHolder" : "example@group.calendar.google.com",
-    "description" : "By keeping this blank, it will not attempt to load a second calendar.",
+    "description" : "By keeping this blank, it will not attempt to load a third calendar.",
     "type" : "text" 
   },
   {

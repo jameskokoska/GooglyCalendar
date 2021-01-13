@@ -20,6 +20,7 @@ import Header1 from "./components/Header1"
 import Refresh from "./components/Refresh"
 import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
+import Marks from "./components/Marks"
 
 global.version = "3.2.4";
 global.changeLog = [
@@ -523,7 +524,7 @@ export default class App extends React.Component {
           sortPin
         </Button> */}
         <Header1 content={currentDisplayDate}/>
-        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
+        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="4">
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
@@ -532,6 +533,9 @@ export default class App extends React.Component {
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
               <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={this.state.pomoSound}/>
+            </Tab>
+            <Tab eventKey="4" title="Marks">
+              <Marks/>
             </Tab>
         </Tabs>
         <Settings 
