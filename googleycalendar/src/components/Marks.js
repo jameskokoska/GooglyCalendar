@@ -226,7 +226,7 @@ class MarksCourse extends React.Component{
             <th>
               <div style={{marginTop: "10px", flexDirection:"row",display: "flex", alignItems:"center"}}>
                 <div className="markLabel">{"Goal:"}</div>
-                <Form.Control maxLength={5} onChange={(form) => {this.handleGoalChange(form,"courseGoal"+this.props.course)}} placeholder={"70"} defaultValue={this.state.goal} style={{width:"55px", marginLeft:"5px",}}/>
+                <Form.Control maxLength={5} onChange={(form) => {this.handleGoalChange(form,"courseGoal"+this.props.course)}} placeholder={"70"} value={this.state.goal} style={{width:"55px", marginLeft:"5px",}}/>
                 <div className="markLabel">{"%"}</div>
               </div>
             </th>
@@ -242,7 +242,7 @@ class MarksCourse extends React.Component{
             <th>
               <div style={{marginTop: "10px", flexDirection:"row",display: "flex", alignItems:"center"}}>
                 <div className="markLabel">{"Exam mark:"}</div>
-                <Form.Control maxLength={5} onChange={(form) => {this.handleExamMarkChange(form,"courseExamMark"+this.props.course)}} placeholder={"70"} defaultValue={this.state.examMark} style={{width:"55px", marginLeft:"5px",}}/>
+                <Form.Control maxLength={5} onChange={(form) => {this.handleExamMarkChange(form,"courseExamMark"+this.props.course)}} placeholder={"70"} value={this.state.examMark} style={{width:"55px", marginLeft:"5px",}}/>
                 <div className="markLabel">{"%"}</div>
               </div>
             </th>
