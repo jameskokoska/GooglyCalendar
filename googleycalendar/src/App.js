@@ -11,7 +11,7 @@ import './App.css';
 // import { ThemeProvider } from '@material-ui/styles';
 
 import WelcomeMessage from "./components/WelcomeMessage"
-import Settings from "./components/Settings"
+import Settings, {getSettingsValue, settingsOptions, settingsOptionsColour} from "./components/Settings"
 import TaskList from "./components/TaskList"
 import {getDisplayDayFull, getDisplayDay, getDisplayMonth, getDisplayMonthFull, displayDate, displayTime} from "./functions/DateFunctions"
 import Pomo from "./components/Pomo"
@@ -19,7 +19,7 @@ import WeekList from "./components/DayView"
 import Header1 from "./components/Header1"
 import Refresh from "./components/Refresh"
 import TimeOutError from "./components/TimeOutError"
-import {listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
+import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 
 global.version = "3.2.4";
 global.changeLog = [
@@ -90,7 +90,7 @@ export default class App extends React.Component {
   darkModeFunction(){
     //Dark mode colors
     var currentHours = new Date().getHours();
-    if((this.state.autoDark==="true" && (currentHours > 19 || currentHours < 7)) || (this.state.autoDark==="false" && this.state.darkMode==="true")){
+    if((getSettingsValue("autoDark") && (currentHours > 19 || currentHours < 7)) || (!getSettingsValue("autoDark") && getSettingsValue("darkMode"))){
       document.documentElement.style.setProperty('--background', "#121212");
       document.documentElement.style.setProperty('--background-settings', "#141414");
       document.documentElement.style.setProperty('--font-color', "#eeeeee");
@@ -117,61 +117,30 @@ export default class App extends React.Component {
   
 
   async loadSyncData(){
-    var storedIDs = [['calendarIDKey','primary'], ['calendarIDKey2',''], ['numEventsKey',20], ['hoursBefore',0], ['importantEvents',''],
-    ['lastSort',"sortName,sortCourse,sortCheck,sortDate"],['hideEvents',""], ['nextWeekShow',7], ['autoDark',"true"],['darkMode',"false"],['lastSignIn',0],['courseColor1',""],['courseColor2',""],
-    ['courseColor3',""],['courseColor4',""], ['courseColor5',""], ['courseColor6',""], ['courseColor7',""], ['course1',""], ['course2',""],
-    ['course3',""], ['course4',""], ['course5',""], ['course6',""], ['course7',""]];
-    var savedID = [];
-    var storedIDsAndSet = [['workSeconds',0], ['breakSeconds',0], ['workMinutes',25], ['breakMinutes',5],['pomoSound',"true"]];
-    var savedIDAndSet = [];
-    var storedID;
-    for(var i=0; i<storedIDs.length; i++){
-      storedID = await AsyncStorage.getItem(storedIDs[i][0]);
-      if(storedID === undefined){
-        storedID = storedIDs[i][1];
+    global.settings = settingsOptions;
+    for(var i = 0; i<settingsOptions.length; i++){
+      if(global.settings[i]["type"]==="textDouble"){
+        global.settings[i]["currentValue1"] = await getStorage(settingsOptions[i]["keyName1"],settingsOptions[i]["defaultValue1"]);
+        global.settings[i]["currentValue2"] = await getStorage(settingsOptions[i]["keyName2"],settingsOptions[i]["defaultValue2"]);
+      } else {
+        global.settings[i]["currentValue"] = await getStorage(settingsOptions[i]["keyName"],settingsOptions[i]["defaultValue"]);
       }
-      savedID[i] = storedID;
     }
-    for(i=0; i<storedIDsAndSet.length; i++){
-      storedID = await AsyncStorage.getItem(storedIDsAndSet[i][0]);
-      if(storedID === undefined){
-        storedID = storedIDsAndSet[i][1];
-        await AsyncStorage.setItem(storedIDsAndSet[i][0], storedID);
-      }
-      savedIDAndSet[i] = storedID;
+    global.settingsColour = settingsOptionsColour();
+    for(i = 0; i<settingsOptionsColour().length; i++){
+      global.settingsColour[i]["currentValue"] = await getStorage(settingsOptionsColour()[i]["keyName"],"");
     }
+
+    var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
+    var lastSignIn = await getStorage("lastSignIn","0");
+
     this.setState({ 
       signStatus: ApiCalendar.sign,
-      calendarID: savedID[0],
-      calendarID2: savedID[1],
-      numEvents:savedID[2],
-      hoursBefore:savedID[3],
-      importantEvents:savedID[4],
-      lastSort:savedID[5],
-      hideEvents:savedID[6],
-      nextWeekShow:savedID[7],
-      autoDark:savedID[8],
-      darkMode:savedID[9],
-      lastSignIn:savedID[10],
-      courseColor1:savedID[11],
-      courseColor2:savedID[12],
-      courseColor3:savedID[13],
-      courseColor4:savedID[14],
-      courseColor5:savedID[15],
-      courseColor6:savedID[16],
-      courseColor7:savedID[17],
-      course1:savedID[18],
-      course2:savedID[19],
-      course3:savedID[20],
-      course4:savedID[21],
-      course5:savedID[22],
-      course6:savedID[23],
-      course7:savedID[24],
-      workSeconds:savedIDAndSet[0],
-      breakSeconds:savedIDAndSet[1],
-      workMinutes:savedIDAndSet[2],
-      breakMinutes:savedIDAndSet[3],
-      pomoSound:savedIDAndSet[4],
+      lastSignIn:lastSignIn,
+      lastSort:lastSort,
+      calendarID: getSettingsValue("calendarID"),
+      calendarID2: getSettingsValue("calendarID2"),
+      calendarID3: getSettingsValue("calendarID3"),
     });
   }
   signUpdate() {
@@ -226,7 +195,7 @@ export default class App extends React.Component {
       ApiCalendar.handleSignoutClick();
     } else if (name==='log'){
       if (ApiCalendar.sign)
-      listEvents(10,this.state.hoursBefore)
+      listEvents(10,getSettingsValue("hoursBefore"))
         .then(({result}: any) => {
           console.log(result.items);
       });
@@ -234,7 +203,7 @@ export default class App extends React.Component {
       console.log(this.state.calendarObjects)
     } else if (name==="changeName") {
       if (ApiCalendar.sign) 
-        listEvents(1,this.state.hoursBefore)
+        listEvents(1,getSettingsValue("hoursBefore"))
         .then(({result}: any) => {
           const event = {
             summary: "✔️" + result.items[0].summary
@@ -244,7 +213,7 @@ export default class App extends React.Component {
       });
     } else if (name==='populate'){
       if (ApiCalendar.sign)
-        listEvents(this.state.numEvents,this.state.hoursBefore)
+        listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore"))
           .then(({result}: any) => {
             var calendarObjects= result.items
             this.setState({
@@ -333,7 +302,7 @@ export default class App extends React.Component {
   }
 
   getEventObjects(calendarIDPassed){
-    listEvents(this.state.numEvents,this.state.hoursBefore).then(({result}: any) => {
+    listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(({result}: any) => {
       var calendarObjects = result.items;
       var calendarObjectsReduced = [];
       for (var i = 0; i < calendarObjects.length; i++) {
@@ -347,13 +316,13 @@ export default class App extends React.Component {
         //Fix for all day and hours past
         var allDayPastTest=false;
         if(displayDate(new Date(calendarObjects[i].start.dateTime))==="All day"){
-          if(new Date(calendarObjects[i].end.date)>new Date().addDays(-1*(this.state.hoursBefore+24)/24)){
+          if(new Date(calendarObjects[i].end.date)>new Date().addDays(-1*(getSettingsValue("hoursBefore")+24)/24)){
             allDayPastTest=true;
           }
         } else {
           allDayPastTest=true;
         }
-        if(dateObj < new Date().addDays(parseInt(this.state.nextWeekShow)) && allDayPastTest){
+        if(dateObj < new Date().addDays(parseInt(getSettingsValue("nextWeekShow"))) && allDayPastTest){
           //Set up attributes of each object
           if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
             calendarObjects[i].done=true;
@@ -395,11 +364,11 @@ export default class App extends React.Component {
             calendarObjects[i].courseRandomCode = -1;
             calendarObjects[i].courseColor="";
           }
-          if(this.state.importantEvents!==""&&this.state.importantEvents.split(",").length>0){
+          if(getSettingsValue("importantEvents")!==""&&getSettingsValue("importantEvents").split(",").length>0){
             try{
               calendarObjects[i].important = false;
-              for(var x=0; x<this.state.importantEvents.split(",").length;x++){
-                if (calendarObjects[i].name.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(this.state.importantEvents.split(",")[x].toLowerCase())){
+              for(var x=0; x<getSettingsValue("importantEvents").split(",").length;x++){
+                if (calendarObjects[i].name.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())){
                   calendarObjects[i].important = true;
                 }
               }
@@ -409,11 +378,11 @@ export default class App extends React.Component {
           } else {
             calendarObjects[i].important = false;
           }
-          if(this.state.hideEvents!==""&&this.state.hideEvents.split(",").length>0){
+          if(getSettingsValue("hideEvents")!==""&&getSettingsValue("hideEvents").split(",").length>0){
             try{
               calendarObjects[i].hide = false;
-              for(var y=0; y<this.state.hideEvents.split(",").length;y++){
-                if (calendarObjects[i].name.includes(this.state.hideEvents.split(",")[y])||calendarObjects[i].course.includes(this.state.hideEvents.split(",")[y])){
+              for(var y=0; y<getSettingsValue("hideEvents").split(",").length;y++){
+                if (calendarObjects[i].name.includes(getSettingsValue("hideEvents").split(",")[y])||calendarObjects[i].course.includes(getSettingsValue("hideEvents").split(",")[y])){
                   calendarObjects[i].hide = true;
                 }
               }
@@ -423,21 +392,22 @@ export default class App extends React.Component {
           } else {
             calendarObjects[i].hide = false;
           }
-          if(this.state.course1.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor1;
-          } else if(this.state.course2.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor2;
-          } else if(this.state.course3.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor3;
-          } else if(this.state.course4.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor4;
-          } else if(this.state.course5.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor5;
-          } else if(this.state.course6.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor6;
-          } else if(this.state.course7.toLowerCase()===calendarObjects[i].course.toLowerCase()){
-            calendarObjects[i].courseColor=this.state.courseColor7;
-          }
+          // if(this.state.course1.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor1;
+          // } else if(this.state.course2.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor2;
+          // } else if(this.state.course3.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor3;
+          // } else if(this.state.course4.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor4;
+          // } else if(this.state.course5.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor5;
+          // } else if(this.state.course6.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor6;
+          // } else if(this.state.course7.toLowerCase()===calendarObjects[i].course.toLowerCase()){
+          //   calendarObjects[i].courseColor=this.state.courseColor7;
+          // }
+          
           // calendarObjects[i].done = "";
           // calendarObjects[i].pin = "";
           // calendarObjects[i].name = "";
@@ -552,10 +522,10 @@ export default class App extends React.Component {
         <Header1 content={currentDisplayDate}/>
         <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="1">
             <Tab eventKey="1" title="Task List">
-              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={this.state.hoursBefore} nextWeekShow={this.state.nextWeekShow} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="2" title="Day View">
-              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={this.state.nextWeekShow} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
               <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={this.state.pomoSound}/>
@@ -564,37 +534,7 @@ export default class App extends React.Component {
         <Settings 
           resetCalendarObjects={this.resetCalendarObjects} 
           signStatus={this.state.signStatus} 
-          setCalendarID={this.setCalendarID} 
-          setCalendarID2={this.setCalendarID2} 
-          calendarID={this.state.calendarID}
-          calendarID2={this.state.calendarID2}
-          numEvents={this.state.numEvents}
-          nextWeekShow={this.state.nextWeekShow}
-          hoursBefore={this.state.hoursBefore}
-          importantEvents={this.state.importantEvents}
-          hideEvents={this.state.hideEvents}
-          autoDark={this.state.autoDark==="true"}
-          darkMode={this.state.darkMode==="true"}
-          courseColor1={this.state.courseColor1} 
-          courseColor2={this.state.courseColor2} 
-          courseColor3={this.state.courseColor3} 
-          courseColor4={this.state.courseColor4} 
-          courseColor5={this.state.courseColor5} 
-          courseColor6={this.state.courseColor6} 
-          courseColor7={this.state.courseColor7}
-          course1={this.state.course1}
-          course2={this.state.course2}
-          course3={this.state.course3}
-          course4={this.state.course4}
-          course5={this.state.course5}
-          course6={this.state.course6}
-          course7={this.state.course7}
-          breakSeconds={this.state.breakSeconds}
-          workSeconds={this.state.workSeconds}
-          breakMinutes={this.state.breakMinutes}
-          workMinutes={this.state.workMinutes}
-          pomoSound={this.state.pomoSound==="true"}
-          />
+        />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
           You are not logged-in. Login <u>here</u> or in the settings.

@@ -1,4 +1,5 @@
 import ApiCalendar from 'react-google-calendar-api';
+import { AsyncStorage } from 'AsyncStorage';
 
 // import {listEvents, sortPin, sortName, sortName, sortCourse, sortDate, sortCheck, determineRawSecondsTime, determineTaskName, determineTaskCourse, appendLastSort} from "./DataFunctions"
 export function listEvents(maxResults, hoursPast=0, calendarId=ApiCalendar.calendar) { 
@@ -177,4 +178,12 @@ export function appendLastSort(newSort, lastSort){
     }
   })
   return lastSortListStr;
+}
+
+export async function getStorage(key, defaultValue){
+  var stored = await AsyncStorage.getItem(key);
+  if(stored === undefined){
+    stored = defaultValue;
+  }
+  return stored
 }
