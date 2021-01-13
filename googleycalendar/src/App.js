@@ -22,19 +22,13 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.2.4";
+global.version = "3.5.5";
 global.changeLog = [
-  "3.2.4: Huge performance optimizations and loading of data. Also added warning for invalid calendar ID",
-  "3.2.3: Cleaned up backend database functions",
-  "3.2.3: Fixed Pomodoro timer bug with pausing",
-  "3.2: Added Pomodoro tracking, can be reset in settings",
-  "3.1: Added Pomodoro timer sound effect",
-  "3.1: Can disable/enable sound effect in settings",
-  "3.1: Edited text for not signed in error",
-  "3.1: Can continue without logging in - to use Pomodoro timer",
-  "3.0: Added a Pomodoro timer",
-  "3.0: Pomodoro timer amounts can be configured in settings",
-  "3.0: Thanks Emily for the inspiration: https://mymyxtran.github.io/toasty/",
+  "3.5.5 : Keep track of your marks for each course!",
+  "3.5.0: Courses are automatically added, each one can have a custom colour",
+  "3.5.0: Back end has been sorted",
+  "3.5.0: Back end for settings has been rewritten",
+  "3.5.0: Performance improvements for loading data",
 ];
 
 //Eventually:
