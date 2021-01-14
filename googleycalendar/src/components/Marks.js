@@ -20,24 +20,32 @@ export default class Marks extends React.Component{
     })
   }
   handleAddCourseInput(value){
-    this.addCourseName = value;
+    this.setState({
+      addCourseName: value,
+    })
   }
   handleAddCourse() {
     var tempData = this.state.coursesExtra;
-    if(global.courses.includes(this.addCourseName) || tempData.includes(this.addCourseName)){
+    if(global.courses.includes(this.state.addCourseName) || tempData.includes(this.state.addCourseName)){
       return; //course already added automatically
     } else {
-      tempData.push(this.addCourseName);
-      this.setState({
-        coursesExtra: tempData
-      })
+      tempData.push(this.state.addCourseName);
       AsyncStorage.setItem("coursesExtra", JSON.stringify(tempData));
+      this.setState({
+        coursesExtra: tempData,
+      })
+      //update again
+      setTimeout(()=>{
+        this.setState({
+          coursesExtra: tempData,
+        })
+      }, 100);
     }
   }
   handleRemoveCourse(course="") {
     var tempData = this.state.coursesExtra;
     if(course==="")
-      tempData = tempData.filter(e => e !== this.addCourseName);
+      tempData = tempData.filter(e => e !== this.state.addCourseName);
     else
       tempData = tempData.filter(e => e !== course);
     this.setState({
@@ -51,6 +59,7 @@ export default class Marks extends React.Component{
     }
     var coursesTotal;
     if(global.courses===undefined){
+      global.courses=[];
       coursesTotal=[];
     } else {
       coursesTotal = global.courses.slice(0);
