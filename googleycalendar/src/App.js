@@ -122,7 +122,7 @@ export default class App extends React.Component {
 
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
-    var lastTab= await getStorage("lastTab","0");
+    var lastTab= await getStorage("lastTab","1");
     console.log(lastTab)
     this.setState({ 
       signStatus: ApiCalendar.sign,
