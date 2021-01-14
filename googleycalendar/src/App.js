@@ -22,8 +22,9 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.6.0";
+global.version = "3.6.1";
 global.changeLog = [
+  "3.6.1 : Now remembers your last tab",
   "3.6.0 : Can now add more courses to the mark list, also fixed some bugs with input",
   "3.5.8 : Fixed initial course adding to marks",
   "3.5.5 : Keep track of your marks for each course!",
@@ -65,7 +66,7 @@ export default class App extends React.Component {
     this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
     this.getEventObjects = this.getEventObjects.bind(this);
     this.darkModeFunction = this.darkModeFunction.bind(this);
-    this.state ={calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
+    this.state ={lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -121,12 +122,14 @@ export default class App extends React.Component {
 
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
-
+    var lastTab= await getStorage("lastTab","0");
+    console.log(lastTab)
     this.setState({ 
       signStatus: ApiCalendar.sign,
       lastSignIn:lastSignIn,
       lastSort:lastSort,
       calendarIDs: [getSettingsValue("calendarID"),getSettingsValue("calendarID2"),getSettingsValue("calendarID3")],
+      lastTab:lastTab,
     });
   }
   signUpdate() {
@@ -517,7 +520,7 @@ export default class App extends React.Component {
           sortPin
         </Button> */}
         <Header1 content={currentDisplayDate}/>
-        <Tabs style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey="4">
+        <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString()); this.setState({lastTab:key})}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" activeKey={this.state.lastTab}>
             <Tab eventKey="1" title="Task List">
               <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
