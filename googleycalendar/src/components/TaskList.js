@@ -8,6 +8,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import infoIcon from "../assets/info-circle-solid.svg"
 import '../App.css';
+import {getSettingsValue} from "./Settings"
 
 export default class TaskList extends React.Component {
   render() {
@@ -34,7 +35,7 @@ class TaskTable extends React.Component{
               <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse", this.props.calendarObjects)}><div className="hoverSort">Course</div></th>
             </tr>
           </thead>
-          <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="fade">
+          <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" staggerDelayBy={getSettingsValue("enableAnimations")===true?35:0} enterAnimation="fade">
             {this.props.calendarObjects.map(function(task){
               if(task.hide===false){
                 return(<TaskEntry

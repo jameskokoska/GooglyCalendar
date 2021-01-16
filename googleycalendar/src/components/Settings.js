@@ -294,6 +294,14 @@ export const settingsOptions = [
     "type" : "check" 
   },
   {
+    "keyName" : "enableAnimations",
+    "defaultValue" : "true",
+    "currentValue" : "",
+    "title" : "Enable animations",
+    "description" : "Enables animations of the lists when they are loaded",
+    "type" : "check" 
+  },
+  {
     "keyName" : "importantEvents",
     "defaultValue" : "",
     "currentValue" : "",

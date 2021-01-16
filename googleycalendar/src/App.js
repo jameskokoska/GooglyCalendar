@@ -22,15 +22,13 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.6.1";
+global.version = "3.7.0";
 global.changeLog = [
-  "3.6.1 : Now remembers your last tab",
-  "3.6.0 : Can now add more courses to the mark list, also fixed some bugs with input",
-  "3.5.8 : Fixed initial course adding to marks",
-  "3.5.5 : Keep track of your marks for each course!",
+  "3.7.0: Can now scroll through week view of tasks",
+  "3.7.0: Added animation setting",
+  "3.6.1: Now remembers your last tab",
+  "3.5.5: Keep track of your marks for each course!",
   "3.5.0: Courses are automatically added, each one can have a custom colour",
-  "3.5.0: Back end has been sorted",
-  "3.5.0: Back end for settings has been rewritten",
   "3.5.0: Performance improvements for loading data",
 ];
 
@@ -77,7 +75,6 @@ export default class App extends React.Component {
     //this.courseColorsDark = ["#b61827","#790e8b","#26418f","#0086c3","#00766c","#6b9b37","#c9bc1f","#c77800","#5f4339","#4b636e"];
     this.courseColorsLight = ["#ffcdd2","#e1bee7","#c5cae9","#b3e5fc","#b2dfdb","#dcedc8","#fff9c4","#ffe0b2","#d7ccc8","#cfd8dc"];
     this.courseColorsDark = ["#cb9ca1","#af8eb5","#9499b7","#82b3c9","#82ada9","#aabb97","#cbc693","#cbae82","#a69b97","#9ea7aa"];
-    this.darkModeFunction();
   }
 
   darkModeFunction(){
@@ -123,7 +120,6 @@ export default class App extends React.Component {
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
     var lastTab= await getStorage("lastTab","1");
-    console.log(lastTab)
     this.setState({ 
       signStatus: ApiCalendar.sign,
       lastSignIn:lastSignIn,
@@ -542,7 +538,7 @@ export default class App extends React.Component {
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
           You are not logged-in. Login <u>here</u> or in the settings.
         </div>
-        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
+        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"2600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
           There are no events for this calendar. Add some and refresh to view.
         </div>
         <div className="alert alert-warning fadeIn" role="alert" style={{"display":invalidCalendarDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>

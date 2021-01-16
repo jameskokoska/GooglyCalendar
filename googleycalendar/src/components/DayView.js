@@ -1,31 +1,62 @@
 import React from 'react';
-import {eventToday, getDisplayDayFull,} from "../functions/DateFunctions"
+import {getDisplayMonth, eventToday, getDisplayDayFull,} from "../functions/DateFunctions"
 import ApiCalendar from 'react-google-calendar-api';
 import pinIcon from "../assets/thumbtack-solid.svg";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import infoIcon from "../assets/info-circle-solid.svg"
 import FlipMove from 'react-flip-move';
+import {getSettingsValue} from "./Settings"
 
 export default class WeekList extends React.Component {
-  render() {
-    var minWidthNum;
-    if(this.props.nextWeekShow<7){
-      minWidthNum = this.props.nextWeekShow/7*1150;
-    } else {
-      minWidthNum = 1150;
+  constructor(props) {
+    super(props);
+    this.changeStart = this.changeStart.bind(this);
+    this.state = {
+      dateDisplayStart: this.firstDayOfWeek(new Date(), 0),
     }
+  }
+
+  firstDayOfWeek(dateObject, firstDayOfWeekIndex) {
+    const dayOfWeek = dateObject.getDay();
+    var firstDayOfWeek = new Date(dateObject);
+    var diff = dayOfWeek >= firstDayOfWeekIndex ? dayOfWeek - firstDayOfWeekIndex : 6 - dayOfWeek;
+
+    firstDayOfWeek.setDate(dateObject.getDate() - diff);
+    firstDayOfWeek.setHours(0,0,0,0);
+
+    return firstDayOfWeek;
+  }
+
+  //-1 decrease week, 1 increase week
+  changeStart(difference){
+    this.setState({dateDisplayStart: this.state.dateDisplayStart.addDays(7*difference)});
+  }
+  
+  render() {
+    // var minWidthNum;
+    // if(this.props.nextWeekShow<7){
+    //   minWidthNum = this.props.nextWeekShow/7*1150;
+    // } else {
+    //   minWidthNum = 1150;
+    // }
     
     return(
       <div className="week">
         <div className="weekTable">
-          <table className="weekList" style={{minWidth:minWidthNum+"px"}}>
+        <div className="arrowPosition" style={{left:"1.5vw", position:"absolute",cursor:"pointer"}} onClick={()=>{this.changeStart(-1)}} >
+          <div class="arrow left" />
+        </div>
+        <div className="arrowPosition" style={{right: "1.5vw", position:"absolute",cursor:"pointer"}} onClick={()=>{this.changeStart(1)}} >
+          <div className="arrow right"/>
+        </div>
+          <table className="weekList">
             <tbody>
               <tr>
-                <WeekListHeader days={this.props.nextWeekShow}/>
+                <WeekListHeader dateDisplayStart={this.state.dateDisplayStart}/>
               </tr>
               <tr>
-                <DayList calendarObjects={this.props.calendarObjects} days={this.props.nextWeekShow} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
+                <DayList dateDisplayStart={this.state.dateDisplayStart} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
               </tr>
             </tbody>
           </table>
@@ -36,17 +67,25 @@ export default class WeekList extends React.Component {
 }
 function WeekListHeader(props){
   var weekHeaders = [];
-  var numDays;
-  if(props.days>=7){
-    numDays = 7;
-  } else {
-    numDays=props.days;
-  }
+  // var numDays;
+  // if(props.days>=7){
+  //   numDays = 7;
+  // } else {
+  //   numDays=props.days;
+  // }
+  var numDays = 7;
   for (var i = 0; i < numDays; i++) {
-    if(i===0){
-      weekHeaders.push( <th key={i} className="weekday header3 fadeIn">Today</th> )
+    if(props.dateDisplayStart.addDays(i).getDate()===(new Date()).getDate() && props.dateDisplayStart.addDays(i).getMonth()===(new Date()).getMonth() && props.dateDisplayStart.addDays(i).getYear()===(new Date()).getYear()){
+      weekHeaders.push( <th key={i} className="weekday header3 fadeIn" style={{backgroundColor:"#5862bd57"}}>Today</th> )
     } else {
-      weekHeaders.push( <th key={i} className="weekday header3 fadeIn">{getDisplayDayFull((new Date()).addDays(i))}</th> )
+      weekHeaders.push( <th key={i} className="weekday header3 fadeIn">
+        <div style={{fontSize: "17px", marginBottom: "-5px"}}>
+          {getDisplayDayFull(props.dateDisplayStart.addDays(i))}
+        </div>
+        <div style={{fontSize: "22px"}}>
+          {getDisplayMonth(props.dateDisplayStart.addDays(i)) + " " + props.dateDisplayStart.addDays(i).getDate()}
+        </div>
+      </th> )
     }
     
   }
@@ -55,16 +94,17 @@ function WeekListHeader(props){
 
 function DayList(props){
   var dayListEntries = [];
-  var numDays;
-  if(props.days>=7){
-    numDays = 7;
-  } else {
-    numDays=props.days;
-  }
+  // var numDays;
+  // if(props.days>=7){
+  //   numDays = 7;
+  // } else {
+  //   numDays=props.days;
+  // }
+  var numDays = 7;
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td className="fadeIn">
-        <DayListEntry key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
+        <DayListEntry dateDisplayStart={props.dateDisplayStart} key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
       </td> 
     )
   }
@@ -271,7 +311,7 @@ class DayListEntry extends React.Component{
   
   render(){
     return(
-      <FlipMove staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" enterAnimation="none">
+      <FlipMove staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} staggerDelayBy={getSettingsValue("enableAnimations")===true?70:0} leaveAnimation="none" enterAnimation={getSettingsValue("enableAnimations")===true?"elevator":"fade"}>
         {this.props.calendarObjects.map(function(task){
           var displayTimeEnd;
           if(task.timeEnd==="All day"){
@@ -305,7 +345,7 @@ class DayListEntry extends React.Component{
           } else if (task.important===true&&this.props.darkMode===false&&task.done===false){
             checkColor="#C85000"
           }
-          if(task.hide===false&&(eventToday(new Date(task.start.dateTime),(new Date()).addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),(new Date()).addDays(this.props.dayOffset)))){
+          if(task.hide===false&&(eventToday(new Date(task.start.dateTime),this.props.dateDisplayStart.addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),this.props.dateDisplayStart.addDays(this.props.dayOffset)))){
             return(
               <DayEntry
                 key={task.id}
