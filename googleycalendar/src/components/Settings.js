@@ -260,22 +260,30 @@ export const settingsOptions = [
     "type" : "text" 
   },
   {
-    "keyName" : "nextWeekShow",
-    "defaultValue" : "7",
-    "currentValue" : "",
-    "title" : "Number of days to view",
-    "placeHolder" : "7",
-    "description" : "The number of days of events to display.",
-    "type" : "text" 
-  },
-  {
     "keyName" : "hoursBefore",
     "defaultValue" : "24",
     "currentValue" : "",
     "title" : "Number of hours before to load",
     "placeHolder" : "24",
-    "description" : "The number of hours before the current time to list events from.",
+    "description" : "The number of hours before the current time to load events from.",
     "type" : "text" 
+  },
+  {
+    "keyName" : "nextWeekShow",
+    "defaultValue" : "7",
+    "currentValue" : "",
+    "title" : "Number of days to view",
+    "placeHolder" : "7",
+    "description" : "The number of days of events to display in the Task List.",
+    "type" : "text" 
+  },
+  {
+    "keyName" : "skipWeeks",
+    "defaultValue" : "true",
+    "currentValue" : "",
+    "title" : "Day View: scroll through weeks",
+    "description" : "Day View arrows skip through weeks instead of single days",
+    "type" : "check"
   },
   {
     "keyName" : "autoDark",

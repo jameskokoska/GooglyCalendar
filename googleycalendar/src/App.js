@@ -22,8 +22,10 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.7.0";
+global.version = "3.7.5";
 global.changeLog = [
+  "3.7.5: Day View is not limited to 'Number of days to view' setting",
+  "3.7.5: Can now scroll through Day View with days instead of weeks",
   "3.7.0: Can now scroll through week view of tasks",
   "3.7.0: Added animation setting",
   "3.6.1: Now remembers your last tab",
@@ -39,10 +41,8 @@ global.changeLog = [
 //TODO:
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
-//make 7 day view option start on sunday->saturday instead of next 7 days
 //count how many successful pomodoros
 
-//ability to add courses to the marks forever (and remove courses)
 //verify on google - rename name - https://medium.com/cafe24-ph-blog/tips-on-verifying-google-application-that-uses-sensitive-scopes-3b75dfb590ae
 //tabs with different course names - based on what was entered (and separate by tests, homework, etc)
 
@@ -314,8 +314,13 @@ export default class App extends React.Component {
           } else {
             allDayPastTest=true;
           }
-          if(dateObj < new Date().addDays(parseInt(getSettingsValue("nextWeekShow"))) && allDayPastTest){
+          if(allDayPastTest){
             //Set up attributes of each object
+            if(dateObj < new Date().addDays(parseInt(getSettingsValue("nextWeekShow")))){
+              calendarObjects[i].weekLimitHide=false;
+            } else {
+              calendarObjects[i].weekLimitHide=true;
+            }
             if(calendarObjects[i].summary !== undefined && calendarObjects[i].summary.length>=2 && calendarObjects[i].summary.substring(0,2)==="✔️"){
               calendarObjects[i].done=true;
             } else {

@@ -30,7 +30,11 @@ export default class WeekList extends React.Component {
 
   //-1 decrease week, 1 increase week
   changeStart(difference){
-    this.setState({dateDisplayStart: this.state.dateDisplayStart.addDays(7*difference)});
+    if(getSettingsValue("skipWeeks")){
+      this.setState({dateDisplayStart: this.state.dateDisplayStart.addDays(7*difference)});
+    } else {
+      this.setState({dateDisplayStart: this.state.dateDisplayStart.addDays(difference)});
+    }
   }
   
   render() {
