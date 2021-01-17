@@ -22,7 +22,7 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.7.5";
+global.version = "3.7.6";
 global.changeLog = [
   "3.7.5: Day View is not limited to 'Number of days to view' setting",
   "3.7.5: Can now scroll through Day View with days instead of weeks",

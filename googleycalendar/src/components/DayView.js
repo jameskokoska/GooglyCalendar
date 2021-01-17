@@ -49,10 +49,10 @@ export default class WeekList extends React.Component {
       <div className="week">
         <div className="weekTable">
         <div className="arrowPosition" style={{left:"1.5vw", position:"absolute",cursor:"pointer"}} onClick={()=>{this.changeStart(-1)}} >
-          <div class="arrow left" />
+          <div class="arrowDay left" />
         </div>
         <div className="arrowPosition" style={{right: "1.5vw", position:"absolute",cursor:"pointer"}} onClick={()=>{this.changeStart(1)}} >
-          <div className="arrow right"/>
+          <div className="arrowDay right"/>
         </div>
           <table className="weekList">
             <tbody>

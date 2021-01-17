@@ -423,7 +423,7 @@ td.pin{
   transition: 0.4s;
   transform: scale(0.8);
 }
-.arrow {
+.arrowDay {
   border: solid var(--font-color);
   border-width: 0 6px 6px 0;
   display: inline-block;
@@ -431,7 +431,7 @@ td.pin{
   padding: 8px;
   transition: 0.5s;
 }
-.arrow:active {
+.arrowDay:active {
   opacity:1;
   padding: 10px;
   transition: 0.03s;
