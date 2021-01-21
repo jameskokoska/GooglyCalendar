@@ -35,7 +35,7 @@ class TaskTable extends React.Component{
               <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse", this.props.calendarObjects)}><div className="hoverSort">Course</div></th>
             </tr>
           </thead>
-          <FlipMove className="fadeIn" typeName="tbody" staggerDelayBy={5} staggerDurationBy={2} easing={"ease"} duration={700} leaveAnimation="none" staggerDelayBy={getSettingsValue("enableAnimations")===true?35:0} enterAnimation="fade">
+          <FlipMove className="fadeIn" typeName="tbody" easing={"ease"} duration={700} leaveAnimation="none" staggerDelayBy={getSettingsValue("enableAnimations")===true?35:0} enterAnimation="fade">
             {this.props.calendarObjects.map(function(task){
               if(task.hide===false && task.weekLimitHide===false){
                 return(<TaskEntry

@@ -13,6 +13,7 @@ class ColorPicker extends React.Component{
   }
   setColor(color){
     AsyncStorage.setItem(this.props.courseStorageID, color);
+    console.log(color);
   }
   handleColorChange = color => {
     this.setState({

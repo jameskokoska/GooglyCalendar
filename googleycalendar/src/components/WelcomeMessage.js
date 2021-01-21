@@ -58,7 +58,11 @@ export default class WelcomeMessage extends React.Component{
           <p dangerouslySetInnerHTML={{ __html: welcomeMessage2 }}></p>
           <div className="header3">{"What's New? v"+ global.version}</div>
           {global.changeLog.map(function(changeLogElement){
-           return <li key={changeLogElement}>{changeLogElement}</li>
+            if(changeLogElement.includes(global.version)){
+              return <b><li key={changeLogElement}>{changeLogElement}</li></b>
+            } else {
+              return <li key={changeLogElement}>{changeLogElement}</li>
+            }
           })}
         </Modal.Body>
         <Modal.Footer>

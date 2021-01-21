@@ -22,8 +22,10 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.7.6";
+global.version = "3.7.8";
 global.changeLog = [
+  "3.7.8: Added calendar event colours and calendar colours",
+  "3.7.8: Changelog now highlights in bold for current version",
   "3.7.5: Day View is not limited to 'Number of days to view' setting",
   "3.7.5: Can now scroll through Day View with days instead of weeks",
   "3.7.0: Can now scroll through week view of tasks",
@@ -43,6 +45,7 @@ global.changeLog = [
 //add filter both ways (sort by least/most)
 //count how many successful pomodoros
 
+//calendar colour codes - print list of objects see if possible?
 //verify on google - rename name - https://medium.com/cafe24-ph-blog/tips-on-verifying-google-application-that-uses-sensitive-scopes-3b75dfb590ae
 //tabs with different course names - based on what was entered (and separate by tests, homework, etc)
 
@@ -75,6 +78,7 @@ export default class App extends React.Component {
     //this.courseColorsDark = ["#b61827","#790e8b","#26418f","#0086c3","#00766c","#6b9b37","#c9bc1f","#c77800","#5f4339","#4b636e"];
     this.courseColorsLight = ["#ffcdd2","#e1bee7","#c5cae9","#b3e5fc","#b2dfdb","#dcedc8","#fff9c4","#ffe0b2","#d7ccc8","#cfd8dc"];
     this.courseColorsDark = ["#cb9ca1","#af8eb5","#9499b7","#82b3c9","#82ada9","#aabb97","#cbc693","#cbae82","#a69b97","#9ea7aa"];
+    this.googleCalendarColors = ["#039be5","#7986cb","#33b679","#8e24aa","#e67c73","#f6c026","#f5511d","#039be5","#616161","#3f51b5","#0b8043","#d60000"]
   }
 
   darkModeFunction(){
@@ -297,6 +301,7 @@ export default class App extends React.Component {
       await listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(async ({result}: any) => {
         var calendarObjectsReduced = [];
         var calendarObjects = result.items;
+        console.log(result.items);
         for (var i = 0; i < calendarObjects.length; i++) {
           //Determine if within the week days range specified in settings
           var dateObj;
@@ -348,7 +353,15 @@ export default class App extends React.Component {
 
             var courseRandomCode;
             var currentCourse = determineTaskCourse(calendarObjects[i].summary);
-            if(currentCourse !==""){
+            if (getSettingsValue("useEventColours")===true && calendarObjects[i].colorId!==undefined){
+              calendarObjects[i].courseColor = this.googleCalendarColors[calendarObjects[i].colorId];
+              calendarObjects[i].courseRandomCode = -1;
+              if(currentCourse !== ""){
+                calendarObjects[i].course=currentCourse;
+              } else {
+                calendarObjects[i].course="";
+              }
+            } else if(currentCourse !==""){
               calendarObjects[i].course=currentCourse;
               if(!global.courses.includes(calendarObjects[i].course)){
                 global.courses.push(calendarObjects[i].course)
@@ -365,15 +378,21 @@ export default class App extends React.Component {
                 calendarObjects[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
                 calendarObjects[i].name=determineTaskName(calendarObjects[i].summary);
               }
+            } else if(getSettingsValue("calendarIDColor"+(z+1).toString())!==undefined) {
+              calendarObjects[i].courseColor=getSettingsValue("calendarIDColor"+(z+1).toString());
+              calendarObjects[i].course = "";
+              calendarObjects[i].courseRandomCode = -1;
             } else {
               calendarObjects[i].course = "";
               calendarObjects[i].courseRandomCode = -1;
               calendarObjects[i].courseColor="";
             }
-            
             if(getSettingsValue("importantEvents")!==""&&getSettingsValue("importantEvents").split(",").length>0){
               try{
                 calendarObjects[i].important = false;
+                if(calendarObjects[i].name===undefined){
+                  calendarObjects[i].name="(No title)"
+                }
                 for(var x=0; x<getSettingsValue("importantEvents").split(",").length;x++){
                   if (calendarObjects[i].name.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())||calendarObjects[i].course.toLowerCase().includes(getSettingsValue("importantEvents").split(",")[x].toLowerCase())){
                     calendarObjects[i].important = true;

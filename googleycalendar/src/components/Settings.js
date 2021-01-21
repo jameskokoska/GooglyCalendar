@@ -60,7 +60,6 @@ export default class Settings extends React.Component{
     if(global.settingsColour===undefined){
       global.settingsColour=settingsOptionsColour();
     }
-    
     return(
       <div>
         <img alt="open settings" onClick={(e) => this.handleItemClick(e, "openSettings")} src={settingsIcon} className="settingsIcon"/>
@@ -88,7 +87,7 @@ export default class Settings extends React.Component{
                   </Card.Header>
                   <Accordion.Collapse eventKey="0">
                     <div>
-                      {global.settingsColour.map( (settingColour, index)=>
+                      {global.settingsColour.length===0 ? <div style={{margin:10}}>There are no courses found. Please follow the course formatting below.</div> : global.settingsColour.map( (settingColour, index)=>
                         {return <SettingsContainerColor settingColour={settingColour}/>}
                       )}
                     </div>
@@ -101,7 +100,7 @@ export default class Settings extends React.Component{
             <p>Closing settings will reload the calendar.</p>
             <p>
               This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/GoogleyCalendar">https://github.com/jameskokoska/GoogleyCalendar</a> 
-              <Form.Text style={{"float":"right"}}className="text-muted">
+              <Form.Text style={{"float":"right"}} className="text-muted">
                 {"v"+global.version}
               </Form.Text>
             </p>
@@ -174,6 +173,13 @@ class SettingsContainer extends React.Component{
           </Form.Text>
         </Form.Group>
       )
+    } else if(this.props.setting.type==="color"){
+      return(
+        <Form.Group>
+          <Form.Label>{this.props.setting.title}</Form.Label>
+          <ColorPicker color={this.props.setting.currentValue} courseStorageID={this.props.setting.keyName}/>
+        </Form.Group>
+      )
     } else {
       return <div/>
     }
@@ -222,6 +228,7 @@ export const settingsOptionsColour = () => {
   return settingsOptionColour
 }
 
+//getSettingsValue("keyName")
 export const settingsOptions = [
   {
     "keyName" : "calendarID",
@@ -230,7 +237,14 @@ export const settingsOptions = [
     "title" : "Calendar ID",
     "placeHolder" : "example@group.calendar.google.com",
     "description" : "By keeping this blank, it will be the default calendar.",
-    "type" : "text" //type is either text, textDouble, check, 
+    "type" : "text" //type is either text, textDouble, check, color, break
+  },
+  {
+    "keyName" : "calendarIDColor1",
+    "defaultValue" : "#64b5f6",
+    "currentValue" : "",
+    "title" : "Calendar ID Color",
+    "type" : "color"
   },
   {
     "keyName" : "calendarID2",
@@ -242,6 +256,13 @@ export const settingsOptions = [
     "type" : "text"
   },
   {
+    "keyName" : "calendarIDColor2",
+    "defaultValue" : "#64b5f6",
+    "currentValue" : "",
+    "title" : "Calendar ID 2 Color",
+    "type" : "color"
+  },
+  {
     "keyName" : "calendarID3",
     "defaultValue" : "",
     "currentValue" : "",
@@ -249,6 +270,13 @@ export const settingsOptions = [
     "placeHolder" : "example@group.calendar.google.com",
     "description" : "By keeping this blank, it will not attempt to load a third calendar.",
     "type" : "text" 
+  },
+  {
+    "keyName" : "calendarIDColor3",
+    "defaultValue" : "#64b5f6",
+    "currentValue" : "",
+    "title" : "Calendar ID 3 Color",
+    "type" : "color"
   },
   {
     "keyName" : "numEvents",
@@ -284,6 +312,14 @@ export const settingsOptions = [
     "title" : "Day View: scroll through weeks",
     "description" : "Day View arrows skip through weeks instead of single days",
     "type" : "check"
+  },
+  {
+    "keyName" : "useEventColours",
+    "defaultValue" : "true",
+    "currentValue" : "",
+    "title" : "Use event colours",
+    "description" : "Use the colours set for the event. If no colour is set it will default to blue. This overwrites course colours.",
+    "type" : "check" 
   },
   {
     "keyName" : "autoDark",
