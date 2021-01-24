@@ -470,24 +470,29 @@ table.weekList {
 }
 .weekEntryDone{
   background-color: #5e5e5e0c;
+  opacity: 0.7;
+  transition: background-color 0.3s, filter 0.3s, opacity 0.3s;
 }
 
 .weekList  tbody  tr td {
   vertical-align: top;
 }
 .weekList tbody  tr  td  .weekEntry{
-  transition: background-color 0.2s;
+  transition: background-color 0.3s, filter 0.3s, opacity 0.3s;
 }
 .weekList  tbody  tr  td  .weekEntry:hover{
   background-color: var(--highlight);
-  transition: background-color 0.2s;
+  transition: background-color 0.3s, filter 0.3s, opacity 0.3s;
+  filter: brightness(0.9);
 }
 .weekList  tbody  tr  td  .weekEntryDone:hover{
   background-color: #5e5e5e18;
+  opacity: 1.1;
+  transition: background-color 0.5s, opacity 0.5s;
 }
 .weekList  tbody  tr  td  .weekEntry:active{
   filter: brightness(0.7);
-  transition: all 0.1s;
+  transition: filter 0.5s;
 }
 .weekList  tbody  tr th{
   background-color: var(--background);

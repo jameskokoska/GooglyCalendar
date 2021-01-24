@@ -41,6 +41,11 @@ global.changeLog = [
 //Add events
 
 //TODO:
+//bug: 12 am is displayed as 0 am
+//bug: more than 1 day events are only displayed on one day
+//bug: pomodoro timer loading of data should follow the new getsetting function
+//bug 12 pm is displayed as 12 am
+
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
 //count how many successful pomodoros
@@ -301,7 +306,6 @@ export default class App extends React.Component {
       await listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(async ({result}: any) => {
         var calendarObjectsReduced = [];
         var calendarObjects = result.items;
-        console.log(result.items);
         for (var i = 0; i < calendarObjects.length; i++) {
           //Determine if within the week days range specified in settings
           var dateObj;
@@ -513,6 +517,7 @@ export default class App extends React.Component {
     if(this.state.lastSignIn!==global.version){
       welcomeOpen=true;
     }
+    console.log(getSettingsValue("pomoSound"))
     return (
       <div className="screen">
         {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
@@ -548,7 +553,7 @@ export default class App extends React.Component {
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
-              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={this.state.pomoSound}/>
+              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={getSettingsValue("pomoSound")}/>
             </Tab>
             <Tab eventKey="4" title="Marks">
               <Marks/>

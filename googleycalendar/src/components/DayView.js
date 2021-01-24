@@ -288,15 +288,32 @@ class DayEntry extends React.Component{
     } else {
       pinClass+=" pinOutWeek"
     }
+    var dayStyle;
+    if(getSettingsValue("useEventColours")){
+      if(!getSettingsValue("darkMode"))
+        dayStyle = {backgroundColor:this.props.courseColor+"90"};
+      else
+        dayStyle = {backgroundColor:this.props.courseColor+"B0"};
+    }
+
     var weekEntryClass="weekEntry";
     var weekEntryOpacity="1";
     if(this.props.done===true){
       weekEntryClass=weekEntryClass+" weekEntryDone";
       weekEntryOpacity="0.5";
+      if(getSettingsValue("useEventColours")){
+        if(!getSettingsValue("darkMode"))
+          dayStyle = {backgroundColor:this.props.courseColor+"50"};
+        else
+          dayStyle = {backgroundColor:this.props.courseColor+"50"};
+      }
     }
+
+    
+
     return(
-      <div className={weekEntryClass}>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
+      <div className={weekEntryClass} style={dayStyle}>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"opacity":weekEntryOpacity, "color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
         <div className="iconBoxWeek fadeIn" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
@@ -342,7 +359,7 @@ class DayListEntry extends React.Component{
           if(task.done===true){
             textStyle = "line-through";
             clickActionCheck="uncheckOff";
-            checkColor="#777777";
+            // checkColor="#777777";
           }
           if(task.important===true&&this.props.darkMode===true&&task.done===false){
             checkColor="#ff8b8b"

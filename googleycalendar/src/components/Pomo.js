@@ -14,7 +14,7 @@ export default class Pomo extends React.Component{
     this.addPomoTotalSec=0;
   }
   playSound(){
-    if(this.props.pomoSound==="true" && this.state.currentSeconds === 0){
+    if(this.props.pomoSound===true && this.state.currentSeconds === 0){
       this.audio.play();
     }
   }
