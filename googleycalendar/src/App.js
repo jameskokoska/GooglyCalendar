@@ -11,6 +11,7 @@ import './App.css';
 // import { ThemeProvider } from '@material-ui/styles';
 
 import WelcomeMessage from "./components/WelcomeMessage"
+import EventInfoMessage from "./components/EventInfoMessage"
 import Settings, {getSettingsValue, settingsOptions, settingsOptionsColour} from "./components/Settings"
 import TaskList from "./components/TaskList"
 import {getDisplayDayFull, getDisplayDay, getDisplayMonth, getDisplayMonthFull, displayDate, displayTime} from "./functions/DateFunctions"
@@ -22,8 +23,11 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.7.8";
+global.version = "3.8.0";
 global.changeLog = [
+  "3.8.0: Added popup when the info button is clicked for an event to see description in more detail",
+  "3.8.0: Added cool colours to day view - can be disabled in settings",
+  "3.8.0: Fixed pomodoro settings not loading properly",
   "3.7.8: Added calendar event colours and calendar colours",
   "3.7.8: Changelog now highlights in bold for current version",
   "3.7.5: Day View is not limited to 'Number of days to view' setting",
@@ -72,7 +76,8 @@ export default class App extends React.Component {
     this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
     this.getEventObjects = this.getEventObjects.bind(this);
     this.darkModeFunction = this.darkModeFunction.bind(this);
-    this.state ={lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
+    this.toggleEventInfoOpen = this.toggleEventInfoOpen.bind(this);
+    this.state ={eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -494,6 +499,13 @@ export default class App extends React.Component {
       this.getEventObjects(this.state.calendarIDs);
     }
   }
+
+  toggleEventInfoOpen(open, eventInfoSelected){
+    this.setState({
+      eventInfoOpen:open,
+      eventInfoSelected:eventInfoSelected
+    })
+  }
   
   render(): ReactNode {
     var signStatusDisplay="none";
@@ -549,10 +561,10 @@ export default class App extends React.Component {
         <Header1 content={currentDisplayDate}/>
         <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString()); this.setState({lastTab:key})}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" activeKey={this.state.lastTab}>
             <Tab eventKey="1" title="Task List">
-              <TaskList calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="2" title="Day View">
-              <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              <WeekList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
               <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
@@ -577,6 +589,7 @@ export default class App extends React.Component {
         </div>
         <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
         <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
+        <EventInfoMessage eventInfoSelected={this.state.eventInfoSelected} toggleEventInfoOpen={this.toggleEventInfoOpen} eventInfoOpen={this.state.eventInfoOpen}/>
         {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
       </div>
     );

@@ -60,7 +60,7 @@ export default class WeekList extends React.Component {
                 <WeekListHeader dateDisplayStart={this.state.dateDisplayStart}/>
               </tr>
               <tr>
-                <DayList dateDisplayStart={this.state.dateDisplayStart} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
+                <DayList toggleEventInfoOpen={this.props.toggleEventInfoOpen} dateDisplayStart={this.state.dateDisplayStart} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
               </tr>
             </tbody>
           </table>
@@ -108,7 +108,7 @@ function DayList(props){
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td className="fadeIn">
-        <DayListEntry dateDisplayStart={props.dateDisplayStart} key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
+        <DayListEntry toggleEventInfoOpen={props.toggleEventInfoOpen} dateDisplayStart={props.dateDisplayStart} key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
       </td> 
     )
   }
@@ -318,9 +318,9 @@ class DayEntry extends React.Component{
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
         <div className="iconBoxWeek fadeIn" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
           <img onClick={(e) => this.handleItemClick(e, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
-          <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
-            <img alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay, "opacity":weekEntryOpacity}}/>
-          </OverlayTrigger>
+            <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
+              <img onClick={()=>{this.props.toggleEventInfoOpen(true,this.props.task);}} alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay, "opacity":weekEntryOpacity}}/>
+            </OverlayTrigger>
         </div>
       </div> 
     )
@@ -370,6 +370,8 @@ class DayListEntry extends React.Component{
             return(
               <DayEntry
                 key={task.id}
+                toggleEventInfoOpen={this.props.toggleEventInfoOpen}
+                task={task}
                 checkColor={checkColor}
                 textStyle={textStyle}
                 name={task.name}

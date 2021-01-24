@@ -14,7 +14,7 @@ export default class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
+        <TaskTable toggleEventInfoOpen={this.props.toggleEventInfoOpen} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
       </div>
     )
   }
@@ -40,6 +40,8 @@ class TaskTable extends React.Component{
               if(task.hide===false && task.weekLimitHide===false){
                 return(<TaskEntry
                 key={task.id}
+                toggleEventInfoOpen={this.props.toggleEventInfoOpen}
+                task={task}
                 name={task.name}
                 date={task.date}
                 timeStart={task.timeStart}
@@ -294,7 +296,7 @@ class TaskEntry extends React.Component{
         <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
           <div className={marginNameFix} style={{"textDecoration":textStyle}}>{this.props.course+" "+this.props.name}</div>
           <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
-            <img alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
+            <img onClick={()=>{this.props.toggleEventInfoOpen(true,this.props.task);}} alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
           </OverlayTrigger>
         </td>
         <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.date}</td>
