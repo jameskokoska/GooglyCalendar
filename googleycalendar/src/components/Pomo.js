@@ -3,6 +3,8 @@ import { AsyncStorage } from 'AsyncStorage';
 import ButtonStyle from "./ButtonStyle"
 import Button from 'react-bootstrap/Button'
 import CountUp from 'react-countup';
+import {getSettingsValue} from "./Settings"
+
 
 export default class Pomo extends React.Component{
   constructor(props) {
@@ -14,7 +16,7 @@ export default class Pomo extends React.Component{
     this.addPomoTotalSec=0;
   }
   playSound(){
-    if(this.props.pomoSound===true && this.state.currentSeconds === 0){
+    if(this.state.pomoSound===true && this.state.currentSeconds === 0){
       this.audio.play();
     }
   }
@@ -24,29 +26,18 @@ export default class Pomo extends React.Component{
       AsyncStorage.setItem('pomoTotalSec', this.addPomoTotalSec);
     }
   }
-  componentDidMount(){
+  async componentDidMount(){
     this.getAsyncStorage();
   }
   async getAsyncStorage(){
-    var storedIDsAndSet = [['workSeconds',0], ['breakSeconds',0], ['workMinutes',25], ['breakMinutes',5],['pomoSound',"true"],['pomoTotalSec', 0]];
-    var savedIDAndSet = [];
-    var storedID;
-    for(var i=0; i<storedIDsAndSet.length; i++){
-      storedID = await AsyncStorage.getItem(storedIDsAndSet[i][0]);
-      if(storedID === undefined){
-        storedID = storedIDsAndSet[i][1];
-        await AsyncStorage.setItem(storedIDsAndSet[i][0], storedID);
-      }
-      savedIDAndSet[i] = storedID;
-    }
-    this.addPomoTotalSec=savedIDAndSet[5];
+    await this.props.loadSettings();
     this.setState({ 
-      workSeconds:savedIDAndSet[0],
-      breakSeconds:savedIDAndSet[1],
-      workMinutes:savedIDAndSet[2],
-      breakMinutes:savedIDAndSet[3],
-      pomoSound:savedIDAndSet[4],
-      currentSeconds:parseInt(savedIDAndSet[0])+parseInt(savedIDAndSet[2]*60),
+      workSeconds:getSettingsValue("workSeconds"),
+      breakSeconds:getSettingsValue("breakSeconds"),
+      workMinutes:getSettingsValue("workMinutes"),
+      breakMinutes:getSettingsValue("breakMinutes"),
+      pomoSound:getSettingsValue("pomoSound"),
+      currentSeconds:parseInt(getSettingsValue("workSeconds"))+parseInt(getSettingsValue("workMinutes")*60),
       paused: true,
     });
   }

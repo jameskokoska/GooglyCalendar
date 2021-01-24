@@ -114,8 +114,7 @@ export default class App extends React.Component {
     }
   }
   
-
-  async loadSyncData(){
+  async loadSettings(){
     global.settings = settingsOptions;
     for(var i = 0; i<settingsOptions.length; i++){
       if(global.settings[i]["type"]==="textDouble"){
@@ -125,6 +124,10 @@ export default class App extends React.Component {
         global.settings[i]["currentValue"] = await getStorage(settingsOptions[i]["keyName"],settingsOptions[i]["defaultValue"]);
       }
     }
+  }
+
+  async loadSyncData(){
+    await this.loadSettings();
 
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
@@ -517,7 +520,6 @@ export default class App extends React.Component {
     if(this.state.lastSignIn!==global.version){
       welcomeOpen=true;
     }
-    console.log(getSettingsValue("pomoSound"))
     return (
       <div className="screen">
         {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
@@ -553,7 +555,7 @@ export default class App extends React.Component {
               <WeekList calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
-              <Pomo calendarObjects={this.state.calendarObjects} darkMode={this.darkMode} pomoSound={getSettingsValue("pomoSound")}/>
+              <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
             </Tab>
             <Tab eventKey="4" title="Marks">
               <Marks/>

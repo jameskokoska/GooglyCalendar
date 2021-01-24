@@ -196,6 +196,16 @@ export function getSettingsValue(keyName){
         return settingsList[x].currentValue==="true"
       }
       return settingsList[x].currentValue;
+    } else if (settingsList[x].keyName1 !== undefined && settingsList[x].keyName1===keyName) {
+      if(settingsList[x].currentValue1==="true"||settingsList[x].currentValue1==="false"){
+        return settingsList[x].currentValue1==="true"
+      }
+      return settingsList[x].currentValue1;
+    } else if (settingsList[x].keyName2 !== undefined && settingsList[x].keyName2===keyName) {
+      if(settingsList[x].currentValue2==="true"||settingsList[x].currentValue2==="false"){
+        return settingsList[x].currentValue2==="true"
+      }
+      return settingsList[x].currentValue2;
     }
   }
 
