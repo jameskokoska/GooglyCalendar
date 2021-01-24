@@ -32,9 +32,11 @@ export default class Pomo extends React.Component{
   }
   async getAsyncStorage(){
     await this.props.loadSettings();
-    this.addPomoTotalSec = await getStorage(parseInt("pomoTotalSec",0));
-    if(this.addPomoTotalSec===undefined)
+    this.addPomoTotalSec = await getStorage("pomoTotalSec",0);
+    console.log(this.addPomoTotalSec)
+    if(this.addPomoTotalSec===undefined){
       this.addPomoTotalSec = 0;
+    }
     this.setState({ 
       workSeconds:getSettingsValue("workSeconds"),
       breakSeconds:getSettingsValue("breakSeconds"),
