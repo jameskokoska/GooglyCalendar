@@ -17,7 +17,6 @@ export default class EventInfoMessage extends React.Component{
   componentDidUpdate(oldProps){
     if(oldProps!==this.props){
       this.setState({eventOpenState: this.props.eventInfoOpen});
-      console.log(this.props.eventInfoSelected);
     }
   }
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
@@ -42,7 +41,7 @@ export default class EventInfoMessage extends React.Component{
           <div className="header2">{this.date}</div>
           <div className="header3">{this.time}</div>
           <br/>
-          <p dangerouslySetInnerHTML={{ __html: this.description }}></p>
+          <p className="descriptionParagraph" dangerouslySetInnerHTML={{ __html: this.description }}></p>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "close")} style={{'marginRight':"15px"}}>

@@ -23,10 +23,11 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.8.0";
+global.version = "3.9.0";
 global.changeLog = [
-  "3.8.0: Added popup when the info button is clicked for an event to see description in more detail",
-  "3.8.0: Added cool colours to day view - can be disabled in settings",
+  "3.9.0: Added custom fonts - in settings",
+  "3.9.0: Added popup when the info button is clicked for an event to see description in more detail",
+  "3.9.0: Added cool colours to day view - can be disabled in settings",
   "3.8.0: Fixed pomodoro settings not loading properly",
   "3.7.8: Added calendar event colours and calendar colours",
   "3.7.8: Changelog now highlights in bold for current version",

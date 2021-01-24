@@ -4,19 +4,80 @@
   src: url(./fonts/PierSans-Regular.otf) format("opentype");
 }
 @font-face {
-  font-family: 'PierSansLight';
-  font-weight: normal;
-  src: url(./fonts/PierSans-Light.otf) format("opentype");
-}
-@font-face {
   font-family: 'PierSansBold';
   font-weight: normal;
   src: url(./fonts/PierSans-Bold.otf) format("opentype");
+}
+.pierSans{
+  font-family: "PierSans";
+}
+@font-face {
+  font-family: 'OpenSans';
+  font-weight: normal;
+  src: url(./fonts/OpenSans-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: 'OpenSansBold';
+  font-weight: normal;
+  src: url(./fonts/OpenSans-Bold.ttf) format("truetype");
+}
+.openSans{
+  font-family: "OpenSans";
+}
+@font-face {
+  font-family: 'Roboto';
+  font-weight: normal;
+  src: url(./fonts/Calibri-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: 'RobotoBold';
+  font-weight: normal;
+  src: url(./fonts/Roboto-Bold.ttf) format("truetype");
+}
+.roboto{
+  font-family: "Roboto";
+}
+@font-face {
+  font-family: 'NunitoSans';
+  font-weight: normal;
+  src: url(./fonts/NunitoSans-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: 'NunitoSansBold';
+  font-weight: normal;
+  src: url(./fonts/NunitoSans-Bold.ttf) format("truetype");
+}
+.nunitoSans{
+  font-family: "NunitoSans";
+}
+@font-face {
+  font-family: 'FredokaOne';
+  font-weight: normal;
+  src: url(./fonts/FredokaOne-Regular.ttf) format("truetype");
+}
+.fredokaOne{
+  font-family: "FredokaOne";
+}
+@font-face {
+  font-family: 'CarterOne';
+  font-weight: normal;
+  src: url(./fonts/CarterOne-Regular.ttf) format("truetype");
+}
+.carterOne{
+  font-family: "CarterOne";
 }
 @font-face {
   font-family: 'Calibri';
   font-weight: normal;
   src: url(./fonts/Calibri-Regular.ttf) format("truetype");
+}
+@font-face {
+  font-family: 'CalibriBold';
+  font-weight: normal;
+  src: url(./fonts/Calibri-Bold.ttf) format("truetype");
+}
+.calibri{
+  font-family: "Calibri";
 }
 
 :root {
@@ -29,6 +90,14 @@
   --accent: #64b5f6;
   --brightnessIcon: 0;
   --color:#eeeeee;
+  --font-normal: "PierSans";
+  --font-bold: "PierSansBold";
+  --font-paragraph: "Calibri";
+}
+
+.descriptionParagraph{
+  font-family: var(--font-paragraph);
+  font-size: 20px;
 }
 
 .modal-content{
@@ -90,19 +159,19 @@ body{
 
 .header1{
   font-size: 50px;
-  font-family: "PierSansBold";
+  font-family: var(--font-bold);
   color: var(--font-color);
   line-height: 1.2;
   margin-bottom: 30px;
 }
 .header2{
   font-size: 32px;
-  font-family: "PierSans";
+  font-family: var(--font-normal);
   color: var(--font-color);
 }
 .header3{
   font-size: 25px;
-  font-family: "PierSans";
+  font-family: var(--font-normal);
   color: var(--font-color);
 }
 
@@ -140,7 +209,7 @@ body{
   overflow-x:auto;
   padding-top: 0%;
   padding-bottom: 1%;
-  font-family: "Calibri";
+  font-family: var(--font-paragraph);
 }
 table.taskList {
   width: 100%;
@@ -447,7 +516,7 @@ td.pin{
   overflow-x:auto;
   padding-top: 0%;
   padding-bottom: 1%;
-  font-family: "Calibri";
+  font-family: var(--font-paragraph);
 }
 table.weekList {
   width: 100%;
@@ -608,27 +677,27 @@ th.weekday{
 .courseLabel{
   font-size: 30px;
   color: var(--font-color);
-  font-family: "PierSansBold";
+  font-family: var(--font-bold);
   margin-bottom: 5px;
 }
 .markLabelBold{
   font-size: 20px;
   color: var(--font-color);
-  font-family: "PierSansBold";
+  font-family: var(--font-bold);
   display:"inline-block";
 }
 .markLabel{
   font-size: 20px;
   margin-right: 10px;
   color: var(--font-color);
-  font-family: "PierSans";
+  font-family: var(--font-normal);
   display:"inline-block";
 }
 
 .tabsLabel{
   font-size: 20px;
   color: var(--font-color);
-  font-family: "PierSans";
+  font-family: var(--font-normal);
   margin-bottom: 25px;
   border-bottom: solid;
   border-color: var(--highlight);
@@ -677,7 +746,7 @@ th.weekday{
   font-weight: bold;
   color:white;
   text-align: center;
-  font-family: "Calibri";
+  font-family: var(--font-paragraph);
   transition: all 0.6s;
   cursor: pointer;
   position: fixed;
@@ -713,7 +782,7 @@ th.weekday{
 
 .pomoTimerContainer{
   color: var(--font-color);
-  font-family: "PierSans";
+  font-family: var(--font-normal);
   font-size: 28px;
   width: 100%;
   display: flex;
@@ -744,19 +813,19 @@ th.weekday{
   .courseLabel{
     font-size: 22px;
     color: var(--font-color);
-    font-family: "PierSansBold";
+    font-family: var(--font-bold);
     margin-bottom: 5px;
   }
   .markLabel{
     font-size: 16px;
     color: var(--font-color);
-    font-family: "PierSans";
+    font-family: var(--font-normal);
     display:"inline-block";
   }
   .markLabelBold{
     font-size: 16px;
     color: var(--font-color);
-    font-family: "PierSansBold";
+    font-family: var(--font-bold);
     display:"inline-block";
   }
   .screen{
@@ -834,7 +903,7 @@ th.weekday{
   .header1{
     margin-top: 28px;
     font-size: 50px;
-    font-family: "PierSansBold";
+    font-family: var(--font-bold);
     color: var(--font-color);
     line-height: 1.15;
     margin-bottom: 28px;

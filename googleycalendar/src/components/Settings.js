@@ -8,13 +8,34 @@ import Button from 'react-bootstrap/Button'
 import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
 import ColorPicker from "./ColorPicker"
-import '../App.css';
 import ButtonStyle from "./ButtonStyle"
+import {getStorage} from "../functions/DataFunctions"
+
+import '../App.css';
 
 export default class Settings extends React.Component{
   constructor(props) {
     super(props);
-    this.state ={settingsOpen: false, signStatus: this.props.signStatus};
+    this.state ={
+      settingsOpen: false, 
+      signStatus: this.props.signStatus,
+      currentFontAccent: "",
+      currentFontParagraph: "",
+    };
+    this.loadSavedFonts();
+    this.loadSavedFonts = this.loadSavedFonts.bind(this);
+  }
+
+  async loadSavedFonts(){
+    var currentFontAccent = await getStorage("currentFontAccent","Pier Sans");
+    this.changeFont(currentFontAccent, "accent");
+    var currentFontParagraph = await getStorage("currentFontParagraph","Calibri");
+    this.changeFont(currentFontParagraph, "paragraph");
+
+    this.setState({
+      currentFontAccent:currentFontAccent,
+      currentFontParagraph:currentFontParagraph,
+    })
   }
 
   handleItemClick(event: SyntheticEvent<any>, name: string): void {
@@ -43,6 +64,51 @@ export default class Settings extends React.Component{
       this.setState({
         settingsOpen: false,
       })
+    }
+  }
+
+  changeFont(value, type){
+    if(type==="accent"){
+      AsyncStorage.setItem('currentFontAccent', value);
+      if(value==="Pier Sans"){
+        document.documentElement.style.setProperty('--font-normal', "PierSans");
+        document.documentElement.style.setProperty('--font-bold', "PierSansBold");
+      } else if (value==="Open Sans"){
+        document.documentElement.style.setProperty('--font-normal', "OpenSans");
+        document.documentElement.style.setProperty('--font-bold', "OpenSansBold");
+      } else if (value==="Roboto"){
+        document.documentElement.style.setProperty('--font-normal', "Roboto");
+        document.documentElement.style.setProperty('--font-bold', "RobotoBold");
+      } else if (value==="Nunito"){
+        document.documentElement.style.setProperty('--font-normal', "NunitoSans");
+        document.documentElement.style.setProperty('--font-bold', "NunitoSansBold");
+      } else if (value==="Fredoka One"){
+        document.documentElement.style.setProperty('--font-normal', "FredokaOne");
+        document.documentElement.style.setProperty('--font-bold', "FredokaOne");
+      } else if (value==="Carter One"){
+        document.documentElement.style.setProperty('--font-normal', "CarterOne");
+        document.documentElement.style.setProperty('--font-bold', "CarterOne");
+      } else if (value==="Calibri"){
+        document.documentElement.style.setProperty('--font-normal', "Calibri");
+        document.documentElement.style.setProperty('--font-bold', "CalibriBold");
+      }
+    } else {
+      AsyncStorage.setItem('currentFontParagraph', value);
+      if(value==="Pier Sans"){
+        document.documentElement.style.setProperty('--font-paragraph', "PierSans");
+      } else if (value==="Open Sans"){
+        document.documentElement.style.setProperty('--font-paragraph', "OpenSans");
+      } else if (value==="Roboto"){
+        document.documentElement.style.setProperty('--font-paragraph', "Roboto");
+      } else if (value==="Nunito"){
+        document.documentElement.style.setProperty('--font-paragraph', "NunitoSans");
+      } else if (value==="Fredoka One"){
+        document.documentElement.style.setProperty('--font-paragraph', "FredokaOne");
+      } else if (value==="Carter One"){
+        document.documentElement.style.setProperty('--font-paragraph', "CarterOne");
+      } else if (value==="Calibri"){
+        document.documentElement.style.setProperty('--font-paragraph', "Calibri");
+      }
     }
   }
 
@@ -76,6 +142,34 @@ export default class Settings extends React.Component{
                 <Button name="resetPomoStats" variant="outline-secondary" onClick={(e) => {this.handleChange(e, this.props)}}>
                   Reset Pomodoro Stats
                 </Button>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>Custom accent font</Form.Label>
+                <Form.Control as="select" onChange={(event)=>{this.changeFont(event.target.value, "accent")}}>
+                  <option>Select font...</option>
+                  <option className="pierSans">Pier Sans</option>
+                  <option className="openSans">Open Sans</option>
+                  <option className="roboto">Roboto</option>
+                  <option className="nunito">Nunito</option>
+                  <option className="fredokaOne">Fredoka One</option>
+                  <option className="carterOne">Carter One</option>
+                  <option className="calibri">Calibri</option>
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>Custom paragraph font</Form.Label>
+                <Form.Control as="select" onChange={(event)=>{this.changeFont(event.target.value, "paragraph")}}>
+                  <option>Select font...</option>
+                  <option className="pierSans">Pier Sans</option>
+                  <option className="openSans">Open Sans</option>
+                  <option className="roboto">Roboto</option>
+                  <option className="nunito">Nunito</option>
+                  <option className="fredokaOne">Fredoka One</option>
+                  <option className="carterOne">Carter One</option>
+                  <option className="calibri">Calibri</option>
+                </Form.Control>
               </Form.Group>
 
               <Accordion defaultActiveKey="10">
