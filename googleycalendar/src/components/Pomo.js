@@ -4,6 +4,7 @@ import ButtonStyle from "./ButtonStyle"
 import Button from 'react-bootstrap/Button'
 import CountUp from 'react-countup';
 import {getSettingsValue} from "./Settings"
+import {getStorage} from "../functions/DataFunctions"
 
 
 export default class Pomo extends React.Component{
@@ -31,6 +32,9 @@ export default class Pomo extends React.Component{
   }
   async getAsyncStorage(){
     await this.props.loadSettings();
+    this.addPomoTotalSec = await getStorage(parseInt("pomoTotalSec",0));
+    if(this.addPomoTotalSec===undefined)
+      this.addPomoTotalSec = 0;
     this.setState({ 
       workSeconds:getSettingsValue("workSeconds"),
       breakSeconds:getSettingsValue("breakSeconds"),
