@@ -9,6 +9,7 @@ import './App.css';
 // import TextField from '@material-ui/core/TextField';
 // import { createMuiTheme } from '@material-ui/core/styles';
 // import { ThemeProvider } from '@material-ui/styles';
+import Toast from 'react-bootstrap/Toast'
 
 import WelcomeMessage from "./components/WelcomeMessage"
 import EventInfoMessage from "./components/EventInfoMessage"
@@ -23,8 +24,10 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.9.0";
+global.version = "3.9.5";
 global.changeLog = [
+  "3.9.5: Added the ability to sync settings and data across platforms (see settings). Copy and paste the settings to sync them... auto syncing coming in the future?? I need to learn Firebase",
+  "3.9.5: More feedback messages when loading/resetting settings",
   "3.9.0: Added custom fonts - in settings",
   "3.9.0: Added popup when the info button is clicked for an event to see description in more detail",
   "3.9.0: Added cool colours to day view - can be disabled in settings",
@@ -48,8 +51,11 @@ global.changeLog = [
 //TODO:
 //bug: 12 am is displayed as 0 am
 //bug: more than 1 day events are only displayed on one day
-//bug: pomodoro timer loading of data should follow the new getsetting function
 //bug 12 pm is displayed as 12 am
+
+//reset button to reset all settings (clear async)
+//export async storage (copy to clipboard)
+//import async storage
 
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
@@ -78,7 +84,8 @@ export default class App extends React.Component {
     this.getEventObjects = this.getEventObjects.bind(this);
     this.darkModeFunction = this.darkModeFunction.bind(this);
     this.toggleEventInfoOpen = this.toggleEventInfoOpen.bind(this);
-    this.state ={eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
+    this.showToast = this.showToast.bind(this);
+    this.state ={show:false,eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -507,6 +514,10 @@ export default class App extends React.Component {
       eventInfoSelected:eventInfoSelected
     })
   }
+
+  showToast(showMessage){
+    this.setState({showMessage:showMessage, show:true});
+  }
   
   render(): ReactNode {
     var signStatusDisplay="none";
@@ -577,8 +588,14 @@ export default class App extends React.Component {
         <Settings 
           resetCalendarObjects={this.resetCalendarObjects} 
           signStatus={this.state.signStatus} 
+          showToast={this.showToast}
         />
         <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
+        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"0%","left":"1%"}}>
+          <Toast.Header>
+            <strong className="mr-auto">{this.state.showMessage}</strong>
+          </Toast.Header>
+        </Toast>
         <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
           You are not logged-in. Login <u>here</u> or in the settings.
         </div>

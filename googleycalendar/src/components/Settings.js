@@ -9,7 +9,7 @@ import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
 import ColorPicker from "./ColorPicker"
 import ButtonStyle from "./ButtonStyle"
-import {getStorage} from "../functions/DataFunctions"
+import {getStorage,syncData} from "../functions/DataFunctions"
 
 import '../App.css';
 
@@ -24,6 +24,7 @@ export default class Settings extends React.Component{
     };
     this.loadSavedFonts();
     this.loadSavedFonts = this.loadSavedFonts.bind(this);
+    this.importedData = "";
   }
 
   async loadSavedFonts(){
@@ -126,6 +127,7 @@ export default class Settings extends React.Component{
     if(global.settingsColour===undefined){
       global.settingsColour=settingsOptionsColour();
     }
+    var allData = JSON.stringify(Object.entries(localStorage));
     return(
       <div>
         <img alt="open settings" onClick={(e) => this.handleItemClick(e, "openSettings")} src={settingsIcon} className="settingsIcon"/>
@@ -139,7 +141,7 @@ export default class Settings extends React.Component{
                 {return <SettingsContainer setting={setting}/>}
               )}
               <Form.Group>
-                <Button name="resetPomoStats" variant="outline-secondary" onClick={(e) => {this.handleChange(e, this.props)}}>
+                <Button name="resetPomoStats" variant="outline-secondary" onClick={(e) => {this.handleChange(e, this.props); this.props.showToast("Reset pomodoro stats")}}>
                   Reset Pomodoro Stats
                 </Button>
               </Form.Group>
@@ -172,22 +174,42 @@ export default class Settings extends React.Component{
                 </Form.Control>
               </Form.Group>
 
-              <Accordion defaultActiveKey="10">
-                <Card>
-                  <Card.Header style={{"padding":"4px"}}>
-                    <Accordion.Toggle as={Button} variant="outline-primary" eventKey="0">
-                      ▼ Set custom course colours... 
-                    </Accordion.Toggle>
-                  </Card.Header>
-                  <Accordion.Collapse eventKey="0">
-                    <div>
-                      {global.settingsColour.length===0 ? <div style={{margin:10}}>There are no courses found. Please follow the course formatting below.</div> : global.settingsColour.map( (settingColour, index)=>
-                        {return <SettingsContainerColor settingColour={settingColour}/>}
-                      )}
-                    </div>
-                  </Accordion.Collapse>
-                </Card>
-              </Accordion>
+              <Form.Group>
+                <Accordion defaultActiveKey="10">
+                  <Card>
+                    <Card.Header style={{"padding":"4px"}}>
+                      <Accordion.Toggle as={Button} variant="outline-primary" eventKey="0">
+                        ▼ Set custom course colours... 
+                      </Accordion.Toggle>
+                    </Card.Header>
+                    <Accordion.Collapse eventKey="0">
+                      <div>
+                        {global.settingsColour.length===0 ? <div style={{margin:10}}>There are no courses found. Please follow the course formatting below.</div> : global.settingsColour.map( (settingColour, index)=>
+                          {return <SettingsContainerColor settingColour={settingColour}/>}
+                        )}
+                      </div>
+                    </Accordion.Collapse>
+                  </Card>
+                </Accordion>
+              </Form.Group>
+
+              <Form.Group>
+                <Form.Label>Saved data and settings</Form.Label>
+                <Form.Control value={allData} onFocus={(event) => event.target.select()}/>
+                <Form.Text className="text-muted">
+                  Above is all the saved data and settings
+                </Form.Text>
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>Import saved data and settings</Form.Label>
+                <div style={{display:"flex",flexDirection: "row"}}>
+                  <Form.Control onChange={(form)=>{this.importedData = form.target.value}} placeholder={"[[\"@AsyncStorage:lastSignIn\",\"3.9.0\"],[\"@AsyncStorage:workMinutes\",..."}/>
+                  <Button class="pull-left" onClick={async ()=>{var success = await syncData(this.importedData); this.handleItemClick("e", "closeSettings"); success===0 ? this.props.showToast("Failed to sync settings and data") : this.props.showToast("Synced " + success + " settings/data entries")}}>Sync</Button>
+                </div>
+                <Form.Text className="text-muted">
+                  Paste settings here and hit the 'Sync' button
+                </Form.Text>
+              </Form.Group>
             </Form>
             <p><b>Course codes</b> have the following format; at the beginning of an event name: "XXX999" or "XXXY999". <br/>3 letters or 4 letters followed by 3 numbers.</p>
             <p>You can <b>sort</b> each category by clicking each category header.</p>

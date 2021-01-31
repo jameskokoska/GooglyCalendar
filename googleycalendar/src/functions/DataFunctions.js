@@ -187,3 +187,36 @@ export async function getStorage(key, defaultValue){
   }
   return stored
 }
+
+export function allStorage() {
+  var values = [],
+      keys = Object.keys(localStorage),
+      i = keys.length;
+  while ( i-- ) {
+      values.push( localStorage.getItem(keys[i]) );
+  }
+  return values;
+}
+
+export async function syncData(data){
+  if(data.length>5){
+    var loadedData;
+    try{
+      loadedData = JSON.parse(data);
+    } catch {
+      return 0;
+    }
+    var key = "";
+    var value = "";
+    for(var i = 0; i < loadedData.length; i++){
+      key = loadedData[i][0];
+      key = key.replace("@AsyncStorage:","")
+      value = loadedData[i][1];
+      await AsyncStorage.setItem(key, value);
+      console.log(key + value);
+    }
+    return loadedData.length;
+  } else {
+    return 0;
+  }
+}
