@@ -36,6 +36,24 @@ export default class WeekList extends React.Component {
       this.setState({dateDisplayStart: this.state.dateDisplayStart.addDays(difference)});
     }
   }
+
+
+  componentDidMount(){
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+  handleKeyDown = (event) => {
+    console.log(event.keyCode)
+    if(this.props.currentTab==="2"){
+      if(event.keyCode===37){
+        this.changeStart(-1)
+      } else if (event.keyCode === 39){
+        this.changeStart(1)
+      }
+    }
+  }
   
   render() {
     // var minWidthNum;
@@ -44,6 +62,7 @@ export default class WeekList extends React.Component {
     // } else {
     //   minWidthNum = 1150;
     // }
+    
     
     return(
       <div className="week">

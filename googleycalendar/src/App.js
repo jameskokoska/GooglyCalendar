@@ -24,8 +24,9 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.9.5";
+global.version = "3.9.6";
 global.changeLog = [
+  "3.9.6: Arrow keys can be used to change weeks on day view",
   "3.9.5: Added the ability to sync settings and data across platforms (see settings). Copy and paste the settings to sync them... auto syncing coming in the future?? I need to learn Firebase",
   "3.9.5: More feedback messages when loading/resetting settings",
   "3.9.0: Added custom fonts - in settings",
@@ -56,6 +57,17 @@ global.changeLog = [
 //reset button to reset all settings (clear async)
 //export async storage (copy to clipboard)
 //import async storage
+//sync with firebase?? :o
+
+//fade animations broken (hover) (make more like day-view ones)
+//the course gets highlighted even though there is no course
+
+//full on colour wheel popup
+//make it to the left (like how the sync button is located)
+//https://github.com/omgovich/react-colorful
+//https://gist.github.com/lou/571b7c0e7797860d6c555a9fdc0496f9
+
+//finding all courses broken??
 
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
@@ -576,7 +588,7 @@ export default class App extends React.Component {
               <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="2" title="Day View">
-              <WeekList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              <WeekList currentTab={this.state.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
             </Tab>
             <Tab eventKey="3" title="Pomodoro">
               <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
