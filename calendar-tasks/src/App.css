@@ -238,7 +238,7 @@ table.taskList {
   transition: background-color 0.2s;
 }
 .taskList > tbody > tr .courseNone{
-  transition: background-color 5s;
+  transition: background-color 10s;
 }
 .taskList > tbody > tr:hover .courseNone{
   background-color: var(--background);

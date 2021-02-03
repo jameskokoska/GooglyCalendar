@@ -187,7 +187,10 @@ class TaskEntry extends React.Component{
       courseClass="course";
     } else {
       checkMarkBG="#64b5f6";
-      courseClass+=" courseNone"
+    }
+
+    if(this.props.course===""){
+      courseClass+=" courseNone";
     }
 
     var descriptionDisplay="none";
