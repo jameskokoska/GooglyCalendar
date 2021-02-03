@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/CalendarTasks/static/css/main.1938b22a.chunk.css",
-    "main.js": "/CalendarTasks/static/js/main.9ac4cca1.chunk.js",
-    "main.js.map": "/CalendarTasks/static/js/main.9ac4cca1.chunk.js.map",
+    "main.js": "/CalendarTasks/static/js/main.313a21db.chunk.js",
+    "main.js.map": "/CalendarTasks/static/js/main.313a21db.chunk.js.map",
     "runtime-main.js": "/CalendarTasks/static/js/runtime-main.be0d42cf.js",
     "runtime-main.js.map": "/CalendarTasks/static/js/runtime-main.be0d42cf.js.map",
     "static/css/2.150d169a.chunk.css": "/CalendarTasks/static/css/2.150d169a.chunk.css",
@@ -25,6 +25,6 @@
     "static/css/2.150d169a.chunk.css",
     "static/js/2.c32f3624.chunk.js",
     "static/css/main.1938b22a.chunk.css",
-    "static/js/main.9ac4cca1.chunk.js"
+    "static/js/main.313a21db.chunk.js"
   ]
 }
