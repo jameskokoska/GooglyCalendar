@@ -1,5 +1,5 @@
-# Googley Calendar
-Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://jameskokoska.github.io/GoogleyCalendar/">https://jameskokoska.github.io/GoogleyCalendar/</a>.  
+# Calendar Tasks
+Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://jameskokoska.github.io/CalendarTasks/">https://jameskokoska.github.io/CalendarTasks/</a>.  
 I wanted to improve my React knowledge so I created this. I also use it daily so I think it's pretty good :)
 
 ## Features
