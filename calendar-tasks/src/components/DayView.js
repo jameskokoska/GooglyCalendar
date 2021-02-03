@@ -7,6 +7,7 @@ import Tooltip from 'react-bootstrap/Tooltip'
 import infoIcon from "../assets/info-circle-solid.svg"
 import FlipMove from 'react-flip-move';
 import {getSettingsValue} from "./Settings"
+import {determineTaskName} from "../functions/DataFunctions"
 
 export default class WeekList extends React.Component {
   constructor(props) {
@@ -148,140 +149,73 @@ class DayEntry extends React.Component{
     if (name==="checkOff"&&this.props.pin===false) {
       if (ApiCalendar.sign){
         //navigator.vibrate([30]);
-        if(this.props.course!==""){
-          const event = {
-            summary: "✔️" + this.props.course + " " + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        } else {
-          const event = {
-            summary: "✔️" + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-             this.props.errorTimeoutOpen("Error 401/404")
-          });
-        }
+        const event = {
+          summary: "✔️" + this.props.name
+        };
+        ApiCalendar.updateEvent(event, this.props.id)
+        .then(
+          this.props.updateDone(this.props.id),
+        )
+        .catch((error: any) => {
+          this.props.errorTimeoutOpen("Error 401/404")
+        });
       }
     } else if (name==="uncheckOff") {
       if (ApiCalendar.sign){
         //navigator.vibrate([10]);
-        if(this.props.course!==""){
-          const event = {
-            summary: this.props.course + " " + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Timeout error")
-          });
-        } else {
-          const event = {
-            summary: this.props.name //remove the check-mark, because no check-mark is ever passed in
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Timeout error")
-          });
-        }
+        const event = {
+          summary: this.props.name
+        };
+        ApiCalendar.updateEvent(event, this.props.id)
+        .then(
+          this.props.updateDone(this.props.id),
+        )
+        .catch((error: any) => {
+          this.props.errorTimeoutOpen("Error 401/404")
+        });
       }
     }    
     if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
       if (ApiCalendar.sign){
         //navigator.vibrate([10]);
         if(name==="checkOff"){
-          if(this.props.course!==""){
-            const event = {
-              summary: "✔️" + this.props.course + " " + this.props.name
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updatePin(this.props.id),
-              this.props.updateDone(this.props.id),
-            )
-            .catch((error: any) => {
-              this.props.errorTimeoutOpen("Error 401/404")
-            });
-          } else {
-            const event = {
-              summary: "✔️" + this.props.name //remove the pin, because no pin is ever passed in
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updatePin(this.props.id),
-              this.props.updateDone(this.props.id),
-            )
-            .catch((error: any) => {
-              this.props.errorTimeoutOpen("Error 401/404")
-            });
-          }
+          const event = {
+            summary: "✔️" + this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+            this.props.updateDone(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
         } else {
-          if(this.props.course!==""){
-            const event = {
-              summary: this.props.course + " " + this.props.name
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updatePin(this.props.id),
-            )
-            .catch((error: any) => {
-              this.props.errorTimeoutOpen("Error 401/404")
-            });
-          } else {
-            const event = {
-              summary: this.props.name //remove the pin, because no pin is ever passed in
-            };
-            ApiCalendar.updateEvent(event, this.props.id)
-            .then(
-              this.props.updatePin(this.props.id),
-            )
-            .catch((error: any) => {
-              this.props.errorTimeoutOpen("Error 401/404")
-            });
-          }
+          const event = {
+            summary: this.props.name
+          };
+          ApiCalendar.updateEvent(event, this.props.id)
+          .then(
+            this.props.updatePin(this.props.id),
+          )
+          .catch((error: any) => {
+            this.props.errorTimeoutOpen("Error 401/404")
+          });
         }
-        
       }
     } else if (name==="pin"&&(this.props.pin===false&&this.props.done===false)) {
       if (ApiCalendar.sign){
         //navigator.vibrate([30]);
-        if(this.props.course!==""){
-          const event = {
-            summary: "📌" + this.props.course + " " + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        } else {
-          const event = {
-            summary: "📌" + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        }
+        const event = {
+          summary: "📌" + this.props.name
+        };
+        ApiCalendar.updateEvent(event, this.props.id)
+        .then(
+          this.props.updatePin(this.props.id),
+        )
+        .catch((error: any) => {
+          this.props.errorTimeoutOpen("Error 401/404")
+        });
       } 
     }
   }
@@ -331,7 +265,7 @@ class DayEntry extends React.Component{
 
     return(
       <div className={weekEntryClass} style={dayStyle}>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"opacity":weekEntryOpacity, "color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{this.props.name}</div>
+        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"opacity":weekEntryOpacity, "color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{determineTaskName(this.props.name)}</div>
         <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
         <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
         <div className="iconBoxWeek fadeIn" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>

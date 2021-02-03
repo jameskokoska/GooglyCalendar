@@ -24,8 +24,10 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 
-global.version = "3.9.6";
+global.version = "4.0.0";
 global.changeLog = [
+  "4.0.0: Fixed course identification",
+  "4.0.0: Renamed to calendar tasks",
   "3.9.6: Arrow keys can be used to change weeks on day view",
   "3.9.5: Added the ability to sync settings and data across platforms (see settings). Copy and paste the settings to sync them... auto syncing coming in the future?? I need to learn Firebase",
   "3.9.5: More feedback messages when loading/resetting settings",
@@ -408,7 +410,6 @@ export default class App extends React.Component {
                   courseRandomCode=calendarObjects[i].course.charCodeAt(0)+calendarObjects[i].course.charCodeAt(1)+calendarObjects[i].course.charCodeAt(2)+calendarObjects[i].course.charCodeAt(3)+calendarObjects[i].course.charCodeAt(4)+calendarObjects[i].course.charCodeAt(5);
                 }
                 calendarObjects[i].courseColor=this.courseColors[courseRandomCode%this.courseColors.length];
-                calendarObjects[i].name=determineTaskName(calendarObjects[i].summary);
               }
             } else if(getSettingsValue("calendarIDColor"+(z+1).toString())!==undefined) {
               calendarObjects[i].courseColor=getSettingsValue("calendarIDColor"+(z+1).toString());
