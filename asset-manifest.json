@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/CalendarTasks/static/css/main.9e6da54f.chunk.css",
+    "main.css": "/CalendarTasks/static/css/main.1938b22a.chunk.css",
     "main.js": "/CalendarTasks/static/js/main.5c808256.chunk.js",
     "main.js.map": "/CalendarTasks/static/js/main.5c808256.chunk.js.map",
     "runtime-main.js": "/CalendarTasks/static/js/runtime-main.be0d42cf.js",
@@ -10,7 +10,7 @@
     "static/js/2.c32f3624.chunk.js.map": "/CalendarTasks/static/js/2.c32f3624.chunk.js.map",
     "index.html": "/CalendarTasks/index.html",
     "static/css/2.150d169a.chunk.css.map": "/CalendarTasks/static/css/2.150d169a.chunk.css.map",
-    "static/css/main.9e6da54f.chunk.css.map": "/CalendarTasks/static/css/main.9e6da54f.chunk.css.map",
+    "static/css/main.1938b22a.chunk.css.map": "/CalendarTasks/static/css/main.1938b22a.chunk.css.map",
     "static/js/2.c32f3624.chunk.js.LICENSE.txt": "/CalendarTasks/static/js/2.c32f3624.chunk.js.LICENSE.txt",
     "static/media/App.css": "/CalendarTasks/static/media/Roboto-Bold.4f39c579.ttf",
     "static/media/check-solid.5dcf9568.svg": "/CalendarTasks/static/media/check-solid.5dcf9568.svg",
@@ -24,7 +24,7 @@
     "static/js/runtime-main.be0d42cf.js",
     "static/css/2.150d169a.chunk.css",
     "static/js/2.c32f3624.chunk.js",
-    "static/css/main.9e6da54f.chunk.css",
+    "static/css/main.1938b22a.chunk.css",
     "static/js/main.5c808256.chunk.js"
   ]
 }
