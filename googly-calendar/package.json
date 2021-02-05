@@ -1,6 +1,6 @@
 {
-  "homepage": "http://jameskokoska.github.io/CalendarTasks",
-  "name": "calendar-tasks",
+  "name": "googly-calendar",
+  "homepage": "http://jameskokoska.github.io/GooglyCalendar",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -16,8 +16,8 @@
     "react-dom": "^17.0.1",
     "react-flip-move": "^3.0.4",
     "react-google-calendar-api": "^1.2.1",
-    "react-scripts": "4.0.1",
-    "web-vitals": "^0.2.4"
+    "react-scripts": "4.0.2",
+    "web-vitals": "^1.1.0"
   },
   "scripts": {
     "start": "react-scripts start",

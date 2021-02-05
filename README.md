@@ -1,5 +1,5 @@
-# Calendar Tasks
-Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://jameskokoska.github.io/CalendarTasks/">https://jameskokoska.github.io/CalendarTasks/</a>.  
+# Googly Calendar
+Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://jameskokoska.github.io/GooglyCalendar/">https://jameskokoska.github.io/GooglyCalendar/</a>.  
 I wanted to improve my React knowledge so I created this. I also use it daily so I think it's pretty good :)
 
 ## Features
@@ -45,11 +45,11 @@ I wanted to improve my React knowledge so I created this. I also use it daily so
 ### Setting up API keys
 1. Setup Google API Keys 
 2. Create file in root of project (i.e. ```.\googleycalendar\```) called ```apiGoogleconfig.json```
-3. Get ```clientId``` and ```apiKey``` from Google Developers website and pass in the following format into the JSON file:
+3. Get ```Client ID (OAuth 2.0 Client IDs)``` and ```Key (API keys)``` from Google Developers website and pass in the following format into the JSON file:
 ```
 {
-    "clientId": "",
-    "apiKey": "",
+    "clientId": "[Client ID]",
+    "apiKey": "[Key]",
     "scope": "https://www.googleapis.com/auth/calendar",
     "discoveryDocs": ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"]
 }
@@ -57,10 +57,10 @@ I wanted to improve my React knowledge so I created this. I also use it daily so
 
 ### First time install
 Ensure React and NPM are properly installed
-1. ```cd .\googleycalendar\```
+1. ```cd .\googly-calendar\```
 2. ```npm install```
 
 ### Running development server after install
-1. ```cd .\googleycalendar\```
+1. ```cd .\googly-calendar\```
 2. ```npm start```
 3. open ```localhost:3000``` in preferred web browser

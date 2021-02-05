@@ -23,6 +23,7 @@ import Refresh from "./components/Refresh"
 import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
+import HomePage from "./components/HomePage"
 
 global.version = "4.0.0";
 global.changeLog = [
@@ -60,6 +61,8 @@ global.changeLog = [
 //export async storage (copy to clipboard)
 //import async storage
 //sync with firebase?? :o
+
+//improve performance - when click i don't set state of main app .js
 
 //fade animations broken (hover) (make more like day-view ones)
 //the course gets highlighted even though there is no course
@@ -99,7 +102,7 @@ export default class App extends React.Component {
     this.darkModeFunction = this.darkModeFunction.bind(this);
     this.toggleEventInfoOpen = this.toggleEventInfoOpen.bind(this);
     this.showToast = this.showToast.bind(this);
-    this.state ={show:false,eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
+    this.state ={homePage:false,calendarIDs:"",show:false,eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
         this.loadSyncData();
         this.refreshWholeList();
@@ -323,6 +326,9 @@ export default class App extends React.Component {
     global.courses = [];
     this.setState({invalidID: false});
     var calendarObjectsTotal = [];
+    if(calendarIDsPassed===undefined||calendarIDsPassed===""){
+      return;
+    }
     for(var z = 0; z < calendarIDsPassed.length; z++){
       var calendarIDPassed = "";
       if(z!==0 && calendarIDsPassed[z]===""){
@@ -557,73 +563,78 @@ export default class App extends React.Component {
     if(this.state.lastSignIn!==global.version){
       welcomeOpen=true;
     }
-    return (
-      <div className="screen">
-        {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
-          Add
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
-          Log
-        </Button>
-         <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "logStored")}>
-          logStored
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortName")}>
-          sortName
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortCourse")}>
-          sortCourse
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
-          sortDate
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "errorTimeoutOpen")}>
-          errorTimeoutOpen
-        </Button>
-        <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortPin")}>
-          sortPin
-        </Button> */}
-        <Header1 content={currentDisplayDate}/>
-        <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString()); this.setState({lastTab:key})}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" activeKey={this.state.lastTab}>
-            <Tab eventKey="1" title="Task List">
-              <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
-            </Tab>
-            <Tab eventKey="2" title="Day View">
-              <WeekList currentTab={this.state.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
-            </Tab>
-            <Tab eventKey="3" title="Pomodoro">
-              <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
-            </Tab>
-            <Tab eventKey="4" title="Marks">
-              <Marks/>
-            </Tab>
-        </Tabs>
-        <Settings 
-          resetCalendarObjects={this.resetCalendarObjects} 
-          signStatus={this.state.signStatus} 
-          showToast={this.showToast}
-        />
-        <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
-        <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"0%","left":"1%"}}>
-          <Toast.Header>
-            <strong className="mr-auto">{this.state.showMessage}</strong>
-          </Toast.Header>
-        </Toast>
-        <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
-          You are not logged-in. Login <u>here</u> or in the settings.
+    if(this.state.homePage){
+      return(<HomePage/>)
+    } else {
+      return (
+        <div className="screen">
+          {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
+            Add
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "log")}>
+            Log
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "logStored")}>
+            logStored
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortName")}>
+            sortName
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortCourse")}>
+            sortCourse
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortDate")}>
+            sortDate
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "errorTimeoutOpen")}>
+            errorTimeoutOpen
+          </Button>
+          <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "sortPin")}>
+            sortPin
+          </Button> */}
+          <Header1 content={currentDisplayDate}/>
+          <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString()); this.setState({lastTab:key})}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" activeKey={this.state.lastTab}>
+              <Tab eventKey="1" title="Task List">
+                <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              </Tab>
+              <Tab eventKey="2" title="Day View">
+                <WeekList currentTab={this.state.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+              </Tab>
+              <Tab eventKey="3" title="Pomodoro">
+                <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
+              </Tab>
+              <Tab eventKey="4" title="Marks">
+                <Marks/>
+              </Tab>
+          </Tabs>
+          <Settings 
+            resetCalendarObjects={this.resetCalendarObjects} 
+            signStatus={this.state.signStatus} 
+            showToast={this.showToast}
+          />
+          <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
+          <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"0%","left":"1%"}}>
+            <Toast.Header>
+              <strong className="mr-auto">{this.state.showMessage}</strong>
+            </Toast.Header>
+          </Toast>
+          <div className="alert alert-danger fadeIn" role="alert" onClick={(e) => this.handleItemClick(e, 'signIn')} style={{"display":signStatusDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "cursor":"pointer", "marginRight":"2.5%"}}>
+            You are not logged-in. Login <u>here</u> or in the settings.
+          </div>
+          <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"2600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
+            There are no events for this calendar. Add some and refresh to view.
+          </div>
+          <div className="alert alert-warning fadeIn" role="alert" style={{"display":invalidCalendarDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
+            It seems you are using an invalid calendar ID. Open settings and double check.
+          </div>
+          <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
+          <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
+          <EventInfoMessage eventInfoSelected={this.state.eventInfoSelected} toggleEventInfoOpen={this.toggleEventInfoOpen} eventInfoOpen={this.state.eventInfoOpen}/>
+          {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
         </div>
-        <div className="alert alert-warning fadeIn" role="alert" style={{"display":calendarObjectsLengthDisplay, "animationDelay":"2600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
-          There are no events for this calendar. Add some and refresh to view.
-        </div>
-        <div className="alert alert-warning fadeIn" role="alert" style={{"display":invalidCalendarDisplay, "animationDelay":"600ms", "position":"fixed","bottom":"1%", "marginRight":"2.5%"}}>
-          It seems you are using an invalid calendar ID. Open settings and double check.
-        </div>
-        <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
-        <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
-        <EventInfoMessage eventInfoSelected={this.state.eventInfoSelected} toggleEventInfoOpen={this.toggleEventInfoOpen} eventInfoOpen={this.state.eventInfoOpen}/>
-        {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
-      </div>
-    );
+      );
+    }
+    
   }
 }
 
