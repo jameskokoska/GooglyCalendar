@@ -59,7 +59,7 @@ export default class WelcomeMessage extends React.Component{
           <div className="header3">{"What's New? v"+ global.version}</div>
           {global.changeLog.map(function(changeLogElement){
             if(changeLogElement.includes(global.version)){
-              return <b><li key={changeLogElement}>{changeLogElement}</li></b>
+              return <b key={changeLogElement}><li>{changeLogElement}</li></b>
             } else {
               return <li key={changeLogElement}>{changeLogElement}</li>
             }

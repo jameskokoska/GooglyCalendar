@@ -77,6 +77,7 @@ export default class Marks extends React.Component{
         </div>
         {coursesTotal.map( (course, index)=>
           {return <MarksCourse 
+            key={course.name+index.toString()}
             course={course} 
             coursesExtra={this.state.coursesExtra} 
             handleRemoveCourse={this.handleRemoveCourse}
@@ -204,7 +205,7 @@ class MarksCourse extends React.Component{
         <Form.Group>
           <div className="courseLabel">{this.props.course}</div>
           {this.state.currentCourseEntries.map( (entry, index)=>
-            {return <MarksRow entry={entry} index={index} handleDataChange={this.handleDataChange}/>}
+            {return <MarksRow key={entry[0]+index.toString()} entry={entry} index={index} handleDataChange={this.handleDataChange}/>}
           )}
           <div style={{height:"5px"}}/>
           <Button style={{marginRight:"5px"}} variant="outline-info" onClick={()=>{this.addEntry()}}>

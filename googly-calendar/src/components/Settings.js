@@ -22,9 +22,12 @@ export default class Settings extends React.Component{
       currentFontAccent: "",
       currentFontParagraph: "",
     };
-    this.loadSavedFonts();
     this.loadSavedFonts = this.loadSavedFonts.bind(this);
     this.importedData = "";
+  }
+
+  componentDidMount(){
+    this.loadSavedFonts();
   }
 
   async loadSavedFonts(){
@@ -138,7 +141,7 @@ export default class Settings extends React.Component{
           <Modal.Body>
             <Form>
               {global.settings.map( (setting, index)=>
-                {return <SettingsContainer setting={setting}/>}
+                {return <SettingsContainer key={index} setting={setting}/>}
               )}
               <Form.Group>
                 <Button name="resetPomoStats" variant="outline-secondary" onClick={(e) => {this.handleChange(e, this.props); this.props.showToast("Reset pomodoro stats")}}>
@@ -185,7 +188,7 @@ export default class Settings extends React.Component{
                     <Accordion.Collapse eventKey="0">
                       <div>
                         {global.settingsColour.length===0 ? <div style={{margin:10}}>There are no courses found. Please follow the course formatting below.</div> : global.settingsColour.map( (settingColour, index)=>
-                          {return <SettingsContainerColor settingColour={settingColour}/>}
+                          {return <SettingsContainerColor key={settingColour.keyName+index.toString()} settingColour={settingColour}/>}
                         )}
                       </div>
                     </Accordion.Collapse>

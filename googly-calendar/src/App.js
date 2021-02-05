@@ -331,9 +331,9 @@ export default class App extends React.Component {
     }
     for(var z = 0; z < calendarIDsPassed.length; z++){
       var calendarIDPassed = "";
-      if(z!==0 && calendarIDsPassed[z]===""){
+      if(z!==0 && (calendarIDsPassed[z]==="" || calendarIDsPassed[z]===undefined)){
         continue;
-      } else if (z===0 && (calendarIDPassed[0]==="primary"||calendarIDPassed[0]==="")){
+      } else if (z===0 && (calendarIDPassed[0]==="" || calendarIDPassed[0]===undefined)){
         calendarIDPassed = "primary";
       } else {
         calendarIDPassed = calendarIDsPassed[z];
@@ -597,7 +597,7 @@ export default class App extends React.Component {
               <Tab eventKey="1" title="Task List">
                 <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
               </Tab>
-              <Tab eventKey="2" title="Day View">
+              <Tab eventKey="2" title="Week View">
                 <WeekList currentTab={this.state.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
               </Tab>
               <Tab eventKey="3" title="Pomodoro">
