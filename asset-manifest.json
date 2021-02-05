@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/GooglyCalendar/static/css/main.92510efd.chunk.css",
-    "main.js": "/GooglyCalendar/static/js/main.8e7a094d.chunk.js",
-    "main.js.map": "/GooglyCalendar/static/js/main.8e7a094d.chunk.js.map",
+    "main.js": "/GooglyCalendar/static/js/main.8e886212.chunk.js",
+    "main.js.map": "/GooglyCalendar/static/js/main.8e886212.chunk.js.map",
     "runtime-main.js": "/GooglyCalendar/static/js/runtime-main.e7da53bc.js",
     "runtime-main.js.map": "/GooglyCalendar/static/js/runtime-main.e7da53bc.js.map",
     "static/css/2.150d169a.chunk.css": "/GooglyCalendar/static/css/2.150d169a.chunk.css",
@@ -27,6 +27,6 @@
     "static/css/2.150d169a.chunk.css",
     "static/js/2.d8bc094e.chunk.js",
     "static/css/main.92510efd.chunk.css",
-    "static/js/main.8e7a094d.chunk.js"
+    "static/js/main.8e886212.chunk.js"
   ]
 }
