@@ -215,7 +215,7 @@ export default class Settings extends React.Component{
             <p>You can <b>sort</b> each category by clicking each category header.</p>
             <p>Closing settings will reload the calendar.</p>
             <p>
-              This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/CalendarTasks">https://github.com/jameskokoska/CalendarTasks</a> 
+              This project is open source, feel free to check out the code here: <a href="https://github.com/jameskokoska/GooglyCalendar">https://github.com/jameskokoska/GooglyCalendar</a> 
               <Form.Text style={{"float":"right"}} className="text-muted">
                 {"v"+global.version}
               </Form.Text>

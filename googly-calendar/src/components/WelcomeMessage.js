@@ -43,7 +43,7 @@ export default class WelcomeMessage extends React.Component{
       welcomeOpenTogether=true;
     }
     var welcomeMessage="Hello! Please login by clicking the button below."
-    var welcomeMessage2='The aim of this application is to turn your Google Calendar into a task list. It was written in React and the source code can be found here: <a href="https://github.com/jameskokoska/CalendarTasks">https://github.com/jameskokoska/CalendarTasks</a>'
+    var welcomeMessage2='The aim of this application is to turn your Google Calendar into a task list. It was written in React and the source code can be found here: <a href="https://github.com/jameskokoska/GooglyCalendar">https://github.com/jameskokoska/GooglyCalendar</a>'
     if(this.props.signStatus===true){
       welcomeMessage="A new update was released: version "+global.version;
       welcomeMessage2="";
