@@ -24,9 +24,11 @@ import TimeOutError from "./components/TimeOutError"
 import {getStorage, listEvents, sortPin, sortName, sortCourse, sortDate, sortCheck, determineTaskName, determineTaskCourse, appendLastSort} from "./functions/DataFunctions"
 import Marks from "./components/Marks"
 import HomePage from "./components/HomePage"
+import LoginGuideMessage from "./components/LoginGuideMessage"
 
-global.version = "4.0.0";
+global.version = "4.1.0";
 global.changeLog = [
+  "4.1.0: Changed Google API backend and added login instructions",
   "4.0.0: Fixed course identification",
   "4.0.0: Renamed to calendar tasks",
   "3.9.6: Arrow keys can be used to change weeks on day view",
@@ -171,7 +173,7 @@ export default class App extends React.Component {
     });
   }
   signUpdate() {
-    this.setState({ signStatus: ApiCalendar.sign});
+    this.setState({ signStatus: ApiCalendar.sign, currentlyLoggingIn:false});
     this.refreshWholeList();
   }
 
@@ -208,12 +210,21 @@ export default class App extends React.Component {
       }
     }
   }
+
+  googleLogin = (signIn)=>{
+    if (signIn) {
+      ApiCalendar.handleAuthClick();
+      this.setState({currentlyLoggingIn:true})
+    } else {
+      ApiCalendar.handleSignoutClick();
+    }
+  }
       
   handleItemClick(event: SyntheticEvent<any>, name: string, calendarObjects: string): void {
     if (name === 'signIn') {
-      ApiCalendar.handleAuthClick();
+      this.googleLogin(true);
     } else if (name === 'signOut') {
-      ApiCalendar.handleSignoutClick();
+      this.googleLogin(false);
     } else if (name==='log'){
       if (ApiCalendar.sign)
       listEvents(10,getSettingsValue("hoursBefore"))
@@ -611,6 +622,7 @@ export default class App extends React.Component {
             resetCalendarObjects={this.resetCalendarObjects} 
             signStatus={this.state.signStatus} 
             showToast={this.showToast}
+            googleLogin={this.googleLogin}
           />
           <Refresh signStatus={this.state.signStatus} resetCalendarObjects={this.resetCalendarObjects}/>
           <Toast onClose={() => this.setState({show: false})} show={this.state.show} delay={1500} autohide style={{"position":"fixed","bottom":"0%","left":"1%"}}>
@@ -628,7 +640,8 @@ export default class App extends React.Component {
             It seems you are using an invalid calendar ID. Open settings and double check.
           </div>
           <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
-          <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus}/>
+          <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus} googleLogin={this.googleLogin}/>
+          <LoginGuideMessage show={this.state.currentlyLoggingIn} onClose={()=>this.setState({currentlyLoggingIn:false})}/>
           <EventInfoMessage eventInfoSelected={this.state.eventInfoSelected} toggleEventInfoOpen={this.toggleEventInfoOpen} eventInfoOpen={this.state.eventInfoOpen}/>
           {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
         </div>

@@ -55,9 +55,9 @@ export default class Settings extends React.Component{
       })
     } else if (name === 'signInOut') {
       if(this.props.signStatus){
-        ApiCalendar.handleSignoutClick();
+        this.props.googleLogin(false);
       } else {
-        ApiCalendar.handleAuthClick();
+        this.props.googleLogin(true);
       }
     }
   }

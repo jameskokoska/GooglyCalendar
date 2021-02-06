@@ -30,7 +30,7 @@ export default class WelcomeMessage extends React.Component{
           <Button variant="outline-secondary" onClick={(e) => this.handleItemClick(e, "closeWelcome")} style={{'marginRight':"15px"}}>
             Continue without login
           </Button>
-          <Button variant="primary" onClick={(e) => ApiCalendar.handleAuthClick()}>
+          <Button variant="primary" onClick={() => this.props.googleLogin(true)}>
             Login
           </Button>
         </div>
