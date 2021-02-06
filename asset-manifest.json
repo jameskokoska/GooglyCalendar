@@ -1,20 +1,24 @@
 {
   "files": {
     "main.css": "/GooglyCalendar/static/css/main.92510efd.chunk.css",
-    "main.js": "/GooglyCalendar/static/js/main.4b95c4d1.chunk.js",
-    "main.js.map": "/GooglyCalendar/static/js/main.4b95c4d1.chunk.js.map",
-    "runtime-main.js": "/GooglyCalendar/static/js/runtime-main.e7da53bc.js",
-    "runtime-main.js.map": "/GooglyCalendar/static/js/runtime-main.e7da53bc.js.map",
+    "main.js": "/GooglyCalendar/static/js/main.16ab3556.chunk.js",
+    "main.js.map": "/GooglyCalendar/static/js/main.16ab3556.chunk.js.map",
+    "runtime-main.js": "/GooglyCalendar/static/js/runtime-main.a5393ee4.js",
+    "runtime-main.js.map": "/GooglyCalendar/static/js/runtime-main.a5393ee4.js.map",
     "static/css/2.150d169a.chunk.css": "/GooglyCalendar/static/css/2.150d169a.chunk.css",
-    "static/js/2.d8bc094e.chunk.js": "/GooglyCalendar/static/js/2.d8bc094e.chunk.js",
-    "static/js/2.d8bc094e.chunk.js.map": "/GooglyCalendar/static/js/2.d8bc094e.chunk.js.map",
-    "static/js/3.6fae7d7d.chunk.js": "/GooglyCalendar/static/js/3.6fae7d7d.chunk.js",
-    "static/js/3.6fae7d7d.chunk.js.map": "/GooglyCalendar/static/js/3.6fae7d7d.chunk.js.map",
+    "static/js/2.21c59ed6.chunk.js": "/GooglyCalendar/static/js/2.21c59ed6.chunk.js",
+    "static/js/2.21c59ed6.chunk.js.map": "/GooglyCalendar/static/js/2.21c59ed6.chunk.js.map",
+    "static/js/3.2af2f58b.chunk.js": "/GooglyCalendar/static/js/3.2af2f58b.chunk.js",
+    "static/js/3.2af2f58b.chunk.js.map": "/GooglyCalendar/static/js/3.2af2f58b.chunk.js.map",
     "index.html": "/GooglyCalendar/index.html",
     "static/css/2.150d169a.chunk.css.map": "/GooglyCalendar/static/css/2.150d169a.chunk.css.map",
     "static/css/main.92510efd.chunk.css.map": "/GooglyCalendar/static/css/main.92510efd.chunk.css.map",
-    "static/js/2.d8bc094e.chunk.js.LICENSE.txt": "/GooglyCalendar/static/js/2.d8bc094e.chunk.js.LICENSE.txt",
+    "static/js/2.21c59ed6.chunk.js.LICENSE.txt": "/GooglyCalendar/static/js/2.21c59ed6.chunk.js.LICENSE.txt",
     "static/media/App.css": "/GooglyCalendar/static/media/Roboto-Bold.4f39c579.ttf",
+    "static/media/Step1.85b82071.png": "/GooglyCalendar/static/media/Step1.85b82071.png",
+    "static/media/Step2.1e042968.png": "/GooglyCalendar/static/media/Step2.1e042968.png",
+    "static/media/Step3.4218b806.png": "/GooglyCalendar/static/media/Step3.4218b806.png",
+    "static/media/Step4.45b21577.png": "/GooglyCalendar/static/media/Step4.45b21577.png",
     "static/media/check-solid.5dcf9568.svg": "/GooglyCalendar/static/media/check-solid.5dcf9568.svg",
     "static/media/cog-solid.svg": "/GooglyCalendar/static/media/cog-solid.540ab5dc.svg",
     "static/media/ding.m4a": "/GooglyCalendar/static/media/ding.3769ff60.m4a",
@@ -23,10 +27,10 @@
     "static/media/thumbtack-solid.svg": "/GooglyCalendar/static/media/thumbtack-solid.69b06c10.svg"
   },
   "entrypoints": [
-    "static/js/runtime-main.e7da53bc.js",
+    "static/js/runtime-main.a5393ee4.js",
     "static/css/2.150d169a.chunk.css",
-    "static/js/2.d8bc094e.chunk.js",
+    "static/js/2.21c59ed6.chunk.js",
     "static/css/main.92510efd.chunk.css",
-    "static/js/main.4b95c4d1.chunk.js"
+    "static/js/main.16ab3556.chunk.js"
   ]
 }
