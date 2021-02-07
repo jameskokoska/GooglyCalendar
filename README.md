@@ -1,5 +1,5 @@
 # Googly Calendar
-Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://jameskokoska.github.io/GooglyCalendar/">https://jameskokoska.github.io/GooglyCalendar/</a>.  
+Turns your Google Calendar into a task list. Helps to keep your busy school life/regular life organized and balanced. It can be used here: <a href="https://googlycalendar.web.app">https://googlycalendar.web.app/</a>.  
 I wanted to improve my React knowledge so I created this. I also use it daily so I think it's pretty good :)
 
 ## Features
@@ -64,3 +64,32 @@ Ensure React and NPM are properly installed
 1. ```cd .\googly-calendar\```
 2. ```npm start```
 3. open ```localhost:3000``` in preferred web browser
+
+
+### Hosting with Firebase
+0. Proper project directory ```cd googly-calendar```
+1. Install the dependency ```npm install -g firebase-tools```
+2. Login to Firebase ```firebase login```
+3. Initialize Firebase ```firebase init```
+4. ```Yes``` to proceed
+5. Select ```Hosting: Configure and deploy Firebase Hosting sites``` and hit enter
+6. Select ```Use an existing project```
+7. Select ```googly-calendar (Googly Calendar)```
+8. Answer: What do you want to use as your public directory? ```build```
+9. Answer: Configure as a single-page app (rewrite all urls to /index.html)? ```No```
+10. Answer: Set up automatic builds and deploys with GitHub? ```No```
+### Deploy to Firebase
+#### Option 1:
+1. Build the project ```npm run build```
+2. (Optional) Check out built project ```firebase serve --only hosting```
+3. Deploy to Firebase ```firebase deploy```
+#### Option 2:
+1. Add to ```package.json```
+    ```
+    "scripts": {
+        ...
+        "predeploy": "npm run build",
+        "deploy": "firebase deploy"
+    }
+    ```
+2. Use ```npm run deploy``` for all deployment

@@ -26,8 +26,10 @@ import Marks from "./components/Marks"
 import HomePage from "./components/HomePage"
 import LoginGuideMessage from "./components/LoginGuideMessage"
 
-global.version = "4.1.0";
+global.version = "4.2.0";
 global.changeLog = [
+  "4.2.0: Sorry your settings got wiped!",
+  "4.2.0: Now hosted at https://googlycalendar.web.app",
   "4.1.0: Changed Google API backend and added login instructions",
   "4.0.0: Fixed course identification",
   "4.0.0: Renamed to calendar tasks",
