@@ -617,7 +617,7 @@ export default class App extends React.Component {
                 <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>
               </Tab>
               <Tab eventKey="4" title="Marks">
-                <Marks/>
+                <Marks showToast={this.showToast}/>
               </Tab>
           </Tabs>
           <Settings 

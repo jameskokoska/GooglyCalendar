@@ -27,6 +27,10 @@ export default class Marks extends React.Component{
   handleAddCourse() {
     var tempData = this.state.coursesExtra;
     if(global.courses.includes(this.state.addCourseName) || tempData.includes(this.state.addCourseName)){
+      this.props.showToast(this.state.addCourseName+" already exists.")
+      return; //course already added automatically
+    } else if(this.state.addCourseName==="" || this.state.addCourseName===undefined){
+      this.props.showToast("Add a name for the course.")
       return; //course already added automatically
     } else {
       tempData.push(this.state.addCourseName);
@@ -34,6 +38,7 @@ export default class Marks extends React.Component{
       this.setState({
         coursesExtra: tempData,
       })
+      this.props.showToast(this.state.addCourseName+" course  added.")
       //update again
       setTimeout(()=>{
         this.setState({
@@ -77,7 +82,7 @@ export default class Marks extends React.Component{
         </div>
         {coursesTotal.map( (course, index)=>
           {return <MarksCourse 
-            key={course.name+index.toString()}
+            key={index.toString()}
             course={course} 
             coursesExtra={this.state.coursesExtra} 
             handleRemoveCourse={this.handleRemoveCourse}
