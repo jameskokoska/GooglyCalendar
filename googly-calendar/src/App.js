@@ -160,6 +160,7 @@ export default class App extends React.Component {
   async loadSyncData(){
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
+    this.lastTab = await getStorage("lastTab","0");
     await this.loadSettings();
     return({ 
       signStatus: ApiCalendar.sign,
