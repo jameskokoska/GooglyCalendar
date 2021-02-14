@@ -29,7 +29,7 @@ export default class LoginMessageGuide extends React.Component{
             </div>
             <div style={{margin: "6px"}}>
               <img src={step2} style={{width:"370px", borderRadius:"10px"}}/>
-              <p style={{textAlign:"center"}}>Step 2: Click <i>Go to jameskokoska.github.io (unsafe)</i></p>
+              <p style={{textAlign:"center"}}>Step 2: Click <i>Go to googlycalendar.web.app (unsafe)</i></p>
             </div>
             <div style={{margin: "6px"}}>
               <img src={step3} style={{width:"370px", borderRadius:"10px"}}/>

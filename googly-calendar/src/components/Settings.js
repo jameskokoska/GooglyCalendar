@@ -7,10 +7,12 @@ import settingsIcon from "../assets/cog-solid.svg"
 import Button from 'react-bootstrap/Button'
 import Accordion from 'react-bootstrap/Accordion'
 import Card from 'react-bootstrap/Card'
-import ColorPicker from "./ColorPicker"
 import ButtonStyle from "./ButtonStyle"
 import {getStorage,syncData} from "../functions/DataFunctions"
-
+import { HexColorPicker } from "react-colorful";
+import Popover from 'react-bootstrap/Popover';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Switch from "react-switch";
 import '../App.css';
 
 export default class Settings extends React.Component{
@@ -186,7 +188,7 @@ export default class Settings extends React.Component{
                       </Accordion.Toggle>
                     </Card.Header>
                     <Accordion.Collapse eventKey="0">
-                      <div>
+                      <div style={{width:"100%",justifyContent:"space-evenly",display:"flex",flexDirection:"row",flexWrap:"wrap"}}>
                         {global.settingsColour.length===0 ? <div style={{margin:10}}>There are no courses found. Please follow the course formatting below.</div> : global.settingsColour.map( (settingColour, index)=>
                           {return <SettingsContainerColor key={settingColour.keyName+index.toString()} settingColour={settingColour}/>}
                         )}
@@ -207,7 +209,7 @@ export default class Settings extends React.Component{
                 <Form.Label>Import saved data and settings</Form.Label>
                 <div style={{display:"flex",flexDirection: "row"}}>
                   <Form.Control onChange={(form)=>{this.importedData = form.target.value}} placeholder={"[[\"@AsyncStorage:lastSignIn\",\"3.9.0\"],[\"@AsyncStorage:workMinutes\",..."}/>
-                  <Button class="pull-left" onClick={async ()=>{var success = await syncData(this.importedData); this.handleItemClick("e", "closeSettings"); success===0 ? this.props.showToast("Failed to sync settings and data") : this.props.showToast("Synced " + success + " settings/data entries")}}>Sync</Button>
+                  <Button onClick={async ()=>{var success = await syncData(this.importedData); this.handleItemClick("e", "closeSettings"); success===0 ? this.props.showToast("Failed to sync settings and data") : this.props.showToast("Synced " + success + " settings/data entries")}}>Sync</Button>
                 </div>
                 <Form.Text className="text-muted">
                   Paste settings here and hit the 'Sync' button
@@ -240,11 +242,14 @@ export default class Settings extends React.Component{
 }
 
 class SettingsContainerColor extends React.Component{
+  setColor(color){
+    AsyncStorage.setItem(this.props.settingColour.keyName, color);
+  }
   render(){
     return(
       <Form.Group style={{"paddingTop":"5px","paddingBottom":"3px", "paddingLeft":"10px","paddingRight":"10px"}}>
-        <Form.Label>{this.props.settingColour.course + " course color"}</Form.Label>
-        <ColorPicker color={this.props.settingColour.currentValue} courseStorageID={this.props.settingColour.keyName}/>
+        <Form.Label>{this.props.settingColour.course.toUpperCase() + " course color:"}</Form.Label>
+        <HexColorPicker color={this.props.settingColour.currentValue} onChange={(color)=>{this.setColor(color)}}/>
       </Form.Group>
     )
   }
@@ -253,7 +258,7 @@ class SettingsContainerColor extends React.Component{
 class SettingsContainer extends React.Component{
   handleChange(form, key, checked) {
     if(checked===true)
-      AsyncStorage.setItem(key, form.target.checked);
+      AsyncStorage.setItem(key, checked);
     else 
       AsyncStorage.setItem(key, form.target.value);
   }
@@ -286,17 +291,25 @@ class SettingsContainer extends React.Component{
     } else if(this.props.setting.type==="check"){
       return(
         <Form.Group>
-          <Form.Check type="checkbox" label={this.props.setting.title} onChange={(form) => {this.handleChange(form,this.props.setting.keyName, true)}} defaultChecked={this.props.setting.currentValue==="true"}/>
+          <Form.Check type="checkbox" label={this.props.setting.title} defaultChecked={this.props.setting.currentValue==="true"}/>
           <Form.Text className="text-muted">
             {this.props.setting.description}
           </Form.Text>
         </Form.Group>
       )
-    } else if(this.props.setting.type==="color"){
+    } else if(this.props.setting.type==="textColour"){
       return(
         <Form.Group>
           <Form.Label>{this.props.setting.title}</Form.Label>
-          <ColorPicker color={this.props.setting.currentValue} courseStorageID={this.props.setting.keyName}/>
+          <div style={{display:"flex",flexDirection: "row"}}>
+          <Form.Control onChange={(form) => {this.handleChange(form,this.props.setting.keyName1)}} placeholder={this.props.setting.placeHolder1} defaultValue={this.props.setting.currentValue1}/>
+          <OverlayTrigger rootClose trigger="click" placement="bottom" overlay={colourPopover(this.props.setting.currentValue2,this.props.setting.keyName2)}>
+            <Button variant="outline-primary">Colour</Button>
+          </OverlayTrigger>
+          </div>
+          <Form.Text className="text-muted">
+            {this.props.setting.description}
+          </Form.Text>
         </Form.Group>
       )
     } else {
@@ -357,55 +370,53 @@ export const settingsOptionsColour = () => {
   return settingsOptionColour
 }
 
+function colourPopover(currentValue,keyName) {
+  return(
+    <Popover id="popover-basic">
+      <Popover.Content>
+        <HexColorPicker color={currentValue} onChange={(color)=>{AsyncStorage.setItem(keyName, color);}}/>
+      </Popover.Content>
+    </Popover>
+  )
+}
+
 //getSettingsValue("keyName")
 export const settingsOptions = [
   {
-    "keyName" : "calendarID",
-    "defaultValue" : "primary",
-    "currentValue" : "",
-    "title" : "Calendar ID",
-    "placeHolder" : "example@group.calendar.google.com",
+    "keyName1" : "calendarID",
+    "keyName2" : "calendarIDColor1",
+    "defaultValue1" : "primary",
+    "defaultValue2" : "#64b5f6",
+    "placeHolder1" : "example@group.calendar.google.com",
+    "currentValue1" : "",
+    "currentValue2" : "",
+    "title" : "Calendar ID 1",
     "description" : "By keeping this blank, it will be the default calendar.",
-    "type" : "text" //type is either text, textDouble, check, color, break
+    "type" : "textColour"
   },
   {
-    "keyName" : "calendarIDColor1",
-    "defaultValue" : "#64b5f6",
-    "currentValue" : "",
-    "title" : "Calendar ID Color",
-    "type" : "color"
-  },
-  {
-    "keyName" : "calendarID2",
-    "defaultValue" : "",
-    "currentValue" : "",
+    "keyName1" : "calendarID2",
+    "keyName2" : "calendarIDColor2",
+    "defaultValue1" : "",
+    "defaultValue2" : "#64b5f6",
+    "placeHolder1" : "example@group.calendar.google.com",
+    "currentValue1" : "",
+    "currentValue2" : "",
     "title" : "Calendar ID 2",
-    "placeHolder" : "example@group.calendar.google.com",
     "description" : "By keeping this blank, it will not attempt to load a second calendar.",
-    "type" : "text"
+    "type" : "textColour"
   },
   {
-    "keyName" : "calendarIDColor2",
-    "defaultValue" : "#64b5f6",
-    "currentValue" : "",
-    "title" : "Calendar ID 2 Color",
-    "type" : "color"
-  },
-  {
-    "keyName" : "calendarID3",
-    "defaultValue" : "",
-    "currentValue" : "",
+    "keyName1" : "calendarID3",
+    "keyName2" : "calendarIDColor3",
+    "defaultValue1" : "",
+    "defaultValue2" : "#64b5f6",
+    "placeHolder1" : "example@group.calendar.google.com",
+    "currentValue1" : "",
+    "currentValue2" : "",
     "title" : "Calendar ID 3",
-    "placeHolder" : "example@group.calendar.google.com",
     "description" : "By keeping this blank, it will not attempt to load a third calendar.",
-    "type" : "text" 
-  },
-  {
-    "keyName" : "calendarIDColor3",
-    "defaultValue" : "#64b5f6",
-    "currentValue" : "",
-    "title" : "Calendar ID 3 Color",
-    "type" : "color"
+    "type" : "textColour"
   },
   {
     "keyName" : "numEvents",

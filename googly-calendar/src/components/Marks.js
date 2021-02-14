@@ -122,9 +122,11 @@ class MarksCourse extends React.Component{
   handleDataChange(index1,index2,value) {
     var tempData = this.state.currentCourseEntries;
     tempData[index1][index2]=value;
-    this.setState({
-      currentCourseEntries: tempData
-    })
+    if(index2!==0){
+      this.setState({
+        currentCourseEntries: tempData
+      })
+    }
     AsyncStorage.setItem("courseMarks"+this.props.course, JSON.stringify(tempData));
   }
   addEntry(){
@@ -281,9 +283,9 @@ class MarksRow extends React.Component{
     return(
       <>
         <div style={{flexDirection:"row",display: "flex"}}>
-          <Form.Control onChange={(form) => {this.props.handleDataChange(this.props.index,0,form.target.value)}} placeholder={"Assessment name"} value={this.props.entry[0]} style={{maxWidth: "400px", width:"60%",}}/>
-          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,1,form.target.value)}} placeholder={"Worth (%)"} value={this.props.entry[1]} style={{maxWidth: "100px", width:"20%",}}/>
-          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,2,form.target.value)}} placeholder={"Mark (%)"} value={this.props.entry[2]} style={{maxWidth: "100px", width:"20%",}}/>
+          <Form.Control onChange={(form) => {this.props.handleDataChange(this.props.index,0,form.target.value)}} placeholder={"Assessment name"} defaultValue={this.props.entry[0]} style={{maxWidth: "400px", width:"60%",}}/>
+          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,1,form.target.value)}} placeholder={"Worth (%)"} defaultValue={this.props.entry[1]} style={{maxWidth: "100px", width:"20%",}}/>
+          <Form.Control maxLength={5} onChange={(form) => {this.props.handleDataChange(this.props.index,2,form.target.value)}} placeholder={"Mark (%)"} defaultValue={this.props.entry[2]} style={{maxWidth: "100px", width:"20%",}}/>
         </div>
         <div style={{height:"5px"}}/>
       </>

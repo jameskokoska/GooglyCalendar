@@ -26,8 +26,11 @@ import Marks from "./components/Marks"
 import HomePage from "./components/HomePage"
 import LoginGuideMessage from "./components/LoginGuideMessage"
 
-global.version = "4.2.0";
+global.version = "4.2.3";
 global.changeLog = [
+  "4.2.3: Added a better colour selection",
+  "4.2.3: Fixed first calendar ID always defaulting to primary",
+  "4.2.3: Fixed changing assignment name is marks page",
   "4.2.0: Sorry your settings got wiped!",
   "4.2.0: Now hosted at https://googlycalendar.web.app",
   "4.1.0: Changed Google API backend and added login instructions",
@@ -75,8 +78,6 @@ global.changeLog = [
 //make it to the left (like how the sync button is located)
 //https://github.com/omgovich/react-colorful
 //https://gist.github.com/lou/571b7c0e7797860d6c555a9fdc0496f9
-
-//finding all courses broken??
 
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
@@ -151,7 +152,7 @@ export default class App extends React.Component {
   async loadSettings(){
     global.settings = settingsOptions;
     for(var i = 0; i<settingsOptions.length; i++){
-      if(global.settings[i]["type"]==="textDouble"){
+      if(global.settings[i]["type"]==="textDouble"||global.settings[i]["type"]==="textColour"){
         global.settings[i]["currentValue1"] = await getStorage(settingsOptions[i]["keyName1"],settingsOptions[i]["defaultValue1"]);
         global.settings[i]["currentValue2"] = await getStorage(settingsOptions[i]["keyName2"],settingsOptions[i]["defaultValue2"]);
       } else {
@@ -346,7 +347,7 @@ export default class App extends React.Component {
       var calendarIDPassed = "";
       if(z!==0 && (calendarIDsPassed[z]==="" || calendarIDsPassed[z]===undefined)){
         continue;
-      } else if (z===0 && (calendarIDPassed[0]==="" || calendarIDPassed[0]===undefined)){
+      } else if (z===0 && (calendarIDsPassed[0]==="" || calendarIDsPassed[0]===undefined)){
         calendarIDPassed = "primary";
       } else {
         calendarIDPassed = calendarIDsPassed[z];
