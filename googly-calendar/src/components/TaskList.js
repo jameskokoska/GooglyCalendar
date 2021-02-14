@@ -14,7 +14,7 @@ export default class TaskList extends React.Component {
   render() {
     return(
       <div className="tasks">
-        <TaskTable toggleEventInfoOpen={this.props.toggleEventInfoOpen} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} hoursBefore={this.props.hoursBefore} nextWeekShow={this.props.nextWeekShow} sortCalendarObjects={this.props.sortCalendarObjects} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
+        <TaskTable calendarAction={this.props.calendarAction} toggleEventInfoOpen={this.props.toggleEventInfoOpen} calendarObjects={this.props.calendarObjects} sortCalendarObjects={this.props.sortCalendarObjects}/>
       </div>
     )
   }
@@ -28,11 +28,11 @@ class TaskTable extends React.Component{
           <thead>
             <tr className="fadeIn">
               <th className="pin header3"><div className="pinHeader"><img alt="pin pinHeader" src={pinIcon}/></div></th>
-              <th className="check header3" onClick={e => this.props.sortCalendarObjects("sortCheck", this.props.calendarObjects)}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
-              <th className="task header3" onClick={e => this.props.sortCalendarObjects("sortName", this.props.calendarObjects)}><div className="hoverSort">Task</div></th>
-              <th className="date header3" onClick={e => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Date</div></th>
-              <th className="time header3" onClick={e => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Time</div></th>
-              <th className="course header3" onClick={e => this.props.sortCalendarObjects("sortCourse", this.props.calendarObjects)}><div className="hoverSort">Course</div></th>
+              <th className="check header3" onClick={() => this.props.sortCalendarObjects("sortCheck", this.props.calendarObjects)}><div className="hoverSort checkHeader"><img alt="check" src={checkIcon}/></div></th>
+              <th className="task header3" onClick={() => this.props.sortCalendarObjects("sortName", this.props.calendarObjects)}><div className="hoverSort">Task</div></th>
+              <th className="date header3" onClick={() => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Date</div></th>
+              <th className="time header3" onClick={() => this.props.sortCalendarObjects("sortDate", this.props.calendarObjects)}><div className="hoverSort">Time</div></th>
+              <th className="course header3" onClick={() => this.props.sortCalendarObjects("sortCourse", this.props.calendarObjects)}><div className="hoverSort">Course</div></th>
             </tr>
           </thead>
           <FlipMove staggerDurationBy={getSettingsValue("enableAnimations")===true?25:0} className="fadeIn" typeName="tbody" easing={"ease"} duration={700} leaveAnimation="none" staggerDelayBy={0} enterAnimation="fade">
@@ -40,27 +40,10 @@ class TaskTable extends React.Component{
               if(task.hide===false && task.weekLimitHide===false){
                 return(<TaskEntry
                 key={task.id}
+                calendarAction={this.props.calendarAction}
                 toggleEventInfoOpen={this.props.toggleEventInfoOpen}
                 task={task}
-                name={task.name}
-                date={task.date}
-                timeStart={task.timeStart}
-                timeEnd={task.timeEnd}
-                course={task.course}
-                courseColor={task.courseColor}
-                done={task.done}
-                id={task.id}
-                hoursBefore={this.props.hoursBefore}
-                nextWeekShow={this.props.nextWeekShow}
-                updateDone={this.props.updateDone}
-                calendarIDCurrent={task.calendarID}
-                description={task.description}
-                dateObjEnd={task.dateObjEnd}
                 errorTimeoutOpen={this.props.errorTimeoutOpen}
-                updatePin={this.props.updatePin}
-                pin={task.pin}
-                important={task.important}
-                darkMode={this.props.darkMode}
                 />)
               }
             }, this)}
@@ -71,92 +54,7 @@ class TaskTable extends React.Component{
   }
 }
 
-class TaskEntry extends React.Component{
-  constructor(props) {
-    super(props);
-    this.handleItemClick = this.handleItemClick.bind(this);
-    this.state ={checked: this.props.done};
-  }
-
-  handleItemClick(event: SyntheticEvent<any>, name: string): void {
-    if(this.props.calendarIDCurrent==="")
-      ApiCalendar.setCalendar("primary")
-    else 
-      ApiCalendar.setCalendar(this.props.calendarIDCurrent)
-    if (name==="checkOff"&&this.props.pin===false) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([30]);
-        const event = {
-          summary: "✔️" + this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updateDone(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      }
-    } else if (name==="uncheckOff") {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([10]);
-        const event = {
-          summary: this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updateDone(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      }
-    }    
-    if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([10]);
-        if(name==="checkOff"){
-          const event = {
-            summary: "✔️" + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        } else {
-          const event = {
-            summary: this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        }
-      }
-    } else if (name==="pin"&&(this.props.pin===false&&this.props.done===false)) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([30]);
-        const event = {
-          summary: "📌" + this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updatePin(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      } 
-    }
-  }
-  
+class TaskEntry extends React.Component{  
   render(){
     var textStyle="none";
     var checkClass="checkImg";
@@ -166,7 +64,7 @@ class TaskEntry extends React.Component{
     var checkMarkBG="#64b5f6";
     var courseClass="course";
     var pinDisplay="pin";
-    if(this.props.done===true){
+    if(this.props.task.done===true){
       textStyle = "line-through";
       checkClass+=" checkIn";
       checkColor="#777777";
@@ -176,36 +74,36 @@ class TaskEntry extends React.Component{
       checkClass+=" checkOut";
     }
 
-    if(this.props.pin===true){
+    if(this.props.task.pin===true){
       pinClass+=" pinIn"
     } else {
       pinClass+=" pinOut"
     }
 
-    if(this.props.courseColor!==""){
-      checkMarkBG=this.props.courseColor;
+    if(this.props.task.courseColor!==""){
+      checkMarkBG=this.props.task.courseColor;
       courseClass="course";
     } else {
       checkMarkBG="#64b5f6";
     }
 
-    if(this.props.course===""){
+    if(this.props.task.course===""){
       courseClass+=" courseNone";
     }
 
     var descriptionDisplay="none";
     var marginNameFix="";
-    if(this.props.description!==undefined&&this.props.description!==null){
+    if(this.props.task.description!==undefined&&this.props.task.description!==null){
       descriptionDisplay="";
       marginNameFix="marginNameFix"
     }
     
     var dateColor;
     var dateFontWeight;
-    if (this.props.timeEnd==="All day" && eventToday(this.props.dateObjEnd)===true){
+    if (this.props.task.timeEnd==="All day" && eventToday(this.props.task.dateObjEnd)===true){
       dateColor="";
       dateFontWeight="unset";
-    } else if(this.props.dateObjEnd < Date.now()){
+    } else if(this.props.task.dateObjEnd < Date.now()){
       dateColor="#c53f3f";
       dateFontWeight="bold";
     } else {
@@ -214,30 +112,30 @@ class TaskEntry extends React.Component{
     }
 
     var displayTimeEnd;
-    if(this.props.timeEnd==="All day"){
+    if(this.props.task.timeEnd==="All day"){
       displayTimeEnd="";
     } else {
-      displayTimeEnd=" - "+this.props.timeEnd;
+      displayTimeEnd=" - "+this.props.task.timeEnd;
     }
 
-    if(this.props.important===true&&this.props.darkMode===true&&this.props.done===false){
+    if(this.props.task.important===true&&getSettingsValue("darkMode")===true&&this.props.task.done===false){
       checkColor="#ff8b8b"
-    } else if (this.props.important===true&&this.props.darkMode===false&&this.props.done===false){
+    } else if (this.props.task.important===true&&getSettingsValue("darkMode")===false&&this.props.task.done===false){
       checkColor="#C85000"
     }
     return(
       <tr className="taskEntry">
-        <td className={pinDisplay} onClick={(e) => this.handleItemClick(e, "pin")}><div className="fadeIn"><img alt="check" className={pinClass} src={pinIcon}/></div></td>
-        <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={(e) => this.handleItemClick(e, clickActionCheck)}><div className="fadeIn"><img alt="check" className={checkClass} src={checkIcon}/></div></td>
+        <td className={pinDisplay} onClick={()=>this.props.calendarAction(this.props.task, "pin")}><div className="fadeIn"><img alt="check" className={pinClass} src={pinIcon}/></div></td>
+        <td style={{"backgroundColor":checkMarkBG}} className="check" onClick={()=>this.props.calendarAction(this.props.task, "check")}><div className="fadeIn"><img alt="check" className={checkClass} src={checkIcon}/></div></td>
         <td className="task" style={{"color":checkColor, "transition":"all 0.5s", "position":"relative"}}>
-          <div className={marginNameFix} style={{"textDecoration":textStyle}}>{this.props.name}</div>
-          <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
+          <div className={marginNameFix} style={{"textDecoration":textStyle}}>{this.props.task.name}</div>
+          <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.task.description }}></div></Tooltip>}>
             <img onClick={()=>{this.props.toggleEventInfoOpen(true,this.props.task);}} alt="descriptions" className="infoIcon" src={infoIcon} style={{"display":descriptionDisplay}}/>
           </OverlayTrigger>
         </td>
-        <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.date}</td>
-        <td className="time">{this.props.timeStart}{displayTimeEnd}</td>
-        <td className={courseClass}>{this.props.course}</td>
+        <td className="date" style={{color:dateColor,fontWeight:dateFontWeight}}>{this.props.task.date}</td>
+        <td className="time">{this.props.task.timeStart}{displayTimeEnd}</td>
+        <td className={courseClass}>{this.props.task.course}</td>
       </tr>
     )
   }

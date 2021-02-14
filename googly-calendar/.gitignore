@@ -22,4 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-apiGoogleconfig.json
+apiGoogleconfig.json*
+/.firebase

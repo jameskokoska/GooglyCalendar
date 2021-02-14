@@ -26,8 +26,11 @@ import Marks from "./components/Marks"
 import HomePage from "./components/HomePage"
 import LoginGuideMessage from "./components/LoginGuideMessage"
 
-global.version = "4.2.3";
+global.version = "4.3.0";
 global.changeLog = [
+  "4.3.0: Huge performance improvements, cleaned up backend significantly",
+  "4.3.0: Fixed some UI colours",
+  "4.3.0: Improved loading",
   "4.2.3: Added a better colour selection",
   "4.2.3: Fixed first calendar ID always defaulting to primary",
   "4.2.3: Fixed changing assignment name is marks page",
@@ -60,24 +63,15 @@ global.changeLog = [
 //Add events
 
 //TODO:
-//bug: 12 am is displayed as 0 am
 //bug: more than 1 day events are only displayed on one day
-//bug 12 pm is displayed as 12 am
 
 //reset button to reset all settings (clear async)
 //export async storage (copy to clipboard)
 //import async storage
 //sync with firebase?? :o
 
-//improve performance - when click i don't set state of main app .js
-
 //fade animations broken (hover) (make more like day-view ones)
 //the course gets highlighted even though there is no course
-
-//full on colour wheel popup
-//make it to the left (like how the sync button is located)
-//https://github.com/omgovich/react-colorful
-//https://gist.github.com/lou/571b7c0e7797860d6c555a9fdc0496f9
 
 //sort by calendar ID (coloured dot? only show up if more than one calendar loaded)
 //add filter both ways (sort by least/most)
@@ -100,6 +94,7 @@ export default class App extends React.Component {
     this.signUpdate = this.signUpdate.bind(this);
     this.loadSyncData = this.loadSyncData.bind(this);
     this.sortCalendarObjects = this.sortCalendarObjects.bind(this);
+    this.calendarAction = this.calendarAction.bind(this);
     this.updateDone = this.updateDone.bind(this);
     this.updatePin = this.updatePin.bind(this);
     this.errorTimeoutOpen = this.errorTimeoutOpen.bind(this);
@@ -107,9 +102,8 @@ export default class App extends React.Component {
     this.darkModeFunction = this.darkModeFunction.bind(this);
     this.toggleEventInfoOpen = this.toggleEventInfoOpen.bind(this);
     this.showToast = this.showToast.bind(this);
-    this.state ={homePage:false,calendarIDs:"",show:false,eventInfoOpen:false,lastTab:"1", calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
+    this.state ={loaded:false, homePage:false,calendarIDs:"",show:false,eventInfoOpen:false,calendarObjects: [], signStatus:"", errorTimeoutOpen: false, autoDark:"true"};
     ApiCalendar.onLoad(() => {
-        this.loadSyncData();
         this.refreshWholeList();
         ApiCalendar.listenSign(this.signUpdate);
     });
@@ -130,6 +124,7 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--font-color', "#eeeeee");
       document.documentElement.style.setProperty('--highlight', "#9e9e9e25");
       document.documentElement.style.setProperty('--highlight2', "#66666623");
+      document.documentElement.style.setProperty('--highlight3', "#303030");
       document.documentElement.style.setProperty('--highlight-tabs', "#c9c9c925");
       document.documentElement.style.setProperty('--accent', "#2889f7c9");
       document.documentElement.style.setProperty('--brightnessIcon', "1");
@@ -142,6 +137,7 @@ export default class App extends React.Component {
       document.documentElement.style.setProperty('--font-color', "#111111");
       document.documentElement.style.setProperty('--highlight', "#42424248");
       document.documentElement.style.setProperty('--highlight2', "#8b8b8b1a");
+      document.documentElement.style.setProperty('--highlight3', "#dbdbdb");
       document.documentElement.style.setProperty('--highlight-tabs', "#3838381f");
       document.documentElement.style.setProperty('--accent', "#64b5f6");
       document.documentElement.style.setProperty('--brightnessIcon', "0");
@@ -162,26 +158,20 @@ export default class App extends React.Component {
   }
 
   async loadSyncData(){
-    await this.loadSettings();
-
     var lastSort = await getStorage("lastSort","sortName,sortCourse,sortCheck,sortDate");
     var lastSignIn = await getStorage("lastSignIn","0");
-    var lastTab= await getStorage("lastTab","1");
-    this.setState({ 
+    await this.loadSettings();
+    return({ 
       signStatus: ApiCalendar.sign,
       lastSignIn:lastSignIn,
       lastSort:lastSort,
       calendarIDs: [getSettingsValue("calendarID"),getSettingsValue("calendarID2"),getSettingsValue("calendarID3")],
-      lastTab:lastTab,
-    });
+      loaded: true,
+    })
   }
   signUpdate() {
     this.setState({ signStatus: ApiCalendar.sign, currentlyLoggingIn:false});
     this.refreshWholeList();
-  }
-
-  componentDidMount() {
-    this.loadSyncData();  
   }
 
   sortCalendarObjects(type, calendarObjects){
@@ -287,19 +277,44 @@ export default class App extends React.Component {
     }
   }
   
+  calendarAction(task, action){
+    if (ApiCalendar.sign){
+      if(action==="check"){
+        this.updateDone(task.id);
+      } else if (action==="pin") {
+        this.updatePin(task.id);
+      }
+    } else {
+      this.errorTimeoutOpen("Error 401/404");
+    }
+  }
+
   updateDone(id){
     for (var i = 0; i < this.state.calendarObjects.length; i++) {
       if(this.state.calendarObjects[i].id === id){
         if(this.state.calendarObjects[i].done===true){
-          this.state.calendarObjects[i].done=false;
-          this.setState({
-            calendarObjects: this.state.calendarObjects
-          })
+          const event = {summary: this.state.calendarObjects[i].name};
+          ApiCalendar.setCalendar(this.state.calendarObjects[i].calendarID);
+          ApiCalendar.updateEvent(event, id).then(
+            this.state.calendarObjects[i].done=false,
+            this.setState({
+              calendarObjects: this.state.calendarObjects
+            })
+          ).catch((error: any) => {
+            this.errorTimeoutOpen("Error 401/404")
+          });
         } else {
-          this.state.calendarObjects[i].done=true;
-          this.setState({
-            calendarObjects: this.state.calendarObjects
-          })
+          const event = {summary: "✔️" + this.state.calendarObjects[i].name};
+          ApiCalendar.setCalendar(this.state.calendarObjects[i].calendarID);
+          ApiCalendar.updateEvent(event, id).then(
+            this.state.calendarObjects[i].done=true,
+            this.state.calendarObjects[i].pin=false,
+            this.setState({
+              calendarObjects: sortPin(this.state.calendarObjects)
+            })
+          ).catch((error: any) => {
+            this.errorTimeoutOpen("Error 401/404")
+          });
         }
         return;
       } else {
@@ -312,15 +327,31 @@ export default class App extends React.Component {
     for (var i = 0; i < this.state.calendarObjects.length; i++) {
       if(this.state.calendarObjects[i].id === id){
         if(this.state.calendarObjects[i].pin===true){
-          this.state.calendarObjects[i].pin=false;
-          this.setState({
-            calendarObjects: sortPin(this.state.calendarObjects)
-          })
+          const event = {summary: this.state.calendarObjects[i].name};
+          ApiCalendar.setCalendar(this.state.calendarObjects[i].calendarID);
+          ApiCalendar.updateEvent(event, id).then(
+            this.state.calendarObjects[i].pin=false,
+            this.setState({
+              calendarObjects: sortPin(this.state.calendarObjects)
+            })
+          ).catch((error: any) => {
+            this.errorTimeoutOpen("Error 401/404")
+          });
         } else {
-          this.state.calendarObjects[i].pin=true;
-          this.setState({
-            calendarObjects: sortPin(this.state.calendarObjects)
-          })
+          //Can't pin item already checked off
+          if(this.state.calendarObjects[i].done===true){
+            return;
+          }
+          const event = {summary: "📌" + this.state.calendarObjects[i].name};
+          ApiCalendar.setCalendar(this.state.calendarObjects[i].calendarID);
+          ApiCalendar.updateEvent(event, id).then(
+            this.state.calendarObjects[i].pin=true,
+            this.setState({
+              calendarObjects: sortPin(this.state.calendarObjects)
+            })
+          ).catch((error: any) => {
+            this.errorTimeoutOpen("Error 401/404")
+          });
         }
         return;
       } else {
@@ -352,7 +383,7 @@ export default class App extends React.Component {
       } else {
         calendarIDPassed = calendarIDsPassed[z];
       }
-      await ApiCalendar.setCalendar(calendarIDPassed);
+      ApiCalendar.setCalendar(calendarIDPassed);
       await listEvents(getSettingsValue("numEvents"),getSettingsValue("hoursBefore")).then(async ({result}: any) => {
         var calendarObjectsReduced = [];
         var calendarObjects = result.items;
@@ -534,11 +565,12 @@ export default class App extends React.Component {
   }
 
   async refreshWholeList() {
-    await this.loadSyncData();
+    var syncData = await this.loadSyncData();
     await this.darkModeFunction();
     if (ApiCalendar.sign){
-      this.getEventObjects(this.state.calendarIDs);
+      this.getEventObjects(syncData.calendarIDs);
     }
+    this.setState(syncData);
   }
 
   toggleEventInfoOpen(open, eventInfoSelected){
@@ -579,9 +611,11 @@ export default class App extends React.Component {
     }
     if(this.state.homePage){
       return(<HomePage/>)
+    } else if(this.state.loaded===false){
+      return(<div className="loading"></div>)
     } else {
       return (
-        <div className="screen">
+        <div className="screen fadeIn">
           {/* <Button variant="secondary" onClick={(e) => this.handleItemClick(e, "addEvent")}>
             Add
           </Button>
@@ -607,12 +641,12 @@ export default class App extends React.Component {
             sortPin
           </Button> */}
           <Header1 content={currentDisplayDate}/>
-          <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString()); this.setState({lastTab:key})}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" activeKey={this.state.lastTab}>
+          <Tabs onSelect={(key)=>{AsyncStorage.setItem("lastTab",key.toString());}} style={{"marginTop":"1.9%","marginBottom":"3px"}} className="tabsLabel" defaultActiveKey={this.lastTab}>
               <Tab eventKey="1" title="Task List">
-                <TaskList toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} courseColors={this.courseColors} hoursBefore={getSettingsValue("hoursBefore")} nextWeekShow={getSettingsValue("nextWeekShow")} sortCalendarObjects={this.sortCalendarObjects} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+                <TaskList calendarAction={this.calendarAction} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} sortCalendarObjects={this.sortCalendarObjects}/>
               </Tab>
               <Tab eventKey="2" title="Week View">
-                <WeekList currentTab={this.state.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects} nextWeekShow={getSettingsValue("nextWeekShow")} courseColors={this.courseColors} updateDone={this.updateDone} errorTimeoutOpen={this.errorTimeoutOpen} updatePin={this.updatePin} darkMode={this.darkMode}/>
+                <WeekList calendarAction={this.calendarAction} currentTab={this.lastTab} toggleEventInfoOpen={this.toggleEventInfoOpen} calendarObjects={this.state.calendarObjects}/>
               </Tab>
               <Tab eventKey="3" title="Pomodoro">
                 <Pomo calendarObjects={this.state.calendarObjects} loadSettings={this.loadSettings}/>

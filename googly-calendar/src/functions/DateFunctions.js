@@ -131,11 +131,14 @@ export function displayTime(date){
     }
     var hours = date.getHours();
     var meridian;
-    if(hours>12){
+    if(hours>=12){
       hours=hours-12;
       meridian="pm";
     } else {
       meridian="am"
+    }
+    if(hours===0){
+      hours = 12;
     }
 
     if(minutes==="00"){

@@ -86,6 +86,7 @@
   --background-settings: white;
   --highlight: #42424248;
   --highlight2: #8b8b8b1a;
+  --highlight3: #dbdbdb;
   --highlight-tabs: #3838381f;
   --accent: #64b5f6;
   --brightnessIcon: 0;
@@ -102,6 +103,11 @@
 
 input[type=checkbox] {
   transform: scale(1.4);
+}
+
+.popover {
+  background: var(--highlight3);
+  border-radius: 10px;
 }
 
 .modal-content{
@@ -155,6 +161,7 @@ body{
 ::-webkit-scrollbar-thumb:active{
   background:rgb(78, 78, 78); 
 }
+
 
 .screen{
   padding:5vw;
@@ -250,7 +257,7 @@ table.taskList {
   transition: background-color 0s;
 }
 .taskList > tbody > tr .pin:active{
-  transition: 0.15s;
+  transition: background-color 0.2s;
   background-color: var(--highlight)
 }
 .taskList > tbody > tr .pinNone{
@@ -283,17 +290,16 @@ td.check{
   font-size: 130%;
   cursor: pointer;
   user-select: none;
-  transition: all 0.5s;
 }
 td.check:hover{
   box-shadow: 2px 2px 5px 1px var(--highlight);
   filter: brightness(1.1);
-  transition: all 0.2s;
+  transition: filter 0.2s, box-shadow 0.2s;
 }
 td.check:active{
   box-shadow: 2px 2px 5px 1px var(--background);
   filter: brightness(1);
-  transition: all 0.1s;
+  transition: filter 0.1s, box-shadow 0.2s;
 }
 td.task{
   font-size: 130%;
@@ -336,7 +342,7 @@ td.pin{
   right:1%;
   position: fixed;
   filter:invert(var(--brightnessIcon));
-  transition: all 0.5s;
+  transition: transform 0.5s;
   cursor: pointer;
 }
 .settingsIcon:hover{
@@ -349,7 +355,7 @@ td.pin{
   right: 60px;
   position: fixed;
   filter:invert(var(--brightnessIcon));
-  transition: all 0.5s;
+  transition: transform 0.5s;
   cursor: pointer;
 }
 .refreshIconSpin{
@@ -375,17 +381,17 @@ td.pin{
 
 .hoverSort{
   opacity:1;
-  transition: all 0.5s;
+  transition: opacity 0.5s;
 }
 .hoverSort:hover{
   opacity:0.5;
   cursor: pointer;
-  transition: all 0.5s;
+  transition: opacity 0.5s;
 }
 .hoverSort:active{
   opacity:0.9;
   cursor: pointer;
-  transition: all 0.1s;
+  transition: opacity 0.1s;
 }
 .infoIcon{
   right:0;
@@ -434,7 +440,7 @@ td.pin{
   opacity: 0.7;
   cursor: pointer;
   user-select: none;
-  transition: all 0.3s;
+  transition: transform 0.3s;
 }
 
 .checkImg{
@@ -489,11 +495,11 @@ td.pin{
   margin-top: 10px;
   padding:17px;
   z-index: 5;
-  transition: 0.4s;
+  transition: transform 0.4s, opacity 0.4s;
 }
 .arrowPosition:hover{
   opacity:0.7;
-  transition: 0.4s;
+  transition: transform 0.4s, opacity 0.4s;
   transform: scale(0.8);
 }
 .arrowDay {
@@ -502,12 +508,11 @@ td.pin{
   display: inline-block;
   border-radius: 4px;
   padding: 8px;
-  transition: 0.5s;
+  transition: transform 0.5s, opacity 0.03s, 
 }
 .arrowDay:active {
   opacity:1;
-  padding: 10px;
-  transition: 0.03s;
+  transition: transform 0.03s, opacity 0.03s,;
 }
 .right {
   transform: rotate(-45deg);
@@ -712,12 +717,12 @@ th.weekday{
   color: var(--font-color);
   opacity: 0.6;
   margin-right:5px;
-  transition: all 0.3s;
+  transition: opacity 0.3s, background-color 0.3s;
   outline: none !important;
   
 }
 .tabsLabel a:hover{
-  transition: all 0.3s;
+  transition: opacity 0.3s, background-color 0.3s;
   background-color: var(--highlight2);
   outline: none !important;
 }
@@ -751,7 +756,7 @@ th.weekday{
   color:white;
   text-align: center;
   font-family: var(--font-paragraph);
-  transition: all 0.6s;
+  transition: transform 0.6s;
   cursor: pointer;
   position: fixed;
   user-select: none;
@@ -761,12 +766,12 @@ th.weekday{
 }
 .addButton:hover{
   transform: rotate(180deg);
-  transition: all 0.3s;
+  transition: transform 0.3s;
   box-shadow: -2px -2px 5px 1px var(--accent);
 }
 .addButton:active{
   transform: rotate(0deg);
-  transition: all 0.1s;
+  transition: transform 0.1s;
   box-shadow: -2px -2px 5px 1px var(--background);
 }
 .marginNameFix{

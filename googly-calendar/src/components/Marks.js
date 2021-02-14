@@ -223,6 +223,7 @@ class MarksCourse extends React.Component{
           </Button>
           {extraCourseButton}
           <table style={{maxWidth:"550px",width:"100%",}}>
+          <tbody>
           <tr>
             <th>
               <div style={{marginTop: "10px", flexDirection:"row",display: "flex"}}>
@@ -271,6 +272,7 @@ class MarksCourse extends React.Component{
               </div>
             </th>
           </tr>
+          </tbody>
           </table>
         </Form.Group>
       </Form>

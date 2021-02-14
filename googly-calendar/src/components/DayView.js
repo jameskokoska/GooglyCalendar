@@ -56,14 +56,6 @@ export default class WeekList extends React.Component {
   }
   
   render() {
-    // var minWidthNum;
-    // if(this.props.nextWeekShow<7){
-    //   minWidthNum = this.props.nextWeekShow/7*1150;
-    // } else {
-    //   minWidthNum = 1150;
-    // }
-    
-    
     return(
       <div className="week">
         <div className="weekTable">
@@ -79,7 +71,7 @@ export default class WeekList extends React.Component {
                 <WeekListHeader dateDisplayStart={this.state.dateDisplayStart}/>
               </tr>
               <tr>
-                <DayList toggleEventInfoOpen={this.props.toggleEventInfoOpen} dateDisplayStart={this.state.dateDisplayStart} calendarObjects={this.props.calendarObjects} courseColors={this.props.courseColors} updateDone={this.props.updateDone} errorTimeoutOpen={this.props.errorTimeoutOpen} updatePin={this.props.updatePin} darkMode={this.props.darkMode}/>
+                <DayList calendarAction={this.props.calendarAction} toggleEventInfoOpen={this.props.toggleEventInfoOpen} dateDisplayStart={this.state.dateDisplayStart} calendarObjects={this.props.calendarObjects}/>
               </tr>
             </tbody>
           </table>
@@ -90,12 +82,6 @@ export default class WeekList extends React.Component {
 }
 function WeekListHeader(props){
   var weekHeaders = [];
-  // var numDays;
-  // if(props.days>=7){
-  //   numDays = 7;
-  // } else {
-  //   numDays=props.days;
-  // }
   var numDays = 7;
   for (var i = 0; i < numDays; i++) {
     if(props.dateDisplayStart.addDays(i).getDate()===(new Date()).getDate() && props.dateDisplayStart.addDays(i).getMonth()===(new Date()).getMonth() && props.dateDisplayStart.addDays(i).getYear()===(new Date()).getYear()){
@@ -117,17 +103,11 @@ function WeekListHeader(props){
 
 function DayList(props){
   var dayListEntries = [];
-  // var numDays;
-  // if(props.days>=7){
-  //   numDays = 7;
-  // } else {
-  //   numDays=props.days;
-  // }
   var numDays = 7;
   for (var i = 0; i < numDays; i++) {
     dayListEntries.push( 
       <td className="fadeIn" key={i}>
-        <DayListEntry toggleEventInfoOpen={props.toggleEventInfoOpen} dateDisplayStart={props.dateDisplayStart} key={i} calendarObjects={props.calendarObjects} dayOffset={i} courseColors={props.courseColors} errorTimeoutOpen={props.errorTimeoutOpen} updateDone={props.updateDone} updatePin={props.updatePin} darkMode={props.darkMode}/>
+        <DayListEntry calendarAction={props.calendarAction} toggleEventInfoOpen={props.toggleEventInfoOpen} dateDisplayStart={props.dateDisplayStart} key={i} calendarObjects={props.calendarObjects} dayOffset={i} />
       </td> 
     )
   }
@@ -135,92 +115,10 @@ function DayList(props){
 }
 
 class DayEntry extends React.Component{
-  //Note this code is from the checkoff update accordingly ---------------------------------------------------------
   constructor(props) {
     super(props);
-    this.handleItemClick = this.handleItemClick.bind(this);
-    this.state ={checked: this.props.done};
-  }
-  handleItemClick(event: SyntheticEvent<any>, name: string): void {
-    if(this.props.calendarIDCurrent==="")
-      ApiCalendar.setCalendar("primary")
-    else 
-      ApiCalendar.setCalendar(this.props.calendarIDCurrent)
-    if (name==="checkOff"&&this.props.pin===false) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([30]);
-        const event = {
-          summary: "✔️" + this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updateDone(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      }
-    } else if (name==="uncheckOff") {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([10]);
-        const event = {
-          summary: this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updateDone(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      }
-    }    
-    if ((name==="pin"||name==="checkOff")&&this.props.pin===true) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([10]);
-        if(name==="checkOff"){
-          const event = {
-            summary: "✔️" + this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-            this.props.updateDone(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        } else {
-          const event = {
-            summary: this.props.name
-          };
-          ApiCalendar.updateEvent(event, this.props.id)
-          .then(
-            this.props.updatePin(this.props.id),
-          )
-          .catch((error: any) => {
-            this.props.errorTimeoutOpen("Error 401/404")
-          });
-        }
-      }
-    } else if (name==="pin"&&(this.props.pin===false&&this.props.done===false)) {
-      if (ApiCalendar.sign){
-        //navigator.vibrate([30]);
-        const event = {
-          summary: "📌" + this.props.name
-        };
-        ApiCalendar.updateEvent(event, this.props.id)
-        .then(
-          this.props.updatePin(this.props.id),
-        )
-        .catch((error: any) => {
-          this.props.errorTimeoutOpen("Error 401/404")
-        });
-      } 
-    }
   }
   
-  //--------------------------------------------------------------------------------------
   render(){
     var weekTimeLabelMargin=0;
     if((this.props.pinDisplay!=="none" && this.props.descriptionDisplay!=="none")&&this.props.courseDisplay==="none"){
@@ -235,7 +133,7 @@ class DayEntry extends React.Component{
       iconBoxWeekBottom="-5px";
     }
     var pinClass = "pinIconWeek"
-    if(this.props.pin===true){
+    if(this.props.task.pin===true){
       pinClass+=" pinInWeek"
     } else {
       pinClass+=" pinOutWeek"
@@ -243,33 +141,31 @@ class DayEntry extends React.Component{
     var dayStyle;
     if(getSettingsValue("useEventColours")){
       if(!getSettingsValue("darkMode"))
-        dayStyle = {backgroundColor:this.props.courseColor+"90"};
+        dayStyle = {backgroundColor:this.props.task.courseColor+"90"};
       else
-        dayStyle = {backgroundColor:this.props.courseColor+"B0"};
+        dayStyle = {backgroundColor:this.props.task.courseColor+"B0"};
     }
 
     var weekEntryClass="weekEntry";
     var weekEntryOpacity="1";
-    if(this.props.done===true){
+    if(this.props.task.done===true){
       weekEntryClass=weekEntryClass+" weekEntryDone";
       weekEntryOpacity="0.5";
       if(getSettingsValue("useEventColours")){
         if(!getSettingsValue("darkMode"))
-          dayStyle = {backgroundColor:this.props.courseColor+"50"};
+          dayStyle = {backgroundColor:this.props.task.courseColor+"50"};
         else
-          dayStyle = {backgroundColor:this.props.courseColor+"50"};
+          dayStyle = {backgroundColor:this.props.task.courseColor+"50"};
       }
     }
 
-    
-
     return(
       <div className={weekEntryClass} style={dayStyle}>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekEventLabel" style={{"opacity":weekEntryOpacity, "color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{determineTaskName(this.props.name)}</div>
-        <div onClick={(e) => this.handleItemClick(e, this.props.clickActionCheck)} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.timeStart+this.props.displayTimeEnd}</div>
-        <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.courseColor}}>{this.props.course}</span></div>
+        <div onClick={() => this.props.calendarAction(this.props.task, "check")} className="weekEventLabel" style={{"opacity":weekEntryOpacity, "color":this.props.checkColor, "textDecoration":this.props.textStyle, "transition":"all 0.5s"}}>{determineTaskName(this.props.task.name)}</div>
+        <div onClick={() => this.props.calendarAction(this.props.task, "check")} className="weekTimeLabel" style={{"marginRight":weekTimeLabelMargin+"px","opacity":weekEntryOpacity, "transition":"all 0.5s"}}>{this.props.task.timeStart+this.props.displayTimeEnd}</div>
+        <div className="courseBubble" style={{"display":this.props.courseDisplay}}><span style={{"backgroundColor":this.props.task.courseColor}}>{this.props.task.course}</span></div>
         <div className="iconBoxWeek fadeIn" style={{"right":iconBoxWeekRight,"bottom":iconBoxWeekBottom}}>
-          <img onClick={(e) => this.handleItemClick(e, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
+          <img onClick={() => this.props.calendarAction(this.props.task, "pin")} alt="pin" className={pinClass} src={pinIcon} style={{"display":this.props.pinDisplay}}/>
             <OverlayTrigger placement={"bottom"} overlay={<Tooltip><div dangerouslySetInnerHTML={{ __html: this.props.description }}></div></Tooltip>}>
               <img onClick={()=>{this.props.toggleEventInfoOpen(true,this.props.task);}} alt="descriptions" className="infoIconWeek" src={infoIcon} style={{"display":this.props.descriptionDisplay, "opacity":weekEntryOpacity}}/>
             </OverlayTrigger>
@@ -306,16 +202,13 @@ class DayListEntry extends React.Component{
             pinDisplay="";
           }
           var textStyle="none";
-          var clickActionCheck="checkOff";
           var checkColor="";
           if(task.done===true){
             textStyle = "line-through";
-            clickActionCheck="uncheckOff";
-            // checkColor="#777777";
           }
-          if(task.important===true&&this.props.darkMode===true&&task.done===false){
+          if(task.important===true&&getSettingsValue("darkMode")===true&&task.done===false){
             checkColor="#ff8b8b"
-          } else if (task.important===true&&this.props.darkMode===false&&task.done===false){
+          } else if (task.important===true&&getSettingsValue("darkMode")===false&&task.done===false){
             checkColor="#C85000"
           }
           if(task.hide===false&&(eventToday(new Date(task.start.dateTime),this.props.dateDisplayStart.addDays(this.props.dayOffset))||eventToday(new Date(task.end.date),this.props.dateDisplayStart.addDays(this.props.dayOffset)))){
@@ -324,26 +217,14 @@ class DayListEntry extends React.Component{
                 key={task.id}
                 toggleEventInfoOpen={this.props.toggleEventInfoOpen}
                 task={task}
+                calendarAction={this.props.calendarAction}
                 checkColor={checkColor}
                 textStyle={textStyle}
-                name={task.name}
-                timeStart={task.timeStart}
                 displayTimeEnd={displayTimeEnd}
                 courseDisplay={courseDisplay}
-                courseColor={task.courseColor}
-                course={task.course}
                 descriptionDisplay={descriptionDisplay}
                 description={task.description}
-                id={task.id}
-                updateDone={this.props.updateDone}
-                calendarIDCurrent={task.calendarID}
-                done={task.done}
-                clickActionCheck={clickActionCheck}
-                pin={task.pin}
-                updatePin={this.props.updatePin}
                 pinDisplay={pinDisplay}
-                important={task.important}
-                darkMode={this.props.darkMode}
               />
             )
           }

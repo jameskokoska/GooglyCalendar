@@ -258,7 +258,7 @@ class SettingsContainerColor extends React.Component{
 class SettingsContainer extends React.Component{
   handleChange(form, key, checked) {
     if(checked===true)
-      AsyncStorage.setItem(key, checked);
+      AsyncStorage.setItem(key, form.target.checked);
     else 
       AsyncStorage.setItem(key, form.target.value);
   }
@@ -291,7 +291,7 @@ class SettingsContainer extends React.Component{
     } else if(this.props.setting.type==="check"){
       return(
         <Form.Group>
-          <Form.Check type="checkbox" label={this.props.setting.title} defaultChecked={this.props.setting.currentValue==="true"}/>
+          <Form.Check onChange={(form) => {this.handleChange(form,this.props.setting.keyName,true)}} type="checkbox" label={this.props.setting.title} defaultChecked={this.props.setting.currentValue==="true"}/>
           <Form.Text className="text-muted">
             {this.props.setting.description}
           </Form.Text>
@@ -372,7 +372,7 @@ export const settingsOptionsColour = () => {
 
 function colourPopover(currentValue,keyName) {
   return(
-    <Popover id="popover-basic">
+    <Popover>
       <Popover.Content>
         <HexColorPicker color={currentValue} onChange={(color)=>{AsyncStorage.setItem(keyName, color);}}/>
       </Popover.Content>
