@@ -83,6 +83,8 @@ global.changeLog = [
 
 //search bar for task name/course/date
 
+//use references for opening and closing the info popup to avoid not needed state calls
+
 //Date object documentation https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/getDay
 
 export default class App extends React.Component {
@@ -575,10 +577,7 @@ export default class App extends React.Component {
   }
 
   toggleEventInfoOpen(open, eventInfoSelected){
-    this.setState({
-      eventInfoOpen:open,
-      eventInfoSelected:eventInfoSelected
-    })
+    this.refEventInfoMessage.toggleEventInfoOpen(open, eventInfoSelected);
   }
 
   showToast(showMessage){
@@ -680,7 +679,7 @@ export default class App extends React.Component {
           <TimeOutError errorTimeoutOpen={this.state.errorTimeoutOpen} errorCode={this.state.errorCode}/>
           <WelcomeMessage welcomeOpen={welcomeOpen} errorCode={this.state.errorCode} signStatus={this.state.signStatus} googleLogin={this.googleLogin}/>
           <LoginGuideMessage show={this.state.currentlyLoggingIn} onClose={()=>this.setState({currentlyLoggingIn:false})}/>
-          <EventInfoMessage eventInfoSelected={this.state.eventInfoSelected} toggleEventInfoOpen={this.toggleEventInfoOpen} eventInfoOpen={this.state.eventInfoOpen}/>
+          <EventInfoMessage ref={(refEventInfoMessage)=> this.refEventInfoMessage = refEventInfoMessage}/>
           {/* <AddEvent resetCalendarObjects={this.resetCalendarObjects}/> */}
         </div>
       );
